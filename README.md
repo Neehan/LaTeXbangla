@@ -14,6 +14,9 @@ Installation and Use
 ---------------------
 See in the official website: http://latexbangla.com. Also, read the [package documentation](docs/latexbangla.pdf).
 
+Example
+-------
+![example1](img/sc1.png)
 License
 ---------
 [L<sup>A</sup>T<sub>E</sub>X Project Public License (LPPL)](http://www.latex-project.org/lppl.txt). Details can be found in [LICENSE](LICENSE).
