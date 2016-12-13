@@ -20,3 +20,4 @@ Features to be implemented
 6. make compatible with listings
 7. design new bangla font variants because professional font devs are lazy
 8. polyglossia's bangla counter translator messed up the translation for bangla. you should translate all counters with your own counter
+9. A dot after chapter, section, subsection etc in the table of contents.
