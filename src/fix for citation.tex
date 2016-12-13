@@ -1,11 +1,8 @@
 \documentclass[12pt]{book}
-
 \usepackage[banglamainfont=Kalpurush,
-			banglattfont=Siyam Rupali,
-		    ]{latexbangla}
-
+                  banglattfont=Siyam Rupali,
+           ]{latexbangla}
 \usepackage[margin=3cm]{geometry}%for kobo
-
 \usepackage{hyperref}
 \hypersetup{
 colorlinks=true, %set true if you want colored links
@@ -15,37 +12,13 @@ citecolor=black,
 }
 
 \makeatletter
-\renewcommand\@bibitem[1]{\item\if@filesw \immediate\write\@auxout
-   {\string\bibcite{#1}{\theenumiv}}\fi\ignorespaces}
-     %% to replace "\the\value{\@listctr}" with "\theenumiv"
-
-\renewenvironment{thebibliography}[1]
-     {\section*{\bibname}%  %% use \bibname instead of \refname if using the 
-                            %% report or book document classes
-      \@mkboth{\MakeUppercase\refname}{\MakeUppercase\refname}%
-      \list{\@biblabel{\tobangla{enumiv}}}% %% instead of "\@arabic\c@enumiv"
-           {\settowidth\labelwidth{\@biblabel{#1}}%
-            \leftmargin\labelwidth
-            \advance\leftmargin\labelsep
-            \@openbib@code
-            \usecounter{enumiv}%
-            \let\p@enumiv\@empty
-            \renewcommand\theenumiv{\tobangla{enumiv}}}% 
-                                    %% instead of "\@arabic\c@enumiv"
-      \sloppy
-      \clubpenalty4000
-      \@clubpenalty \clubpenalty
-      \widowpenalty4000%
-      \sfcode`\.\@m}
-    {\def\@noitemerr
-       {\@latex@warning{Empty `thebibliography' environment}}%
-      \endlist}
+\xpatchcmd\@bibitem{\the\value}{\tobangla}{}{}
+\xpatchcmd\thebibliography{\@arabic\c@enumiv}{\tobangla{enumiv}}{}{}
 \makeatother
-
 \renewcommand{\thechapter}{\tobangla{chapter}}
 \addto\captionsbengali{
 \renewcommand{\bibname}{নির্ঘন্ট}
-}
+\renewcommand{\refname}{নির্ঘন্ট}}
 
 \begin{document}
 \tableofcontents
@@ -55,7 +28,6 @@ citecolor=black,
 কোত্থেকে জানি খুব অস্বাভাবিক শব্দ আসছে। ক্লান্তিকর বুদবুদ\cite{আসছে} ফাটার শব্দ, পুট পুট পুট। সারাক্ষণ না, মাঝে মাঝে। কিছু বুদবুদ আবার ফাটার সময় তীব্র চিনচিনে শব্দ করছে। শব্দটা এমন যে সাই করে মাথার ভেতর ঢুকে যাচ্ছে। আর মাথা থেকে বের হচ্ছে না। শব্দটা সেখানেই ঘুরপাক খাচ্ছে। মাথায় অস্পষ্ট যন্ত্রণার মতো হচ্ছে।\par
 \subsection{হয়ত খুব}
 আমি কিছুই বুঝতে পারছি না। এটা হয়ত খুব স্বাভাবিক শব্দ। মহাকাশযানে এরকম শব্দ হওয়াই হয়ত রীতি। আমি নতুন মানুষ বলে আমার কাছে অস্বাভাবিক লাগছে। কাউকে কি জিজ্ঞেস করব? বিনীতভাবে বলব, স্যার মাঝে মাঝে আমি একটা\cite{একটা} শব্দ পাচ্ছি। শব্দটা অনেকটা বুদবুদ ফাটার মতো আসলে আমি একেবারেই নতুন মানুষ। একটু ভয়-ভয় লাগছে
-\medskip
 \begin{thebibliography}{9}
 \bibitem{আসছে}
 কোত্থেকে জানি মহাকাশযানে এ
