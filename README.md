@@ -17,6 +17,7 @@ See in the official website: http://latexbangla.com. Also, read the [package doc
 Example
 -------
 ![example1](images/sc1.png)
+
 License
 ---------
 [L<sup>A</sup>T<sub>E</sub>X Project Public License (LPPL)](http://www.latex-project.org/lppl.txt). Details can be found in [LICENSE](LICENSE).
