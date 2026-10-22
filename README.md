@@ -6,6 +6,9 @@ Write Bangla in LaTeX with one font and familiar commands: automatic Bangla/Engl
 font switching, bold and italic, Bangla lists and numbering, references, citations,
 and Bangla text and digits in math. Choose your own English and math fonts.
 
+LaTeXbangla is free to use. If you use it to publish a book, please consider acknowledging
+the package and its author, Adib Hasan. :))
+
 [Manual (English ও বাংলা)](latexbangla/latexbangla.pdf) · [Example PDF](examples/example.pdf) · [Example source](examples/example.tex)
 
 ## Get started
