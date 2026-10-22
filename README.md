@@ -22,7 +22,7 @@ Use your chosen font name in `\setbanglamainfont`.
 \documentclass{article}
 \usepackage{latexbangla}
 \setbanglamainfont{Kalpurush}
-\setmainfont{TeX Gyre Termes}
+\setmainfont{TeX Gyre Termes} % Optional: change the English font.
 
 \begin{document}
 \section{পিথাগোরাসের উপপাদ্য}
