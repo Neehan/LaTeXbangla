@@ -1,0 +1,75 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=25mm]{geometry}
+\usepackage{latexbangla}
+\setbanglamainfont{Kalpurush}
+\setmainfont{TeX Gyre Termes}
+\usepackage{amsmath,amsthm}
+\usepackage[hidelinks]{hyperref}
+\listfiles
+
+% Document-specific environments belong in the document or its class.
+\newtheorem{theorem}{উপপাদ্য}[section]
+
+\begin{document}
+\section{পিথাগোরাসের উপপাদ্য}
+একটি আয়তাকার বাগানের দৈর্ঘ্য ৪ মিটার এবং প্রস্থ ৩ মিটার। বাগানের এক কোণ
+থেকে বিপরীত কোণে সরাসরি যেতে কত দূর হাঁটতে হবে?\footnote{এখানে বাগানটিকে
+সমতল ধরা হয়েছে এবং সব দৈর্ঘ্য একই এককে মাপা হয়েছে।}
+উত্তর পেতে আমরা \textit{Pythagorean theorem} ব্যবহার করতে পারি।
+
+The shortest route across the garden is its diagonal—বাংলায় যাকে বলি কর্ণ।
+Imagine drawing that route on a plan: the two sides of the garden and the
+diagonal form a right triangle. With sides of 3 and 4 metres, walking around
+the edge takes 7 metres. But can we cross the garden in just 5 metres?
+\textbf{A sketch suggests the answer; নিশ্চিত হতে চাই একটি প্রমাণ।}
+
+\begin{theorem}
+সমকোণী ত্রিভুজের দুই লম্ব বাহুর দৈর্ঘ্য $a$ ও $b$ এবং অতিভুজের দৈর্ঘ্য $c$ হলে,
+\begin{equation}\label{eq:pythagoras}
+  a^2+b^2=c^2.
+\end{equation}
+\end{theorem}
+এই উপপাদ্যের একটি জ্যামিতিক প্রমাণ ইউক্লিডের \textit{Elements}-এ পাওয়া যায়~\cite{euclid}।
+
+\subsection{বাগানের কর্ণ ও ক্ষেত্রফল}
+\eqref{eq:pythagoras} থেকে বাগানের কর্ণের দৈর্ঘ্য পাই,
+\begin{align*}
+  c &= \sqrt{৩^{২}+৪^{২}}=\sqrt{২৫}=৫\text{ মিটার},\\
+  \text{বাগানের ক্ষেত্রফল} &= \text{দৈর্ঘ্য}\times\text{প্রস্থ}
+    =৪\times৩=১২\text{ বর্গমিটার।}
+\end{align*}
+\textbf{মনে রাখি: উপপাদ্যটি শুধু সমকোণী ত্রিভুজের জন্য প্রযোজ্য।}
+বাগানের ধার ঘুরে হাঁটার বদলে কর্ণ বরাবর গেলে তাই ২ মিটার পথ কমে যায়।
+\textit{A shorter route, the same destination—একই গন্তব্যে কম পথ।}
+
+\autoref{tab:triples}-এ এমন আরও কয়েকটি বাহুর দৈর্ঘ্য দেওয়া হলো।
+\begin{table}[ht]
+  \centering
+  \caption{সমকোণী ত্রিভুজের পূর্ণসংখ্যক বাহুর দৈর্ঘ্য}\label{tab:triples}
+  \begin{tabular}{ccc}
+    \hline
+    প্রথম লম্ব বাহু & দ্বিতীয় লম্ব বাহু & অতিভুজ \\
+    \hline
+    ৩ & ৪ & ৫ \\
+    ৫ & ১২ & ১৩ \\
+    ৮ & ১৫ & ১৭ \\
+    \hline
+  \end{tabular}
+\end{table}
+
+\subsection{নিজে করি}
+\begin{enumerate}
+  \item দুই লম্ব বাহুর দৈর্ঘ্য ৬ ও ৮ একক হলে অতিভুজের দৈর্ঘ্য নির্ণয় করো।
+  \item একটি আয়তক্ষেত্রের দৈর্ঘ্য ১২ এবং প্রস্থ ৫ একক।
+    \begin{enumerate}
+      \item আয়তক্ষেত্রটির কর্ণের দৈর্ঘ্য কত?
+      \item কর্ণ বরাবর কাটলে প্রতিটি ত্রিভুজের ক্ষেত্রফল কত?
+    \end{enumerate}
+\end{enumerate}
+
+\begin{thebibliography}{9}
+  \bibitem{euclid} Euclid. \textit{Elements}, Book I,
+  \href{https://mathcs.clarku.edu/~djoyce/elements/bookI/propI47.html}{Proposition 47}.
+  Online edition by David E. Joyce.
+\end{thebibliography}
+\end{document}

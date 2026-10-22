@@ -1,0 +1,72 @@
+LaTeXbangla 1.0 — Bangla documents with ordinary LaTeX
+
+LaTeXbangla provides automatic Bangla/English font switching, Bengali decimal
+and alphabetic counter labels, Bengali digits in mathematics, standard language
+labels, and supported reference/citation integrations. It uses fontspec and
+Polyglossia and does not impose document layout or define theorem environments.
+
+Compile with XeLaTeX:
+
+    \documentclass{article}
+    \usepackage{latexbangla}
+    \setbanglamainfont{Kalpurush}
+    \begin{document}
+    \section{বাংলা এবং English}
+    বাংলা and English একই অনুচ্ছেদে।
+    \textbf{বাংলা and English দুটোই bold।}
+    \end{document}
+
+Only one Bangla font is required. Optional \setbanglasansfont and
+\setbanglamonofont follow fontspec's feature syntax. English fonts use
+\setmainfont, \setsansfont and \setmonofont as usual. Real Bengali faces are
+used where available; missing bold/italic faces receive synthetic fallbacks.
+
+Tested fonts: Kalpurush, SolaimanLipi, Siyam Rupali, Noto Serif Bengali,
+Noto Sans Bengali and FreeSerif.
+Fonts are not included. Install the chosen font separately or provide licensed
+font files in your document project.
+
+Install these six files beside your document or on TeX's search path,
+preserving the code/ subdirectory:
+
+    latexbangla.sty
+    code/latexbangla-fonts.tex
+    code/latexbangla-numbering.tex
+    code/latexbangla-math-digits.tex
+    code/latexbangla-references.tex
+    latexbangla-bengali.lbx
+
+The manual in English and Bangla is latexbangla.pdf; its source is
+latexbangla.tex. Keep logo.png beside the source when compiling it with XeLaTeX.
+The manual uses minted for syntax highlighting; enable TeX Live's restricted
+shell escape (the default) so latexminted can run. Code/result examples are
+executed during compilation; run XeLaTeX three times to resolve references.
+This directory contains the complete CTAN upload, including README and LICENSE.
+Examples and tests are available in the GitHub repository:
+https://github.com/Neehan/LaTeXbangla
+
+Automatic decimal and alphabetic counters are Bengali by default. Set
+changecounternumbering=false to preserve existing counter formatting.
+Authored Western and Bengali digits retain their script in text and mathematics.
+
+Tested baseline: TeX Live 2026, XeTeX 0.999998, LaTeX 2026-06-01,
+Polyglossia 2.13, fontspec 2.9h, ucharclasses 2.6.0. The package requests the tested
+LaTeX/fontspec/Polyglossia dates. Older releases and hosted Overleaf snapshots
+have not been validated. Load newtxmath before latexbangla/fontspec; load
+biblatex after Polyglossia (normally by loading latexbangla first).
+See the manual for supported integrations and the partial biblatex localization.
+
+Compatibility: banglamainfont and banglattfont remain supported legacy options.
+Use the font setters for new documents. changecounternumbering remains current
+and accepts true/false or 1/0. The feature=0/1/2 bundles have been removed;
+remove that option and define custom environments in your document or class.
+
+Copyright (C) 2016, 2026 Adib Hasan.
+Contact: latexbangla@googlegroups.com
+Discussion: https://groups.google.com/g/latexbangla
+
+This work may be distributed and/or modified under the LaTeX Project Public
+License, version 1.3c or (at your option) any later version. See LICENSE and
+https://www.latex-project.org/lppl.txt
+The work has LPPL maintenance status "maintained".
+The current maintainer is Adib Hasan.

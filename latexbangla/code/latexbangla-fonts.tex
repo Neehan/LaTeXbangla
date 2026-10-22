@@ -1,0 +1,334 @@
+% Font configuration and automatic Latin/Bangla font transitions.
+% Part of latexbangla, LPPL 1.3c or later; copyright 2026 Adib Hasan.
+
+\bool_new:N \g__latexbangla_document_started_bool
+\tl_new:N \l__latexbangla_font_family_tl
+\tl_new:N \l__latexbangla_font_name_tl
+\tl_new:N \l__latexbangla_font_features_tl
+\tl_new:N \l__latexbangla_fallback_features_tl
+\tl_new:N \l__latexbangla_font_profile_name_tl
+\tl_new:N \l__latexbangla_font_defaults_tl
+\tl_new:N \l__latexbangla_synthetic_bold_tl
+\tl_new:N \l__latexbangla_text_family_tl
+\tl_set:Nn \l__latexbangla_text_family_tl {rm}
+
+% Siyam Rupali 1.070 reports a negative x-height. LaTeX uses ex units for
+% heading spacing, so this can turn a display heading into a run-in heading.
+% Repair only an invalid metric, using this face's actual x glyph at its final
+% size. FontAdjustment runs for every size/face; the font file is untouched.
+\cs_new_protected:Npn \__latexbangla_repair_xheight:
+  {
+    \dim_compare:nNnF {\tex_fontdimen:D 5\tex_font:D} > {0pt}
+      {\tex_fontdimen:D 5\tex_font:D =
+        \tex_fontcharht:D \tex_font:D `x\scan_stop:}
+  }
+
+% Known-font adjustments are deliberately small. Unlisted fonts retain native
+% scale/spacing and synthetic weight 2.5. Recognize family names and standard
+% filenames, including Path= loads; renamed files use the generic defaults.
+% Reviewed weights: Kalpurush and FreeSerif 3.5; SolaimanLipi and Siyam Rupali 4.5.
+% Real bold faces never receive this synthetic-weight setting.
+\cs_new_protected:Npn \__latexbangla_select_font_defaults:n #1
+  {
+    \tl_clear:N \l__latexbangla_font_defaults_tl
+    \tl_set:Nn \l__latexbangla_synthetic_bold_tl {2.5}
+    \tl_set:Ne \l__latexbangla_font_profile_name_tl {\str_lowercase:f {#1}}
+    \regex_replace_once:nnN {\A .* [/\\]} {} \l__latexbangla_font_profile_name_tl
+    \regex_replace_once:nnN {\.(ttf|otf|ttc)\Z} {} \l__latexbangla_font_profile_name_tl
+    \regex_replace_all:nnN {\s+} {} \l__latexbangla_font_profile_name_tl
+    \str_case:Vn \l__latexbangla_font_profile_name_tl
+      {
+        {freeserif}{\tl_set:Nn \l__latexbangla_synthetic_bold_tl {3.5}}
+        {kalpurush}{\tl_set:Nn \l__latexbangla_synthetic_bold_tl {3.5}}
+        {fontkalpurush}{\tl_set:Nn \l__latexbangla_synthetic_bold_tl {3.5}}
+        {solaimanlipi}{\tl_set:Nn \l__latexbangla_synthetic_bold_tl {4.5}}
+        {solaimanlipi_20-04-07}{\tl_set:Nn \l__latexbangla_synthetic_bold_tl {4.5}}
+        {siyamrupali}
+          {\tl_set:Nn \l__latexbangla_synthetic_bold_tl {4.5}
+           \tl_set:Nn \l__latexbangla_font_defaults_tl
+            {Scale=0.8,WordSpace=1.2,
+             FontAdjustment={\__latexbangla_repair_xheight:},}}
+      }
+  }
+
+% A discovered face is useful only if it includes Bengali. For example, some
+% broad Unicode families include Bengali in their regular face but not in bold.
+% Check a representative Bengali consonant before accepting a discovered face.
+% The NFSS shape registry is the one low-level interface inspected here; testing
+% existence first avoids triggering NFSS's own warning/substitution machinery.
+\prg_new_protected_conditional:Npnn \__latexbangla_face_has_bengali:nn #1#2 {TF}
+  {
+    \cs_if_exist:cTF {TU/\l__latexbangla_font_family_tl/#1/#2}
+      {
+        \group_begin:
+          \fontencoding{TU}\fontfamily{\l__latexbangla_font_family_tl}
+          \fontseries{#1}\fontshape{#2}\selectfont
+          \tex_iffontchar:D \tex_font:D "0995\scan_stop:
+            \group_end:\prg_return_true:
+          \else:
+            \group_end:\prg_return_false:
+          \fi:
+      }
+      {\prg_return_false:}
+  }
+
+% A successful font lookup can still return an upright substitute: in the
+% tested Noto families, the system resolves /BI to the ordinary bold font.
+% For a face with Bengali coverage, inspect its actual slant (fontdimen 1).
+% Keep that face and add only the missing slant, preserving real bold weight.
+% Arguments: NFSS series, fontspec feature key for the italic face.
+\cs_new_protected:Npn \__latexbangla_slant_upright_face:nn #1#2
+  {
+    \group_begin:
+      \fontencoding{TU}\fontfamily{\l__latexbangla_font_family_tl}
+      \fontseries{#1}\fontshape{it}\selectfont
+      \dim_compare:nNnTF {\tex_fontdimen:D 1\tex_font:D} = {0pt}
+        {
+          \group_end:
+          \tl_put_right:Nn \l__latexbangla_fallback_features_tl
+            {#2={FakeSlant=0.2},}
+        }
+        {\group_end:}
+  }
+
+% Arguments: fontspec features, font name. The result is stored in
+% \l__latexbangla_font_family_tl for the calling role setter.
+% Ask fontspec to discover real faces first. Supply synthetic features for
+% missing faces or slant, preserving each usable real face.
+% Explicit user features are applied last and remain authoritative. Check the
+% combined face independently: having bold and italic does not imply that a
+% family also supplies a Bengali bold-italic face.
+% Apply tested font defaults before explicit features in both declarations.
+\cs_new_protected:Npn \__latexbangla_define_font_family:nn #1#2
+  {
+    \__latexbangla_select_font_defaults:n {#2}
+    % Old documents used the PostScript name SiyamRupali. In the tested XeTeX,
+    % that lookup also disrupts later English bold-face discovery, even with
+    % plain fontspec. Resolve this exact legacy alias to the family name;
+    % leave filenames and every other font request untouched.
+    \tl_set:Nn \l__latexbangla_font_name_tl {#2}
+    \str_if_eq:nnT {#2} {SiyamRupali}
+      {\tl_set:Nn \l__latexbangla_font_name_tl {Siyam~Rupali}}
+    % WordSpace multiplies the font's existing space dimensions globally.
+    % Neutralize it while discovering faces, then apply the requested value
+    % only in the final declaration below. Otherwise a fallback rebuild turns
+    % WordSpace=1.1 into 1.21, even though the author requested a 10% increase.
+    \tl_set:Ne \l__latexbangla_font_features_tl
+      {Script=Bengali,\exp_not:V \l__latexbangla_font_defaults_tl,
+       \exp_not:n {#1},WordSpace=1}
+    \fontspec_set_family:NVV \l__latexbangla_font_family_tl
+      \l__latexbangla_font_features_tl \l__latexbangla_font_name_tl
+    \__latexbangla_face_has_bengali:nnTF {m}{n} {}
+      {\msg_fatal:nnn {latexbangla} {non-bengali-font} {#2}}
+    \tl_clear:N \l__latexbangla_fallback_features_tl
+    \__latexbangla_face_has_bengali:nnTF {b}{n} {}
+      {\tl_put_right:Ne \l__latexbangla_fallback_features_tl
+        {BoldFont=*,BoldFeatures={FakeBold=\l__latexbangla_synthetic_bold_tl},}}
+    \__latexbangla_face_has_bengali:nnTF {m}{it}
+      {\__latexbangla_slant_upright_face:nn {m}{ItalicFeatures}}
+      {\tl_put_right:Nn \l__latexbangla_fallback_features_tl
+        {ItalicFont=*,ItalicFeatures={FakeSlant=0.2},}}
+    \__latexbangla_face_has_bengali:nnTF {b}{it}
+      {\__latexbangla_slant_upright_face:nn {b}{BoldItalicFeatures}}
+      {\tl_put_right:Ne \l__latexbangla_fallback_features_tl
+        {BoldItalicFont=*,BoldItalicFeatures=
+          {FakeBold=\l__latexbangla_synthetic_bold_tl,FakeSlant=0.2},}}
+    \tl_set:Ne \l__latexbangla_font_features_tl
+      {Script=Bengali,\exp_not:V \l__latexbangla_font_defaults_tl,
+       \exp_not:V \l__latexbangla_fallback_features_tl,\exp_not:n {#1}}
+    \fontspec_set_family:NVV \l__latexbangla_font_family_tl
+      \l__latexbangla_font_features_tl \l__latexbangla_font_name_tl
+  }
+\cs_generate_variant:Nn \fontspec_set_family:Nnn {NVV}
+
+% Arguments: Polyglossia font-command name, fontspec features, font name.
+% Polyglossia selects these named font commands itself. Freeze the NFSS family
+% in each command; do not store a reference to the scratch family variable.
+\cs_new_protected:Npn \__latexbangla_set_font_role:nnn #1#2#3
+  {
+    \bool_if:NT \g__latexbangla_document_started_bool
+      {\msg_fatal:nn {latexbangla} {preamble-only}}
+    \tl_if_blank:nTF {#3}
+      {\msg_error:nn {latexbangla} {empty-font}}
+      {
+        \__latexbangla_define_font_family:nn {#2} {#3}
+        \cs_gset_protected:cpe {#1}
+          {
+            \exp_not:N \fontencoding {TU}
+            \exp_not:N \fontfamily {\l__latexbangla_font_family_tl}
+            \exp_not:N \selectfont
+          }
+      }
+  }
+
+% Match fontspec's familiar optional-feature syntax, including the optional
+% feature list after the font name. Both lists are forwarded without parsing
+% or restricting fontspec's feature vocabulary.
+\NewDocumentCommand \setbanglamainfont {O{} m O{}}
+  {\__latexbangla_set_font_role:nnn {bengalifont} {#1,#3} {#2}}
+\NewDocumentCommand \setbanglasansfont {O{} m O{}}
+  {\__latexbangla_set_font_role:nnn {bengalifontsf} {#1,#3} {#2}}
+\NewDocumentCommand \setbanglamonofont {O{} m O{}}
+  {\__latexbangla_set_font_role:nnn {bengalifonttt} {#1,#3} {#2}}
+
+% Dynamic fallbacks follow later changes to the main font. A direct fontspec
+% declaration made before package loading is respected; a later setter replaces
+% only its own role. No second font is loaded simply to provide a fallback.
+\cs_if_exist:NF \bengalifontsf
+  {\cs_new_protected:Npn \bengalifontsf {\bengalifont}}
+\cs_if_exist:NF \bengalifonttt
+  {\cs_new_protected:Npn \bengalifonttt {\bengalifont}}
+
+% Track public family switches using LaTeX command hooks. This avoids depending
+% on Polyglossia's private family-state variable. Assignments are local, so a
+% grouped \textsf or \texttt restores the enclosing family automatically.
+\AddToHook{cmd/rmfamily/after}[latexbangla/family]
+  {\tl_set:Nn \l__latexbangla_text_family_tl {rm}}
+\AddToHook{cmd/sffamily/after}[latexbangla/family]
+  {\tl_set:Nn \l__latexbangla_text_family_tl {sf}}
+\AddToHook{cmd/ttfamily/after}[latexbangla/family]
+  {\tl_set:Nn \l__latexbangla_text_family_tl {tt}}
+
+\cs_new_protected:Npn \__latexbangla_select_latin_font:
+  {
+    \str_case:Vn \l__latexbangla_text_family_tl
+      {
+        {rm}{\rmfamilylatin}
+        {sf}{\sffamilylatin}
+        {tt}{\ttfamilylatin}
+      }
+  }
+
+% ucharclasses inserts these groups only around Latin runs. Selecting a font
+% family preserves size, weight and shape; normalfont would discard them.
+% Devanagari is included in the block setup because danda (।) belongs there.
+% Common typographic punctuation follows the companion English font, as ASCII
+% punctuation already does. SolaimanLipi lacks these Unicode glyphs. Assign only
+% visible punctuation, not the whole General Punctuation block: its joiners and
+% format controls must remain available to Bengali shaping.
+\clist_map_inline:nn {"2013,"2014,"2018,"2019,"201C,"201D,"2026}
+  {\XeTeXcharclass #1 = \BasicLatinClass\scan_stop:}
+\setTransitionsForLatin
+  {\group_begin:\__latexbangla_select_latin_font:} {\group_end:}
+
+% ucharclasses installs transitions only between its enabled blocks and the
+% word boundary. Class 0 also needs transitions: characters outside the enabled
+% blocks must close a Latin run before Bengali text resumes. Otherwise
+% its font group leaks, causing missing glyphs and unbalanced author groups.
+% Adjacent Latin blocks belong to the same run (as in café or Ānand);
+% do not open another group when crossing between them.
+% Reuse ucharclasses' Latin block inventory rather than duplicating its ranges.
+\group_begin:
+  \seq_clear_new:N \l__latexbangla_latin_classes_seq
+  \cs_set:Npn \do #1
+    {\cs_if_exist:cT {#1Class}
+      {\seq_put_right:Nn \l__latexbangla_latin_classes_seq {#1Class}}}
+  \LatinClasses
+  \seq_map_inline:Nn \l__latexbangla_latin_classes_seq
+    {
+      \tex_global:D \XeTeXinterchartoks 0 \use:c {#1} =
+        {\group_begin:\__latexbangla_select_latin_font:}
+      \tex_global:D \XeTeXinterchartoks \use:c {#1} 0 = {\group_end:}
+      \seq_map_inline:Nn \l__latexbangla_latin_classes_seq
+        {\tex_global:D \XeTeXinterchartoks \use:c {#1} \use:c {##1} = {}}
+    }
+\group_end:
+
+% TU text-symbol definitions are the shared dispatch point for standard lists,
+% enumitem labels, direct symbol commands and aliases such as
+% \let\labelitemi\textbullet. Adapting them avoids inspecting or expanding an
+% author's label macro. Other encodings and author-defined label layouts remain
+% untouched. Preserve each existing TU definition, including its formatting.
+% The current font wins when it contains the glyph; otherwise use the configured
+% Latin family, with the current weight, shape and size.
+\cs_new_protected:Npn \__latexbangla_typeset_symbol:nn #1#2
+  {
+    \group_begin:
+      \tex_iffontchar:D \tex_font:D #1\scan_stop:
+      \else:
+        \__latexbangla_select_latin_font:
+      \fi:
+      #2
+    \group_end:
+  }
+% #1 is a public text-symbol command; #2 is its Unicode code point.
+% TU\<command> is LaTeX's encoding-specific text-command registry entry.
+\prop_new:N \g__latexbangla_symbol_codepoints_prop
+\tl_new:N \l__latexbangla_symbol_codepoint_tl
+\cs_new_protected:Npn \__latexbangla_install_symbol_fallback:Nn #1#2
+  {
+    \prop_gput:Nen \g__latexbangla_symbol_codepoints_prop
+      {\tl_to_str:n {#1}} {#2}
+    \cs_new_eq:cc {__latexbangla_original_\cs_to_str:N #1 :}
+      {TU\token_to_str:N #1}
+    \DeclareTextCommand #1 {TU}
+      {
+        \__latexbangla_typeset_symbol:nn {#2}
+          {\use:c {__latexbangla_original_\cs_to_str:N #1 :}}
+      }
+  }
+\__latexbangla_install_symbol_fallback:Nn \textbullet {"2022}
+\__latexbangla_install_symbol_fallback:Nn \textendash {"2013}
+\__latexbangla_install_symbol_fallback:Nn \textasteriskcentered {"2217}
+\__latexbangla_install_symbol_fallback:Nn \textperiodcentered {"00B7}
+% Complete the standard \fnsymbol inventory too: symbolic footnotes must not
+% disappear merely because the main Bengali font lacks dagger or bar glyphs.
+\__latexbangla_install_symbol_fallback:Nn \textdagger {"2020}
+\__latexbangla_install_symbol_fallback:Nn \textdaggerdbl {"2021}
+\__latexbangla_install_symbol_fallback:Nn \textsection {"00A7}
+\__latexbangla_install_symbol_fallback:Nn \textparagraph {"00B6}
+\__latexbangla_install_symbol_fallback:Nn \textbardbl {"2016}
+
+% A TU composite stores "\iffontchar\font<number> <Unicode letter> ...".
+% microtype expands that test to discover the letter, which fails in Bengali
+% fonts without Latin accents. Resolve the encoded letter without testing font
+% coverage; microtype's normal width check then skips glyphs the font lacks.
+% Only the standard TU form is decoded; other definitions stay upstream.
+\cs_new_protected:Npn \__latexbangla_microtype_composite:w \font #1~#2\q_stop
+  {\cs_set:Npn \MT@char {#2}}
+\AddToHook{package/microtype/after}[latexbangla/character-slots]
+  {
+    \cs_new_eq:NN \__latexbangla_original_microtype_composite: \MT@is@uni@comp
+    \cs_set_protected:Npn \MT@is@uni@comp #1\iffontchar#2\else#3\fi\relax
+      {
+        \bool_lazy_all:nTF
+          {
+            {\str_if_eq_p:ee {\MT@encoding} {TU}}
+            {\tl_if_empty_p:n {#1}}
+            {\tl_if_head_eq_meaning_p:nN {#2} \font}
+          }
+          {
+            \tl_if_in:nnTF {#2} {~}
+              {\__latexbangla_microtype_composite:w #2\q_stop}
+              {\__latexbangla_original_microtype_composite:
+                #1\iffontchar#2\else#3\fi\relax}
+          }
+          {\__latexbangla_original_microtype_composite:
+            #1\iffontchar#2\else#3\fi\relax}
+      }
+    % Fallback symbols keep their Unicode identity, even though their wrapped
+    % definitions no longer look like simple character commands to microtype.
+    \cs_new_eq:NN \__latexbangla_original_microtype_symbol: \MT@is@symbol
+    \cs_set_protected:Npn \MT@is@symbol
+      {
+        \__latexbangla_original_microtype_symbol:
+        \str_if_eq:eeT {\MT@encoding} {TU}
+          {
+            \int_compare:nNnT {\MT@char@} < {0}
+              {
+                \prop_get:NeNT \g__latexbangla_symbol_codepoints_prop
+                  {\tl_to_str:V \@tempa} \l__latexbangla_symbol_codepoint_tl
+                  {\cs_set:Npe \MT@char@
+                    {\int_eval:n {\l__latexbangla_symbol_codepoint_tl}}}
+              }
+          }
+      }
+  }
+
+\AddToHook{begindocument/before}[latexbangla/fonts]
+  {
+    \cs_if_exist:NF \bengalifont
+      {\msg_fatal:nn {latexbangla} {missing-font}}
+    \bool_gset_true:N \g__latexbangla_document_started_bool
+  }
+\endinput

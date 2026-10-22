@@ -1,0 +1,27 @@
+\tableofcontents
+\section{পরীক্ষা English}\label{sec:test}
+\newcounter{custom}\setcounter{custom}{12}
+Custom counter: \arabic{custom}; literal: 12 ১২।
+\footnote{বাংলা footnote 12 ১২।}
+\begin{enumerate}
+\item প্রথম\label{item:test}
+\begin{enumerate}\item দ্বিতীয় স্তর\item আরেকটি\end{enumerate}
+\item দ্বিতীয়
+\end{enumerate}
+\begin{itemize}\item বাংলা bullet\end{itemize}
+\begin{tabular}{lp{5cm}r}
+\textbf{নাম}&\textbf{বিবরণ}&\textbf{সংখ্যা}\\
+বাংলা&English এবং বাংলা&12\\
+বাংলা&\textbf{গাঢ় লেখা}&১২
+\end{tabular}
+\begin{longtable}{ll}বাংলা&English\\অন্য সারি&১২\end{longtable}
+\begin{figure}[ht]\centering\rule{2cm}{1cm}
+\caption{বাংলা Figure}\label{fig:test}\end{figure}
+\begin{equation}x=1\label{eq:structure}\end{equation}
+\begin{subequations}\begin{align}a&=1\\b&=2\end{align}\end{subequations}
+\begin{theorem}\label{thm:test}বাংলা theorem।\end{theorem}
+\begin{proof}বাংলা proof।\end{proof}
+\ref{sec:test}; \autoref{sec:test}; \autoref{fig:test};
+\eqref{eq:structure}; \ref{item:test}; \autoref{thm:test}।
+\appendix\section{পরিশিষ্ট পরীক্ষা}\label{app:test}
+পরিশিষ্ট \ref{app:test}।

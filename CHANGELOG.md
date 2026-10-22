@@ -1,0 +1,15 @@
+# Changelog
+
+## 1.0
+
+- Modernize for current XeLaTeX and Polyglossia, fixing the old numbering incompatibility.
+- Require only one Bangla font, with fontspec-style setters, automatic bold/italic,
+  and independent English and math font choices. Test six Bangla font families.
+- Improve Bangla numbering, alphabetic lists, references, citations, and math digits.
+  Typed Western and Bangla digits keep their original script.
+- Add compatibility with cleveref and microtype, and document extended alphabetic
+  labels with alphalph.
+- Preserve legacy font options and `changecounternumbering`. Remove `feature=0/1/2`
+  and bundled theorem/layout styles; define these in your document or class.
+- Refresh the manual and examples, add a font comparison PDF, and expand automated
+  compilation and PDF checks.

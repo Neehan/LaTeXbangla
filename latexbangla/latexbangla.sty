@@ -1,0 +1,111 @@
+% ----------------------------------------------------------------
+% LaTeXbangla package - Enhanced LaTeX integration for Bangla
+% E-mail: latexbangla@googlegroups.com
+% Released under the LaTeX Project Public License v1.3c or later
+% See https://www.latex-project.org/lppl.txt
+% ----------------------------------------------------------------
+% This package simplifies writing Bangla documents in LaTeX. It provides
+% automatic font switching between Bangla and Latin text, localized document
+% labels and numbering, and integration with supported LaTeX packages.
+% Authors can use ordinary LaTeX commands to write mixed Bangla and English
+% text. See the manual for configuration, examples, and supported features.
+% ------------------------------------------------------------------
+% Copyright (C) 2016, 2026 by Adib Hasan <latexbangla@googlegroups.com>
+
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License (LPPL), either
+% version 1.3c of this license or (at your option) any later
+% version. The latest version of this license is in the file:
+
+% https://www.latex-project.org/lppl.txt
+
+% This work has the LPPL maintenance status "maintained".
+% The current maintainer is Adib Hasan.
+
+% This work consists of latexbangla.sty, code/latexbangla-*.tex,
+% latexbangla-bengali.lbx, the manual source latexbangla.tex, its PDF and logo.png.
+% ------------------------------------------------------------------
+
+% The tested development baseline is TeX Live 2026. Version requirements are
+% intentionally conservative until an older-distribution test matrix exists.
+\NeedsTeXFormat{LaTeX2e}[2026-06-01]
+\RequirePackage{iftex}
+\RequireXeTeX
+\ProvidesExplPackage{latexbangla}{2026-10-22}{1.0}
+  {Bangla language support for XeLaTeX}
+
+% Polyglossia owns language data and decimal numbering; fontspec owns fonts.
+% amstext is the small, style-aware text-in-math component, not the AMS suite.
+\RequirePackage{fontspec}[2026/08/11]
+\RequirePackage{polyglossia}[2026/09/11]
+\RequirePackage{amstext}
+\RequirePackage[Latin,Bengali,Devanagari]{ucharclasses}
+
+\bool_new:N \g__latexbangla_convert_counters_bool
+\bool_gset_true:N \g__latexbangla_convert_counters_bool
+\tl_new:N \g__latexbangla_legacy_main_font_tl
+\tl_new:N \g__latexbangla_legacy_mono_font_tl
+
+\msg_new:nnn {latexbangla} {removed-feature}
+  {The~'feature'~option~has~been~removed.\iow_newline:
+   Remove~feature=#1.~Language~support~is~automatic;~define~your~own\iow_newline:
+   environments~or~use~a~book~style.~See~the~migration~section~of~the~manual.}
+\msg_new:nnn {latexbangla} {missing-font}
+  {No~Bangla~main~font~was~configured.\iow_newline:
+   Add~\token_to_str:N\setbanglamainfont{Your~font}~in~the~preamble.}
+\msg_new:nnn {latexbangla} {empty-font}
+  {The~Bangla~font~name~must~not~be~empty.~Pass~a~font~name~to~the~setter.}
+\msg_new:nnn {latexbangla} {non-bengali-font}
+  {The~font~'#1'~does~not~provide~the~tested~Bengali~glyph.\iow_newline:
+   Choose~a~font~with~Bengali~coverage~for~the~Bangla~font~setter.}
+\msg_new:nnn {latexbangla} {preamble-only}
+  {Bangla~font~setters~must~be~used~before~\token_to_str:N\begin{document}.}
+
+% Two font options survive for source compatibility. Numbering is a current
+% option; accept 0/1 as aliases because published documents used those values.
+\keys_define:nn {latexbangla}
+  {
+    banglamainfont .code:n =
+      {\tl_if_blank:nTF {#1}
+        {\msg_error:nn {latexbangla} {empty-font}}
+        {\tl_gset:Nn \g__latexbangla_legacy_main_font_tl {#1}}},
+    banglamainfont .value_required:n = true,
+    banglattfont .code:n =
+      {\tl_if_blank:nTF {#1}
+        {\msg_error:nn {latexbangla} {empty-font}}
+        {\tl_gset:Nn \g__latexbangla_legacy_mono_font_tl {#1}}},
+    banglattfont .value_required:n = true,
+    changecounternumbering .choice:,
+    changecounternumbering / true .code:n =
+      \bool_gset_true:N \g__latexbangla_convert_counters_bool,
+    changecounternumbering / false .code:n =
+      \bool_gset_false:N \g__latexbangla_convert_counters_bool,
+    changecounternumbering / 1 .meta:n = {changecounternumbering=true},
+    changecounternumbering / 0 .meta:n = {changecounternumbering=false},
+    changecounternumbering .default:n = true,
+    feature .code:n = \msg_fatal:nnn {latexbangla} {removed-feature} {#1},
+  }
+\ProcessKeyOptions[latexbangla]
+
+% Explicitly select Bengali numerals: upstream's Bengali language module also
+% supports other numeral systems, and its default is not necessarily Bengali.
+\bool_if:NTF \g__latexbangla_convert_counters_bool
+  {\setmainlanguage[numerals=bengali,changecounternumbering=true]{bengali}}
+  {\setmainlanguage[numerals=bengali,changecounternumbering=false]{bengali}}
+
+% Each file has one responsibility. They share the latexbangla namespace and
+% deliberately keep upstream compatibility details in their respective module.
+\file_input:n {code/latexbangla-fonts.tex}
+\file_input:n {code/latexbangla-numbering.tex}
+\file_input:n {code/latexbangla-math-digits.tex}
+\file_input:n {code/latexbangla-references.tex}
+
+% Legacy options use exactly the same setters as new documents. Explicit
+% setters later in the preamble therefore override the corresponding option.
+\tl_if_empty:NF \g__latexbangla_legacy_main_font_tl
+  {\exp_args:NV \setbanglamainfont \g__latexbangla_legacy_main_font_tl}
+\tl_if_empty:NF \g__latexbangla_legacy_mono_font_tl
+  {\exp_args:NV \setbanglamonofont \g__latexbangla_legacy_mono_font_tl}
+
+\ExplSyntaxOff
+\endinput

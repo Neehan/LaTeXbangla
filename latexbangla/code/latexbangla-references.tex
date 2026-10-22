@@ -1,0 +1,179 @@
+% Cross-reference names and citation display adapters; no bibliography styles.
+% Part of latexbangla, LPPL 1.3c or later; copyright 2026 Adib Hasan.
+
+% Replace only hyperref's unchanged English defaults. Its public name commands
+% may already have been customized when hyperref precedes latexbangla. Compare
+% definitions without expanding them, so author macros are preserved as well.
+% Arguments: public name command, upstream default, Bengali replacement.
+\cs_new_protected:Npn \__latexbangla_translate_autoref:Nnn #1#2#3
+  {
+    \cs_set_nopar:Npn \__latexbangla_default_autoref: {#2}
+    \cs_if_eq:NNT #1 \__latexbangla_default_autoref:
+      {\cs_set_nopar:Npn #1 {#3}}
+  }
+
+% Reuse Polyglossia captions. The English strings below identify the defaults
+% in the tested hyperref version; they are not a second language catalogue.
+% Package hooks run for either loading order. Later author definitions win too.
+\AddToHook{package/hyperref/after}[latexbangla/references]
+  {
+    \__latexbangla_translate_autoref:Nnn \chapterautorefname {chapter}{\chaptername}
+    \__latexbangla_translate_autoref:Nnn \appendixautorefname {Appendix}{\appendixname}
+    \__latexbangla_translate_autoref:Nnn \figureautorefname {Figure}{\figurename}
+    \__latexbangla_translate_autoref:Nnn \tableautorefname {Table}{\tablename}
+    \__latexbangla_translate_autoref:Nnn \partautorefname {Part}{\partname}
+    \__latexbangla_translate_autoref:Nnn \pageautorefname {page}{\pagename}
+    \__latexbangla_translate_autoref:Nnn \sectionautorefname {section}{পরিচ্ছেদ}
+    \__latexbangla_translate_autoref:Nnn \subsectionautorefname {subsection}{উপপরিচ্ছেদ}
+    \__latexbangla_translate_autoref:Nnn \subsubsectionautorefname {subsubsection}{উপউপপরিচ্ছেদ}
+    \__latexbangla_translate_autoref:Nnn \paragraphautorefname {paragraph}{অনুচ্ছেদ}
+    \__latexbangla_translate_autoref:Nnn \subparagraphautorefname {subparagraph}{উপানুচ্ছেদ}
+    \__latexbangla_translate_autoref:Nnn \equationautorefname {Equation}{সমীকরণ}
+    \__latexbangla_translate_autoref:Nnn \footnoteautorefname {footnote}{পাদটীকা}
+    \__latexbangla_translate_autoref:Nnn \itemautorefname {item}{দফা}
+  }
+
+% cleveref stores \arabic-based sort keys alongside the visible reference.
+% Its two numeric readers must return Western digits for TeX arithmetic, even
+% when an auxiliary file contains localized keys. Decode only those keys:
+% labels, page labels, type names and reset-prefix metadata stay untouched.
+% Keeping this at the read boundary also covers footnotes and appendices,
+% whose label-writing commands cleveref replaces separately.
+\cs_new_protected:Npn \__latexbangla_restore_reference_integer:N #1
+  {
+    \tl_replace_all:Nnn #1 {০} {0}
+    \tl_replace_all:Nnn #1 {১} {1}
+    \tl_replace_all:Nnn #1 {২} {2}
+    \tl_replace_all:Nnn #1 {৩} {3}
+    \tl_replace_all:Nnn #1 {৪} {4}
+    \tl_replace_all:Nnn #1 {৫} {5}
+    \tl_replace_all:Nnn #1 {৬} {6}
+    \tl_replace_all:Nnn #1 {৭} {7}
+    \tl_replace_all:Nnn #1 {৮} {8}
+    \tl_replace_all:Nnn #1 {৯} {9}
+  }
+\AddToHook{package/cleveref/after}[latexbangla/reference-sort-keys]
+  {
+    \bool_if:NT \g__latexbangla_convert_counters_bool
+      {
+        \cs_new_eq:NN \__latexbangla_original_reference_counter:nN \cref@getcounter
+        \cs_new_eq:NN \__latexbangla_original_reference_page:nN \cpageref@getcounter
+        \cs_set_protected:Npn \cref@getcounter #1#2
+          {
+            \__latexbangla_original_reference_counter:nN {#1} #2
+            \__latexbangla_restore_reference_integer:N #2
+          }
+        \cs_set_protected:Npn \cpageref@getcounter #1#2
+          {
+            \__latexbangla_original_reference_page:nN {#1} #2
+            \__latexbangla_restore_reference_integer:N #2
+          }
+      }
+  }
+
+% Citation adapters call this only at the display boundary, never while sorting
+% or writing citation keys. Explicit textual labels such as [Knuth84] stay as
+% written; only entirely decimal labels are converted.
+\regex_const:Nn \c__latexbangla_decimal_label_regex {\A[0-9]+\Z}
+\tl_new:N \l__latexbangla_citation_label_tl
+\cs_new_protected:Npn \__latexbangla_format_citation_label:n #1
+  {
+    \group_begin:
+      % Resolve numeric label macros, but preserve LaTeX's older robust
+      % commands (such as \textbf) as well as e-TeX-protected commands.
+      % Unrestricted e-expansion would execute parts of a styled text label.
+      \protected@edef \l__latexbangla_citation_label_tl {#1}
+      \regex_match:NVTF \c__latexbangla_decimal_label_regex
+        \l__latexbangla_citation_label_tl
+        {\exp_args:NV \bengalidigits \l__latexbangla_citation_label_tl}
+        {#1}
+    \group_end:
+  }
+\cs_generate_variant:Nn \regex_match:NnTF {NV}
+
+% Standard LaTeX stores citation display labels through bibcite when reading
+% the auxiliary file. Wrap that display value, leaving citation keys, writes,
+% links and bibliography counters alone. This hook must precede the aux read.
+% natbib and biblatex own different data formats and use separate adapters.
+\AddToHook{begindocument/before}[latexbangla/standard-citations]
+  {
+    \bool_if:NT \g__latexbangla_convert_counters_bool
+      {
+        \IfPackageLoadedTF{natbib}{}
+          {
+            \IfPackageLoadedTF{biblatex}{}
+              {
+                \cs_new_eq:NN \__latexbangla_original_bibcite:nn \bibcite
+                \cs_set_protected:Npn \bibcite #1#2
+                  {
+                    \__latexbangla_original_bibcite:nn {#1}
+                      {\__latexbangla_format_citation_label:n {#2}}
+                  }
+                \cs_new_eq:NN \__latexbangla_original_biblabel:n \@biblabel
+                \cs_set_protected:Npn \@biblabel #1
+                  {\__latexbangla_original_biblabel:n
+                    {\__latexbangla_format_citation_label:n {#1}}}
+              }
+          }
+      }
+  }
+
+% natbib exposes two display hooks. Keep its original number values available
+% for sorting/compression, and retain the author's font and bracket formatting.
+% Author-year mode is outside numeric localization and is left alone.
+\cs_new_protected:Npn \__latexbangla_install_natbib_formats:
+  {
+    \ifNAT@numbers
+      \cs_new_eq:NN \__latexbangla_original_citenumfont:n \citenumfont
+      \cs_set_protected:Npn \citenumfont ##1
+        {\__latexbangla_original_citenumfont:n
+          {\__latexbangla_format_citation_label:n {##1}}}
+      \cs_new_eq:NN \__latexbangla_original_bibnumfmt:n \bibnumfmt
+      \cs_set_protected:Npn \bibnumfmt ##1
+        {\__latexbangla_original_bibnumfmt:n
+          {\__latexbangla_format_citation_label:n {##1}}}
+    \fi
+  }
+
+% Preserve the selected style's existing field formatters. DeclareFieldAlias
+% creates a live reference, so using it to save a formatter before redefining
+% that formatter would recurse. The two reads of biblatex's format registry are
+% deliberately isolated here; subsequent installation uses its public API.
+% Only labelnumber and its bibliography width format are adapted; years, page
+% locators, sort keys, entry identifiers and hyperlink destinations stay intact.
+\cs_new_protected:Npn \__latexbangla_install_biblatex_formats:
+  {
+    \cs_new_eq:Nc \__latexbangla_original_labelnumber:n
+      {abx@ffd@*@labelnumber}
+    \cs_new_eq:Nc \__latexbangla_original_labelnumberwidth:n
+      {abx@ffd@*@labelnumberwidth}
+    \DeclareFieldFormat{labelnumber}
+      {\__latexbangla_original_labelnumber:n
+        {\__latexbangla_format_citation_label:n {##1}}}
+    \DeclareFieldFormat{labelnumberwidth}
+      {\__latexbangla_original_labelnumberwidth:n
+        {\__latexbangla_format_citation_label:n {##1}}}
+  }
+\AddToHook{package/biblatex/after}[latexbangla/bibliography-language]
+  {
+    % Capture upstream captions before biblatex replaces bibname/refname with
+    % its own strings. A direct reference to those commands inside an .lbx
+    % string would then refer back to itself. This snapshot avoids both that
+    % recursion and maintaining a duplicate set of caption translations.
+    \group_begin:
+      \captionsbengali
+      \cs_gset_eq:NN \__latexbangla_bibliography_name: \bibname
+      \cs_gset_eq:NN \__latexbangla_references_name: \refname
+    \group_end:
+    \DeclareLanguageMapping{bengali}{latexbangla-bengali}
+  }
+
+\AddToHook{begindocument/end}[latexbangla/citation-formats]
+  {
+    \bool_if:NT \g__latexbangla_convert_counters_bool
+      {
+        \IfPackageLoadedT{natbib}{\__latexbangla_install_natbib_formats:}
+        \IfPackageLoadedT{biblatex}{\__latexbangla_install_biblatex_formats:}
+      }
+  }
+\endinput

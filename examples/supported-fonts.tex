@@ -1,0 +1,80 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=20mm]{geometry}
+\usepackage{latexbangla}
+\setmainfont{TeX Gyre Termes}
+\usepackage[hidelinks]{hyperref}
+\setlength{\parindent}{0pt}
+\listfiles
+
+% An ordinary document needs just one of these setters. This comparison saves
+% each configured family so that every page uses the package's actual defaults.
+% Install all six fonts to compile this complete specimen.
+\setbanglamainfont{Kalpurush}
+\NewCommandCopy\kalpurushfont\bengalifont
+\setbanglamainfont{SolaimanLipi}
+\NewCommandCopy\solaimanlipifont\bengalifont
+\setbanglamainfont{Siyam Rupali}
+\NewCommandCopy\siyamrupalifont\bengalifont
+\setbanglamainfont{Noto Serif Bengali}
+\NewCommandCopy\notoserifbengalifont\bengalifont
+\setbanglamainfont{Noto Sans Bengali}
+\NewCommandCopy\notosansbengalifont\bengalifont
+\setbanglamainfont{FreeSerif}
+\NewCommandCopy\freeseriffont\bengalifont
+
+% Keep the text identical across fonts to make differences easy to compare.
+\newcommand{\samplewords}{শিক্ষার্থী, দৃষ্টি, স্বচ্ছ, স্বাধীনতা, পূর্ণসংখ্যা, ক্ষুদ্র, জ্ঞান।}
+\newcommand{\samplestyles}[2]{%
+  \begingroup
+  \fontsize{#1}{#2}\selectfont
+  Regular: \samplewords\par
+  \textbf{Bold: \samplewords}\par
+  \textit{Italic: \samplewords}\par
+  \textbf{\textit{Bold italic: \samplewords}}\par
+  \endgroup
+}
+
+% The saved family becomes the page's Bangla main font. Local assignment lets
+% the normal English/Bangla transitions and fallback font roles keep working.
+\newcommand{\fontsample}[3]{%
+  \clearpage
+  \begingroup
+  \let\bengalifont#1%
+  \bengalifont
+  \pdfbookmark[0]{#2}{#2}
+  \section*{#2}
+  \noindent\texttt{\textbackslash setbanglamainfont\{#2\}}\par
+  \smallskip
+  \noindent#3\par
+  \subsection*{Body text: 11 pt}
+  \samplestyles{11}{17}
+  \subsection*{Footnotes: 8 pt}
+  \samplestyles{8}{13}
+  \subsection*{Headings: 16 pt}
+  \samplestyles{16}{24}
+  \subsection*{Bangla and English together}
+  একটি আয়তাকার বাগানের দৈর্ঘ্য ৪ মিটার এবং প্রস্থ ৩ মিটার।
+  The shortest route is its diagonal—বাংলায় যাকে বলি কর্ণ।
+  \textbf{A sketch suggests the answer; নিশ্চিত হতে চাই একটি প্রমাণ।}
+  \textit{A shorter route, the same destination—একই গন্তব্যে কম পথ।}
+  \par\medskip
+  \noindent বাংলা সংখ্যা: ০১২৩৪৫৬৭৮৯। English digits: 0123456789.\par
+  % Ship the page while its local font is still active, including its footer.
+  \clearpage
+  \endgroup
+}
+
+\begin{document}
+\fontsample{\kalpurushfont}{Kalpurush}
+  {Synthetic bold: 3.5. Native size and word spacing.}
+\fontsample{\solaimanlipifont}{SolaimanLipi}
+  {Synthetic bold: 4.5. Native size and word spacing.}
+\fontsample{\siyamrupalifont}{Siyam Rupali}
+  {Synthetic bold: 4.5. Scale: 0.8; word-space factor: 1.2.}
+\fontsample{\notoserifbengalifont}{Noto Serif Bengali}
+  {Real bold face. Native size and word spacing.}
+\fontsample{\notosansbengalifont}{Noto Sans Bengali}
+  {Real bold face. Native size and word spacing.}
+\fontsample{\freeseriffont}{FreeSerif}
+  {Synthetic bold: 3.5; real italic face. Native size and word spacing.}
+\end{document}

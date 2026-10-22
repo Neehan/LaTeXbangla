@@ -1,0 +1,40 @@
+% Bengali mathematical digits, without changing authored Western digits.
+% Part of latexbangla, LPPL 1.3c or later; copyright 2026 Adib Hasan.
+
+% Text fonts contain Bengali digits even when the chosen mathematics font does
+% not. amstext's \text follows display/text/script/scriptscript sizing. Emit the
+% digit in text mode, where its math-active definition cannot recurse.
+% Expand to a grouped math field, not \mathord: TeX's unbraced script scanner
+% accepts the group in x^২ or x_৩, but cannot consume a \mathord command there.
+% A grouped field is already an ordinary atom in the surrounding expression.
+\cs_new_protected:Npn \__latexbangla_math_digit:n #1
+  {
+    {
+      \text
+        {
+          % Match ordinary math digits: surrounding \textbf does not make
+          % mathematics bold. Only the selected math version controls weight.
+          \bengalifont\mdseries\upshape
+          \str_if_eq:eeT {\math@version} {bold} {\bfseries}
+          \char_generate:nn {#1} {12}
+        }
+    }
+  }
+
+% Change only mathcodes. The source characters retain their normal catcodes in
+% prose, auxiliary files and bookmarks. Delay installation until unicode-math
+% and other preamble font packages have finished configuring their mathcodes.
+\cs_new_protected:Npn \__latexbangla_install_math_digits:
+  {
+    \int_step_inline:nnn {"09E6} {"09EF}
+      {
+        \cs_gset_protected:cpn {__latexbangla_math_digit_##1:}
+          {\__latexbangla_math_digit:n {##1}}
+        \char_gset_active_eq:nc {##1} {__latexbangla_math_digit_##1:}
+        \tex_mathcode:D ##1 = "8000\scan_stop:
+      }
+  }
+\cs_generate_variant:Nn \char_gset_active_eq:nN {nc}
+\AddToHook{begindocument/end}[latexbangla/math]
+  {\__latexbangla_install_math_digits:}
+\endinput

@@ -1,0 +1,30 @@
+% Sorting uses numeric values; visible labels retain the selected script.
+\section{বাংলা}\label{sec:cref}
+\setcounter{equation}{8}
+\begin{equation}x=১২\label{eq:cref-nine}\end{equation}
+\begin{equation}y=৩\label{eq:cref-ten}\end{equation}
+\begin{equation}z=৪\label{eq:cref-eleven}\end{equation}
+\begin{result}\label{thm:cref}বাংলা theorem.\end{result}
+Sorted: \cref{eq:cref-eleven,eq:cref-nine,eq:cref-ten}.
+Range: \crefrange{eq:cref-nine}{eq:cref-eleven}.
+Theorem: \cref{thm:cref}.
+Footnote\footnote{বাংলা\label{fn:cref}}; \cref{fn:cref}.
+\begin{enumerate}
+\item প্রথম\label{item:cref}
+\begin{enumerate}\item দ্বিতীয়\label{inner:cref}\end{enumerate}
+\end{enumerate}
+Items: \cref{item:cref,inner:cref}.
+\newpage
+\appendix
+\section{পরিশিষ্ট}\label{app:cref}
+\begin{result}\label{thm:appendix}বাংলা appendix theorem.\end{result}
+Appendix: \cref{app:cref}; \cref{thm:appendix}.
+Pages: \cpageref{app:cref,sec:cref}.
+\makeatletter
+\ifcsname r@eq:cref-eleven@cref\endcsname
+\cref@getcounter{eq:cref-eleven}{\sortvalue}
+\typeout{CREF-SORT-KEY: \sortvalue}
+\cpageref@getcounter{app:cref}{\sortpage}
+\typeout{CREF-PAGE-KEY: \sortpage}
+\fi
+\makeatother

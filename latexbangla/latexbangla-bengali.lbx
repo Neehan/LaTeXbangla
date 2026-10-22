@@ -1,0 +1,16 @@
+% Minimal Bengali bibliography localization for the supported numeric styles.
+% Part of latexbangla, LPPL 1.3c or later; copyright 2026 Adib Hasan.
+% Untranslated bibliography strings inherit English. See the manual for the
+% scope of this Bengali mapping.
+\ProvidesFile{latexbangla-bengali.lbx}[2026/10/22 Bengali numeric bibliography support]
+\InheritBibliographyExtras{english}
+\InheritBibliographyStrings{english}
+\ExplSyntaxOn
+\DeclareBibliographyStrings{
+  bibliography = {{\__latexbangla_bibliography_name:}{\__latexbangla_bibliography_name:}},
+  references   = {{\__latexbangla_references_name:}{\__latexbangla_references_name:}},
+  and          = {{এবং}{এবং}},
+  andothers    = {{এবং~অন্যান্য}{এবং~অন্যান্য}},
+}
+\ExplSyntaxOff
+\endinput

@@ -1,0 +1,1157 @@
+% LaTeXbangla user manual. Copyright 2016, 2026 Adib Hasan.
+% Distributed under the LPPL, version 1.3c or later.
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=22mm,headheight=15pt]{geometry}
+\usepackage{latexbangla}
+\setmainfont{TeX Gyre Pagella}
+\setsansfont{TeX Gyre Heros}
+\setmonofont{TeX Gyre Cursor}
+% Give the opening example a visibly different English family. Only its
+% preview uses this family; the surrounding manual stays in Pagella.
+\newfontfamily\manualexampleenglishfont{TeX Gyre Adventor}
+
+% Save a configured family for the boldness preview; the main text uses the
+% normal package default. Font setters belong in the preamble, including here.
+\setbanglamainfont[AutoFakeBold=4,AutoFakeSlant=0.2]{Kalpurush}
+\NewCommandCopy\manualstrongfont\bengalifont
+\setbanglamainfont{Kalpurush}
+
+\usepackage{amsmath,amsthm,graphicx,booktabs,tabularx}
+\usepackage{xcolor,minted,tcolorbox,titlesec,fancyhdr,needspace}
+\tcbuselibrary{raster,skins}
+\usepackage{hyperref}
+\usepackage{alphalph}
+% The extended-label example uses alphalph's custom-alphabet interface.
+\makeatletter
+\newalphalph{\extendedBangla}{\@alph}{36}
+\makeatother
+\definecolor{BanglaGreen}{HTML}{006847}
+\definecolor{BanglaInk}{HTML}{263640}
+\definecolor{BanglaRed}{HTML}{C92935}
+\definecolor{CodePaper}{HTML}{F4F6F8}
+\definecolor{ResultPaper}{HTML}{F0F8F4}
+\hypersetup{colorlinks,linkcolor=BanglaGreen,urlcolor=BanglaGreen,
+  citecolor=BanglaGreen,pdftitle={LaTeXbangla 1.0: User guide},pdfauthor={Adib Hasan}}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt plus 1pt}
+\setlength{\emergencystretch}{2em}
+\titleformat{\section}{\Large\sffamily\bfseries\color{BanglaGreen}}{\thesection}{0.6em}{}
+\titleformat{\subsection}{\normalsize\sffamily\bfseries\color{BanglaInk}}{}{0pt}{}
+\titlespacing*{\section}{0pt}{9pt}{6pt}
+\titlespacing*{\subsection}{0pt}{8pt}{3pt}
+% Reserve room before starting a heading so both its text and PDF anchor move
+% together when a page is full. Sections otherwise flow without forced breaks.
+\AddToHook{cmd/section/before}{\Needspace{5\baselineskip}}
+\AddToHook{cmd/subsection/before}{\Needspace{6\baselineskip}}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\sffamily\color{BanglaGreen}LaTeXbangla}
+\fancyhead[R]{\small\sffamily\color{BanglaInk}Version 1.0\quad User guide}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.3pt}
+% Keep the English guide's navigation Western while examples use the package's
+% default Bengali numbering. Raw counter values bypass localized formatters.
+\renewcommand{\thesection}{\number\value{section}}
+\renewcommand{\thesubsection}{\thesection.\number\value{subsection}}
+\renewcommand{\thepage}{\number\value{page}}
+\newcommand{\pkg}[1]{\texttt{#1}}
+\newtheorem{theorem}{উপপাদ্য}
+\providecommand{\theoremautorefname}{উপপাদ্য}
+\renewcommand{\theoremautorefname}{উপপাদ্য}
+
+\tcbset{manualbox/.style={enhanced,boxrule=0.4pt,arc=2mm,
+  colframe=BanglaGreen!35!white,colback=CodePaper,
+  colbacktitle=BanglaGreen!9!white,coltitle=BanglaGreen,
+  fonttitle=\small\sffamily\bfseries,left=3mm,right=3mm,top=2mm,bottom=2mm,
+  before skip=5pt,after skip=5pt}}
+% Minted supplies LaTeX syntax highlighting through Pygments. Its verbatim
+% renderer preserves the Bangla text and uses the same fonts as the document.
+\setminted{style=default,breaklines=true,breakanywhere=true}
+\newminted[code]{latex}{fontsize=\small,samepage}
+
+% Write each example once, then show its source and execute that same file.
+% A plain integer in the filename keeps generated names independent of the
+% document's numbering policy. Each output panel is scoped to its own box.
+\newcounter{manualexample}
+\newcommand{\manualcodetitle}{Code}
+\newcommand{\manualresulttitle}{Result}
+\newcommand{\manualexamplefile}{\jobname-example-\number\value{manualexample}.tex}
+\newenvironment{examplepair}
+  {\VerbatimEnvironment\stepcounter{manualexample}%
+   \begin{VerbatimOut}{\manualexamplefile}}
+  {\end{VerbatimOut}%
+   \begin{tcbraster}[raster columns=2,raster column skip=3mm,
+     raster equal height=rows,raster valign=top]
+   \begin{tcolorbox}[manualbox,title=\manualcodetitle]
+     \inputminted[fontsize=\footnotesize]{latex}{\manualexamplefile}
+   \end{tcolorbox}
+   \begin{tcolorbox}[manualbox,title=\manualresulttitle,colback=ResultPaper]
+     \setlength{\parskip}{4pt}%
+     % Match normal document footnote numbering inside the boxed minipage.
+     \renewcommand{\thempfootnote}{\arabic{mpfootnote}}%
+     \input{\manualexamplefile}
+   \end{tcolorbox}
+   \end{tcbraster}}
+
+\begin{document}
+\thispagestyle{empty}
+\begin{center}
+\includegraphics[width=0.66\linewidth]{logo.png}\\[2pt]
+{\Large\sffamily\color{BanglaGreen}Writing Bangla with ordinary \LaTeX}\\[5pt]
+{Adib Hasan}\\[2pt]
+{\small\href{https://groups.google.com/g/latexbangla}{\texttt{latexbangla@googlegroups.com}}}\\[3pt]
+{22 October 2026\quad\textcolor{BanglaRed}{\textbullet}\quad Version 1.0}
+\end{center}
+
+LaTeXbangla is a package for writing Bangla articles, reports and books with
+ordinary \LaTeX\ commands. To begin, load the package and choose a Bangla font.
+You can then write Bangla and English together, make text bold with
+\verb|\textbf|, and create lists, equations and references as usual. The package
+selects the appropriate font for each script while leaving your document layout,
+English fonts and mathematics fonts to you.
+
+Choosing a font makes Bangla text available; LaTeXbangla also takes care of the
+surrounding document. Lists use labels such as ১ and (ক), automatic references
+use names such as সমীকরণ, and numeric citations appear in Bangla. It builds on
+fontspec and Polyglossia, adding automatic font switching, bold and italic
+fallbacks, alphabetic numbering, Bangla math digits and reference support.
+\hyperref[manual:bangla]{A complete Bangla translation follows this English guide}.
+
+\section{Quickstart}
+Compile with \textbf{XeLaTeX}. This release targets TeX Live 2026 with
+LaTeX 2026-06-01, Polyglossia 2.13 and fontspec 2.9h (or newer compatible versions).
+Install a Bangla font from the list in section~2. Add this preamble:
+\begin{tcolorbox}[manualbox,title=Minimal document]
+\begin{code}
+\documentclass{article}
+\usepackage{fontspec}
+\setmainfont{TeX Gyre Adventor} % English font is preserved.
+\usepackage{latexbangla}
+\setbanglamainfont{Kalpurush}
+\begin{document}
+  % Write your document here.
+\end{document}
+\end{code}
+\end{tcolorbox}
+Put the following between \verb|\begin{document}| and \verb|\end{document}|.
+Notice how the English keeps Adventor's geometric sans serif shapes, even inside
+bold and italic text. Each Code/Result pair executes the source printed beside it.
+\begingroup
+\let\rmfamilylatin\manualexampleenglishfont
+\begin{examplepair}
+বাংলা and English একই অনুচ্ছেদে।
+
+English keeps its own typeface.
+
+\textbf{গুরুত্বপূর্ণ: read this.}
+\textit{বাংলা ও English একসঙ্গে।}
+\end{examplepair}
+\endgroup
+
+\subsection{The same paragraph with fontspec alone}
+For occasional Bangla in an English document, fontspec alone is often enough.
+Here is a complete document that reproduces the paragraph above. Declare a
+Bangla font, give Kalpurush its synthetic styles, and mark each Bangla passage
+with that font. English continues to use Adventor outside those groups.
+\begin{tcolorbox}[manualbox,title=Without LaTeXbangla]
+\begin{code}
+\documentclass{article}
+\usepackage{fontspec}
+\setmainfont{TeX Gyre Adventor}
+\newfontfamily\banglatext[
+  Script=Bengali,
+  AutoFakeBold=3.5,
+  AutoFakeSlant=0.2
+]{Kalpurush}
+\begin{document}
+{\banglatext বাংলা} and English
+{\banglatext একই অনুচ্ছেদে।}
+
+English keeps its own typeface.
+
+\textbf{{\banglatext গুরুত্বপূর্ণ:} read this.}
+\textit{{\banglatext বাংলা ও} English
+  {\banglatext একসঙ্গে।}}
+\end{document}
+\end{code}
+\end{tcolorbox}
+LaTeXbangla supplies these font switches and style defaults, so you can write
+the mixed paragraph directly. The example above matches the text's appearance;
+the Bangla numbering and translated document labels described later in this
+guide are additional parts of LaTeXbangla's language support.
+
+\textbf{Install locally.} Copy \pkg{latexbangla.sty},
+\pkg{latexbangla-bengali.lbx} and the complete \pkg{code/} folder beside your
+main document, or install that structure in your TeX tree. Package files are in
+\href{https://github.com/Neehan/LaTeXbangla}{the repository's \pkg{latexbangla/} folder}.
+
+\section{Choose fonts and text styles}
+\subsection{Supported Bangla fonts}
+Choose a font that suits your document. Any family below can be your only
+Bangla font; put its name in \verb|\setbanglamainfont{...}|. You can compare
+samples in the font guide included in
+\href{https://github.com/Neehan/LaTeXbangla}{the repository}.
+\begin{center}
+\begin{tabularx}{\linewidth}{@{}lX@{}}
+\toprule
+\textbf{Font name} & \textbf{Default Bangla bold} \\
+\midrule
+\texttt{Kalpurush} & Synthetic, strength 3.5 \\
+\texttt{SolaimanLipi} & Synthetic, strength 4.5 \\
+\texttt{Siyam Rupali} & Synthetic, strength 4.5 \\
+\texttt{Noto Serif Bengali} & Real bold face \\
+\texttt{Noto Sans Bengali} & Real bold face \\
+\texttt{FreeSerif} & Synthetic, strength 3.5; real italic face \\
+\bottomrule
+\end{tabularx}
+\end{center}
+LaTeXbangla uses bold and italic faces that contain Bangla glyphs, creating
+missing styles with added weight or slant. For unlisted fonts, these synthetic
+fallbacks use a weight of 2.5 and a slant of 0.2.
+Other shapes, including small caps, depend on the font. Install fonts separately;
+they are not bundled.
+
+\subsection{Separate Bangla and English families}
+You can use the main Bangla font throughout, or choose separate sans and mono
+families. Until you do, both roles use the main font. Choose a suitable font for
+each role: a serif font assigned to mono still has its original character widths.
+The Bangla font setters work only in the preamble, before
+\verb|\begin{document}|. Put them alongside any English fontspec settings:
+\begin{tcolorbox}[manualbox,title=Optional font choices]
+\begin{code}
+\setbanglamainfont{Kalpurush}
+\setbanglasansfont{Noto Sans Bengali}
+\setbanglamonofont{FreeSerif}
+\setmainfont{TeX Gyre Pagella}
+\setsansfont{TeX Gyre Heros}
+\setmonofont{TeX Gyre Cursor}
+\end{code}
+\end{tcolorbox}
+Your English fonts stay as they are until you set them. Bangla and English
+setters can appear in either order; each replaces its own role. Commands such
+as \verb|\textbf|, \verb|\textit|, \verb|\textsf| and \verb|\texttt| keep
+the size, family, weight and shape across scripts.
+Automatic font switching does not change the text's language or hyphenation
+rules. For an English passage with English hyphenation, declare
+\verb|\setotherlanguage{english}| in the preamble and use \verb|\textenglish{...}|.
+
+\subsection{Fontspec features, files and spacing}
+All three setters accept features before or after the font name:
+\begin{code}
+\setbanglamainfont[features]{font}
+\setbanglamainfont{font}[features]
+\end{code}
+Use ordinary fontspec features; \pkg{Script=Bengali} is already set.
+Your choices override the defaults. For example, adjust size and spacing or load a file:
+\begin{code}
+\setbanglamainfont[Scale=1.05,WordSpace=1.1]{Kalpurush}
+\setbanglamainfont[Path=fonts/]{fontkalpurush.ttf}
+\end{code}
+Here \pkg{WordSpace=1.1} adds 10\% to interword spacing. Tested fonts keep their
+native scale and spacing, except Siyam Rupali: \pkg{Scale=0.8} and
+\pkg{WordSpace=1.2} match its size. Presets recognize family names and standard
+filenames; renamed files use generic defaults. To choose faces from separate
+files, use \pkg{UprightFont}, \pkg{BoldFont}, \pkg{ItalicFont} and \pkg{BoldItalicFont}.
+
+\section{Control boldness and emphasis}
+The default setup already supports \verb|\textbf| and \verb|\textit|.
+If you would like heavier synthetic bold, increase \pkg{AutoFakeBold}.
+Include \pkg{AutoFakeSlant} to carry that weight into bold italic too.
+Here is how the four styles look with a bold strength of 4:
+\begin{tcolorbox}[manualbox,title=Custom synthetic styles (preamble)]
+\begin{code}
+\setbanglamainfont[
+  AutoFakeBold=4,
+  AutoFakeSlant=0.2
+]{Kalpurush}
+\end{code}
+\end{tcolorbox}
+% This preview uses precisely the preamble settings printed above.
+\begingroup
+\let\bengalifont\manualstrongfont
+\bengalifont
+\begin{examplepair}
+সাধারণ লেখা।
+
+\textbf{গাঢ় লেখা।}
+
+\textit{তির্যক লেখা।}
+
+\textbf{\textit{গাঢ় ও তির্যক।}}
+\end{examplepair}
+\endgroup
+Explicit \pkg{AutoFakeBold} requests synthetic bold even if a real bold face
+exists. Use it with a numeric value: fontspec's bare \pkg{AutoFakeBold} means
+1.5, rather than LaTeXbangla's font-specific default.
+
+You can also adjust bold and bold italic separately through fontspec's face features:
+\begin{code}
+\setbanglamainfont[
+  BoldFeatures={FakeBold=4},
+  BoldItalicFeatures={FakeBold=4,FakeSlant=0.2}
+]{Kalpurush}
+\end{code}
+These options are especially useful with a family that needs synthetic faces.
+Keep the ordinary setter when you prefer the tested defaults and real-face
+discovery. You can also configure Polyglossia's \verb|\bengalifont|,
+\verb|\bengalifontsf| and \verb|\bengalifonttt| directly, supplying their styles
+yourself. Use \verb|\renewfontfamily| for an existing command, including the
+sans and mono defaults that LaTeXbangla defines.
+
+\subsection{Punctuation, bullets and footnotes}
+Punctuation and footnotes fit into mixed text in the usual way. Typed dashes, curly
+quotes and ellipses come from the English family, which also supplies standard
+bullets and symbolic footnote marks missing from the Bangla font. Ordinary
+footnotes use Bangla numbers; Roman or symbolic formats keep their structure.
+\begin{examplepair}
+“বাংলা”—English… আবার বাংলা।
+\begin{itemize}
+  \item একটি কথা।
+  \item আরেকটি কথা।
+\end{itemize}
+একটি তথ্য\footnote{ছোট ব্যাখ্যা।}
+\end{examplepair}
+
+\section{Numbers, lists and your own counters}\label{sec:numbering}
+\pkg{changecounternumbering=true} is the default: decimal counters become
+Bengali, and \verb|\alph| and \verb|\Alph| use Bengali letters. Values, reset
+rules and compound labels keep their structure; Roman and symbolic formats stay
+as chosen. This English part keeps section, subsection and page numbers
+Western; its examples use the default Bangla numbering. The four standard
+\pkg{enumerate} levels become ১., (ক), i. and ক.; their punctuation and
+Roman numerals stay as in ordinary \LaTeX.
+\begin{examplepair}
+\begin{enumerate}
+  \item প্রথম ধাপ।
+  \begin{enumerate}
+    \item তথ্য সংগ্রহ।
+    \item হিসাব করা।
+  \end{enumerate}
+\end{enumerate}
+\end{examplepair}
+
+\subsection{Custom counters need no registration}
+For numbered exercises, create a counter as usual. Use \verb|\refstepcounter|
+to increment it and allow \verb|\label| and \verb|\ref|;
+\verb|\stepcounter| increments it without setting up a reference.
+\begin{examplepair}
+\newcounter{exercise}
+\setcounter{exercise}{11}
+\refstepcounter{exercise}
+\label{ex:custom}
+অনুশীলনী \theexercise।\par
+\renewcommand{\theexercise}
+  {\alph{exercise}}
+\setcounter{exercise}{2}
+অনুশীলনী \theexercise।
+\end{examplepair}
+Here, \texttt{[section]} resets the counter at each section;
+\verb|\theproblem| adds the section to its printed number:
+\begin{code}
+\newcounter{problem}[section]
+\renewcommand{\theproblem}{\thesection.\arabic{problem}}
+\end{code}
+You can also choose the digit script for just one counter:
+\begin{code}
+\renewcommand{\theexercise}{\tobangla{exercise}}       % Bangla
+\renewcommand{\theexercise}{\number\value{exercise}} % Western
+\end{code}
+A formatter that bypasses \verb|\arabic|, \verb|\alph| and \verb|\Alph|
+keeps its own output.
+
+\subsection{Extended alphabetic labels}
+Ordinary alphabetic labels stop at ৎ, the 36th letter. If you need more,
+\pkg{alphalph} can continue with কক, কখ and so on. With counter conversion
+enabled, add this to your preamble after loading LaTeXbangla:
+\begin{code}
+\usepackage{alphalph}
+\makeatletter
+\newalphalph{\extendedBangla}{\@alph}{36}
+\makeatother
+\end{code}
+The last argument gives the alphabet size. Assign the new formatter to the
+counter you want to extend; other counters keep their usual behavior:
+\begin{examplepair}
+\newcounter{extendedexercise}
+\renewcommand{\theextendedexercise}
+  {\extendedBangla{
+    \value{extendedexercise}}}
+\setcounter{extendedexercise}{36}
+\theextendedexercise,
+\stepcounter{extendedexercise}
+\theextendedexercise,
+\stepcounter{extendedexercise}
+\theextendedexercise
+\end{examplepair}
+Use \verb|\refstepcounter| instead of \verb|\stepcounter| when you also need
+\verb|\label| and \verb|\ref|. The built-in \verb|\alphalph| and
+\verb|\AlphAlph| commands still produce Latin letters; use the custom
+\verb|\extendedBangla| command for Bangla labels.
+
+\subsection{Choose automatic or explicit conversion}
+\verb|\usepackage[changecounternumbering=false]{latexbangla}| preserves the
+existing counter and numeric citation formats while retaining fonts and
+translations. This is a package option; language switches do not toggle it.
+Two expandable helpers work with either setting:
+\begin{examplepair}
+\numtobangla{0012}; \tobangla{exercise}
+\end{examplepair}
+\verb|\numtobangla| takes Western digits only and preserves leading zeroes;
+signs and decimal points are not accepted. \verb|\tobangla| prints a counter's
+integer value, including zero and negative values.
+
+\section{Mathematics, tables and theorems}
+Write numbers in the script you want to see: \texttt{12} stays 12 and
+\texttt{১২} stays ১২, in text and in math. Automatic numbering leaves your
+formulas alone. In math, Bangla digits come from your main Bangla font, sized to fit
+their position in the formula; the other symbols use your mathematics font.
+
+With \pkg{amsmath}, use \verb|\text| to put Bangla words inside a formula:
+\begin{examplepair}
+\begin{equation}\label{eq:speed}
+  \text{বেগ}=
+  \frac{\text{দূরত্ব}}{\text{সময়}}
+\end{equation}
+\[
+  x_৩^{২}+\sqrt{৪}=12+১২
+\]
+\end{examplepair}
+You can use the same Bengali digits in fractions, roots, matrices and nested scripts.
+One-digit arguments can be unbraced, as in \verb|x^২|; use braces for several
+digits. Use \verb|\boldmath| for bold mathematics: surrounding \verb|\textbf|
+alone does not change math weight. Commands for special math alphabets, such as
+\verb|\mathbb|, do not select alternate Bengali digit designs.
+Bold versions of the other symbols depend on your mathematics font setup.
+
+\subsection{Choose the mathematics font independently}
+To give your formulas a different appearance, choose a font with \pkg{unicode-math}:
+\begin{code}
+\usepackage{unicode-math}
+\setmathfont{TeX Gyre Pagella Math}
+\end{code}
+For traditional mathematics, load \pkg{amsmath,newtxmath} \emph{before}
+\pkg{latexbangla}. The language package leaves math-font selection to you.
+
+\subsection{Tables and author-defined environments}
+You can put Bangla, English and either digit script in ordinary table cells.
+When using \pkg{siunitx} to format and align numbers, supply Western digits as
+input; use a text column when you want to type Bangla digits directly.
+\begin{examplepair}
+\begin{tabular}{lc}
+বাহু & দৈর্ঘ্য \\
+\hline
+প্রথম & ৩ \\
+দ্বিতীয় & ৪
+\end{tabular}
+\end{examplepair}
+Define theorems with \pkg{amsthm}, for example
+\verb|\newtheorem{theorem}{উপপাদ্য}| in the preamble. Polyglossia supplies the
+Bangla proof heading; your class or theorem style controls the design.
+\begin{examplepair}
+\begin{theorem}
+সমকোণী ত্রিভুজের লম্ব দুই বাহুর
+দৈর্ঘ্য ৩ ও ৪ হলে অতিভুজের দৈর্ঘ্য ৫।
+\end{theorem}
+\begin{proof}
+$৩^{২}+৪^{২}=৫^{২}$।
+\end{proof}
+\end{examplepair}
+
+\section{Labels, references and citations}
+Your class's chapter, figure, table, contents, appendix and bibliography names,
+along with dates, come from Polyglossia's Bengali translations. With
+\pkg{hyperref}, LaTeXbangla also gives automatic references Bangla names.
+Here we refer back to the earlier examples. Compile again after adding labels
+or citations so their references can be resolved.
+\begin{examplepair}
+\autoref{eq:speed};
+\eqref{eq:speed}।
+
+\autoref{sec:numbering}।
+অনুশীলনী \ref{ex:custom}।
+\end{examplepair}
+\verb|\ref| prints the label, \verb|\eqref| adds parentheses, and
+\verb|\autoref| includes the translated name. Names include পরিচ্ছেদ,
+উপপরিচ্ছেদ, সমীকরণ and পাদটীকা. To choose another term, redefine its public
+hyperref name after loading the packages:
+\begin{code}
+\renewcommand{\sectionautorefname}{বিভাগ}
+\providecommand{\theoremautorefname}{উপপাদ্য}
+\renewcommand{\theoremautorefname}{উপপাদ্য}
+\end{code}
+Existing custom reference names are preserved. Theorem environments that share
+a counter also share hyperref's usual reference-type rules.
+
+\subsection{Numeric citations}
+For a short bibliography, you can write the entries directly and cite them as usual:
+\begin{examplepair}
+ইউক্লিডের বই দেখুন~\cite{euclid}।
+\begin{thebibliography}{9}
+\bibitem{euclid}
+Euclid. \textit{Elements}.
+\end{thebibliography}
+\end{examplepair}
+If you manage references with natbib or biblatex, the same numbering applies:
+use natbib's numeric mode, including sorting and compression, or biblatex's
+\pkg{numeric} or \pkg{numeric-comp} style. Only numeric labels become Bangla.
+Labels such as \pkg{Knuth84}, years you type, notes and author--year citations
+keep their script and style. Citation keys, sorting and links work as usual.
+Set \pkg{changecounternumbering=false} to keep numeric labels unchanged too.
+
+\subsection{A biblatex document}
+Load LaTeXbangla before biblatex so Polyglossia is ready when biblatex starts.
+Use this preamble and add \verb|\printbibliography| where the list belongs:
+\begin{code}
+\usepackage{latexbangla}
+\setbanglamainfont{Kalpurush}
+\usepackage[backend=biber,style=numeric-comp]{biblatex}
+\addbibresource{references.bib}
+\usepackage{hyperref}
+\end{code}
+Run XeLaTeX, Biber, then XeLaTeX twice. The Bengali mapping translates headings
+and conjunctions; remaining bibliography strings inherit English.
+For natbib, choose a BibTeX style and load:
+\begin{code}
+\usepackage[numbers,sort&compress]{natbib}
+\end{code}
+
+\subsection{Using other packages}
+The test documents also combine LaTeXbangla with \pkg{mathtools}, \pkg{bm},
+\pkg{booktabs}, \pkg{tabularx}, \pkg{longtable}, \pkg{multirow},
+\pkg{caption}, \pkg{subcaption}, \pkg{fancyhdr}, \pkg{titlesec} and
+\pkg{tcolorbox}. These packages continue to control their own layout and styles.
+
+For grouped or ranged references, load \pkg{cleveref} after \pkg{amsmath},
+\pkg{amsthm} and \pkg{hyperref}. Counter and page numbers remain Bangla;
+cleveref controls reference names and connecting words. For example:
+\begin{code}
+\usepackage[english]{cleveref}
+\crefname{equation}{সমীকরণ}{সমীকরণসমূহ}
+\AtBeginDocument{%
+  \renewcommand{\crefrangeconjunction}{ থেকে }%
+  \renewcommand{\crefpairconjunction}{ ও }%
+}
+\end{code}
+Then use \verb|\cref{eq:first,eq:second}| or
+\verb|\crefrange{eq:first}{eq:last}|. The \pkg{english} option supplies
+cleveref's initial names and connecting words; the commands above customize them.
+Load \pkg{microtype} normally to use its XeLaTeX-supported typography features
+with mixed Bangla and English fonts.
+
+\section{Updating an older document}
+You can keep using \pkg{banglamainfont} and \pkg{banglattfont} in existing
+documents. When starting a new one, use the font commands shown in this guide;
+you only need to choose one Bangla font. The table shows the equivalent settings.
+\begin{center}
+\begin{tabularx}{\linewidth}{@{}lX@{}}
+\toprule
+\textbf{Older setting} & \textbf{Current interface} \\
+\midrule
+\pkg{banglamainfont=Kalpurush} & \texttt{\detokenize{\setbanglamainfont{Kalpurush}}} \\
+\pkg{banglattfont=FreeSerif} & \texttt{\detokenize{\setbanglamonofont{FreeSerif}}} \\
+\pkg{changecounternumbering=1} & \pkg{changecounternumbering=true} (default) \\
+\pkg{changecounternumbering=0} & \pkg{changecounternumbering=false} \\
+\bottomrule
+\end{tabularx}
+\end{center}
+A later font setter overrides its corresponding package option. The numbering
+option remains current; both its Boolean and numeric spellings are accepted.
+The old \pkg{SiyamRupali} font spelling is accepted as \pkg{Siyam Rupali}.
+
+If your document uses \pkg{feature=0/1/2}, remove that option: language support
+is now available without choosing a feature tier. Load the AMS, reference and
+bibliography packages you need, and define your theorem or solution environments.
+Margins, line spacing, heading
+punctuation, theorem styles and equation reset rules belong to your document
+class or style. Nested lists retain their decimal, alphabetic or Roman structure.
+
+The old \pkg{latin} wrapper is replaced by automatic Bangla/English font
+switching. Use Polyglossia's language commands when you want an actual language
+change. Use \texttt{\detokenize{\eqref}} for a parenthesized equation number and
+\texttt{\detokenize{\autoref}} for a named reference. Current Polyglossia supplies the corrected
+digit converter, so the old numbering workaround is no longer needed.
+
+\section*{Quick reference}
+\phantomsection
+\addcontentsline{toc}{section}{Quick reference}
+\begin{center}
+\begin{tabularx}{\linewidth}{@{}lX@{}}
+\toprule
+\textbf{Task} & \textbf{Command or setting} \\
+\midrule
+Choose the Bangla main font & \texttt{\detokenize{\setbanglamainfont[features]{font}}} \\
+Choose optional Bangla roles & \texttt{\detokenize{\setbanglasansfont}}, \texttt{\detokenize{\setbanglamonofont}} \\
+Choose English families & \texttt{\detokenize{\setmainfont}}, \texttt{\detokenize{\setsansfont}}, \texttt{\detokenize{\setmonofont}} \\
+Keep existing counter formats & \pkg{changecounternumbering=false} \\
+Print a counter in Bangla & \texttt{\detokenize{\tobangla{counter}}} \\
+Convert a string of digits & \texttt{\detokenize{\numtobangla{0012}}} \\
+Put Bangla words in math & \texttt{\detokenize{\text{বাংলা}}} \\
+Alphabetic counter format & \texttt{\detokenize{\alph{counter}}} or \texttt{\detokenize{\Alph{counter}}} \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+With conversion enabled, alphabetic labels run from ক to ৎ (36 letters).
+Zero is empty; negative values or values above 36 give ``Counter too large''.
+Appendices use labels such as পরিশিষ্ট ক.
+
+\subsection{Examples and help}
+To see the features together, try the example document and font guide in
+\href{https://github.com/Neehan/LaTeXbangla}{the repository},
+both supplied with sources and PDFs. Tested classes include article, report, book and memoir.
+If something does not work as expected, send a small document, your font names
+and the XeLaTeX log; \texttt{\detokenize{\listfiles}} records package versions. You can reach us through
+\href{https://github.com/Neehan/LaTeXbangla/issues}{GitHub Issues} or
+\href{https://groups.google.com/g/latexbangla}{\texttt{latexbangla@googlegroups.com}}.
+
+\smallskip
+{\small Copyright 2016, 2026 Adib Hasan. Distributed under the
+\href{https://www.latex-project.org/lppl.txt}{LaTeX Project Public License 1.3c or later}.
+This manual uses Kalpurush for Bangla and TeX Gyre Pagella for English prose;
+the opening example uses TeX Gyre Adventor.}
+
+\clearpage
+% The translated guide uses the normal Bangla counter formatters. Restart its
+% section and demonstration counters, but keep page numbers continuous. Give
+% restarted counters distinct PDF anchors so links cannot jump to English pages.
+\renewcommand{\thesection}{\arabic{section}}
+\renewcommand{\thesubsection}{\thesection.\arabic{subsection}}
+\renewcommand{\thepage}{\arabic{page}}
+\renewcommand{\theHsection}{bangla.\number\value{section}}
+\renewcommand{\theHequation}{bangla.\number\value{equation}}
+\renewcommand{\theHtheorem}{bangla.\number\value{theorem}}
+\setcounter{section}{0}
+\setcounter{equation}{0}
+\setcounter{theorem}{0}
+\renewcommand{\manualcodetitle}{কোড}
+\renewcommand{\manualresulttitle}{ফলাফল}
+\fancyhead[R]{\small\sffamily\color{BanglaInk}সংস্করণ ১.০\quad ব্যবহার নির্দেশিকা}
+\phantomsection\label{manual:bangla}
+\addcontentsline{toc}{part}{বাংলা ব্যবহার নির্দেশিকা}
+\thispagestyle{empty}
+\begin{center}
+\includegraphics[width=0.66\linewidth]{logo.png}\\[2pt]
+{\Large\sffamily\color{BanglaGreen}চেনা \LaTeX-এর কমান্ডেই বাংলা লেখা}\\[5pt]
+{আদীব হাসান}\\[2pt]
+{\small\href{https://groups.google.com/g/latexbangla}{\texttt{latexbangla@googlegroups.com}}}\\[3pt]
+{২২ অক্টোবর ২০২৬\quad\textcolor{BanglaRed}{\textbullet}\quad সংস্করণ ১.০}
+\end{center}
+
+LaTeXbangla হলো পরিচিত \LaTeX-এর কমান্ড দিয়ে বাংলা প্রবন্ধ, প্রতিবেদন ও
+বই লেখার একটি প্যাকেজ। শুরু করতে প্যাকেজটি যোগ করে একটি বাংলা ফন্ট বেছে নিন।
+এরপর একই সঙ্গে বাংলা ও ইংরেজি লিখতে, \verb|\textbf| দিয়ে লেখা গাঢ় করতে,
+আর তালিকা, সমীকরণ ও রেফারেন্স তৈরি করতে পারবেন আগের মতোই।
+বাংলা ও ইংরেজির জন্য উপযুক্ত ফন্ট প্যাকেজ নিজেই বেছে নেয়। পৃষ্ঠার বিন্যাস,
+ইংরেজি ফন্ট ও গণিতের ফন্ট নিজের পছন্দমতো রাখতে পারেন।
+
+ফন্ট বেছে নিলে বাংলা অক্ষর লেখা যায়; LaTeXbangla ডকুমেন্টের অন্য অংশগুলোও
+বাংলায় সাজানোর ব্যবস্থা করে। যেমন তালিকায় ১ ও (ক)-এর মতো নম্বর আসে,
+স্বয়ংক্রিয় রেফারেন্সে সমীকরণ-এর মতো বাংলা নাম আসে, আর সংখ্যাভিত্তিক
+তথ্যসূত্রের নম্বরও বাংলায় দেখা যায়। প্যাকেজটি fontspec ও Polyglossia-এর ওপর
+ভিত্তি করে তৈরি। এর বাড়তি সুবিধার মধ্যে আছে স্বয়ংক্রিয় ফন্ট পরিবর্তন,
+গাঢ় ও তির্যক রূপের বিকল্প ব্যবস্থা, বাংলা বর্ণে ক্রমসংখ্যা, গণিতে বাংলা অঙ্ক
+ও রেফারেন্সের বাংলা রূপ। পরের অংশগুলোতে উদাহরণসহ এগুলোর ব্যবহার দেখানো হয়েছে।
+
+\section{দ্রুত আরম্ভ}
+\textbf{XeLaTeX} দিয়ে কম্পাইল করুন। এই সংস্করণের পরীক্ষিত ভিত্তি TeX Live 2026,
+LaTeX 2026-06-01, Polyglossia 2.13 ও fontspec 2.9h;
+পরের সামঞ্জস্যপূর্ণ সংস্করণও ব্যবহার করা যাবে। ২ নম্বর পরিচ্ছেদের তালিকা থেকে
+একটি বাংলা ফন্ট ইনস্টল করে এভাবে শুরু করুন:
+\begin{tcolorbox}[manualbox,title=ন্যূনতম ডকুমেন্ট]
+\begin{code}
+\documentclass{article}
+\usepackage{fontspec}
+\setmainfont{TeX Gyre Adventor} % ইংরেজি ফন্ট অক্ষুণ্ণ থাকে।
+\usepackage{latexbangla}
+\setbanglamainfont{Kalpurush}
+\begin{document}
+  % এখানে লিখুন।
+\end{document}
+\end{code}
+\end{tcolorbox}
+নিচের কোডটি \verb|\begin{document}| ও \verb|\end{document}|-এর মাঝে বসান।
+খেয়াল করুন, গাঢ় ও তির্যক লেখাতেও ইংরেজি Adventor-এর নিজস্ব sans serif
+চেহারা ধরে রাখে। প্রতিটি ফলাফলের বাক্সে পাশের কোডটিই চালানো হয়েছে।
+\begingroup
+\let\rmfamilylatin\manualexampleenglishfont
+\begin{examplepair}
+বাংলা and English একই অনুচ্ছেদে।
+
+English keeps its own typeface.
+
+\textbf{গুরুত্বপূর্ণ: read this.}
+\textit{বাংলা ও English একসঙ্গে।}
+\end{examplepair}
+\endgroup
+
+\subsection{শুধু fontspec দিয়ে একই অনুচ্ছেদ}
+ইংরেজি ডকুমেন্টে অল্প কিছু বাংলা লিখতে fontspec-ই অনেক সময় যথেষ্ট।
+উপরের অনুচ্ছেদটি একইভাবে দেখাতে নিচের সম্পূর্ণ ডকুমেন্টটি ব্যবহার করতে পারেন।
+বাংলার জন্য আলাদা ফন্ট বেছে Kalpurush-এর গাঢ় ও তির্যক রূপের সেটিং দিন,
+তারপর প্রতিটি বাংলা অংশ সেই ফন্টের গ্রুপে রাখুন। গ্রুপের বাইরে ইংরেজি Adventor-এই থাকে।
+\begin{tcolorbox}[manualbox,title=LaTeXbangla ছাড়া]
+\begin{code}
+\documentclass{article}
+\usepackage{fontspec}
+\setmainfont{TeX Gyre Adventor}
+\newfontfamily\banglatext[
+  Script=Bengali,
+  AutoFakeBold=3.5,
+  AutoFakeSlant=0.2
+]{Kalpurush}
+\begin{document}
+{\banglatext বাংলা} and English
+{\banglatext একই অনুচ্ছেদে।}
+
+English keeps its own typeface.
+
+\textbf{{\banglatext গুরুত্বপূর্ণ:} read this.}
+\textit{{\banglatext বাংলা ও} English
+  {\banglatext একসঙ্গে।}}
+\end{document}
+\end{code}
+\end{tcolorbox}
+LaTeXbangla ফন্ট পরিবর্তন ও রূপের এই সেটিংগুলো নিজেই সামলায়, তাই মিশ্র
+অনুচ্ছেদটি সরাসরি লিখতে পারেন। উপরের উদাহরণে শুধু লেখার চেহারা মেলানো হয়েছে;
+পরের অংশগুলোতে দেখানো বাংলা ক্রমসংখ্যা ও ডকুমেন্টের অনূদিত নামগুলো
+LaTeXbangla-এর ভাষা সহায়তার আরও কিছু সুবিধা।
+
+\textbf{স্থানীয়ভাবে ইনস্টল।} \href{https://github.com/Neehan/LaTeXbangla}{রিপোজিটরির}
+\pkg{latexbangla/} ফোল্ডার খুলুন।\\
+\pkg{latexbangla.sty}, \pkg{latexbangla-bengali.lbx} ও পুরো \pkg{code/}
+ফোল্ডার মূল ডকুমেন্টের পাশে রাখুন; TeX tree-তেও একই কাঠামো ইনস্টল করা যায়।
+
+\section{ফন্ট ও লেখার ধরন বেছে নেওয়া}
+\subsection{পরীক্ষিত বাংলা ফন্ট}
+আপনার লেখার সঙ্গে মানায় এমন একটি ফন্ট দিয়ে শুরু করুন। নিচের যেকোনো
+পরীক্ষিত ফন্ট দিয়েই পুরো বাংলা ডকুমেন্ট লেখা যায়; নামটি বসান
+\verb|\setbanglamainfont{...}|-এ। বেছে নেওয়ার আগে
+\href{https://github.com/Neehan/LaTeXbangla}{রিপোজিটরিতে দেওয়া}
+ফন্ট তুলনার PDF-এ নমুনাগুলো দেখে নিতে পারেন।
+\begin{center}
+\begin{tabularx}{\linewidth}{@{}lX@{}}
+\toprule
+\textbf{ফন্টের নাম} & \textbf{গাঢ় বাংলা লেখার স্বাভাবিক সেটিং} \\
+\midrule
+\texttt{Kalpurush} & কৃত্রিম গাঢ়, মাত্রা ৩.৫ \\
+\texttt{SolaimanLipi} & কৃত্রিম গাঢ়, মাত্রা ৪.৫ \\
+\texttt{Siyam Rupali} & কৃত্রিম গাঢ়, মাত্রা ৪.৫ \\
+\texttt{Noto Serif Bengali} & ফন্টের নিজস্ব গাঢ় রূপ \\
+\texttt{Noto Sans Bengali} & ফন্টের নিজস্ব গাঢ় রূপ \\
+\texttt{FreeSerif} & কৃত্রিম গাঢ়, মাত্রা ৩.৫; নিজস্ব তির্যক রূপ \\
+\bottomrule
+\end{tabularx}
+\end{center}
+ফন্টের নিজস্ব গাঢ় বা তির্যক রূপে বাংলা অক্ষর থাকলে LaTeXbangla সেটিই নেয়।
+না থাকলে অক্ষরের রেখা মোটা করে বা হেলিয়ে সেই রূপ তৈরি করে। তালিকার বাইরের
+ফন্টে কৃত্রিম রূপ দরকার হলে গাঢ় করার মাত্রা ২.৫ ও তির্যক করার মাত্রা ০.২। Small caps ও অন্য রূপের
+প্রাপ্যতা ফন্টের ওপর নির্ভর করে। ফন্ট আলাদা করে ইনস্টল করতে হবে;
+প্যাকেজের সঙ্গে ফন্ট দেওয়া হয় না।
+
+\subsection{বাংলা ও ইংরেজির আলাদা ফন্ট}
+চাইলে মূল বাংলা ফন্ট দিয়েই সব লেখা চালিয়ে নিতে পারেন, আবার sans ও mono-র
+জন্য আলাদা ফন্টও বাছতে পারেন। আলাদা করে না দিলে দুটিতেই মূল ফন্ট ব্যবহৃত হয়।
+প্রতিটি কাজের উপযোগী ফন্ট বাছুন: mono-র জন্য serif ফন্ট দিলে অক্ষরগুলোর প্রস্থ
+আগের মতোই থাকে। বাংলা ফন্ট বাছার কমান্ডগুলো শুধু preamble-এ, অর্থাৎ
+\verb|\begin{document}|-এর আগে ব্যবহার করা যায়। ইংরেজি ফন্টের সেটিংও
+পাশাপাশি রাখতে পারেন:
+\begin{tcolorbox}[manualbox,title=আলাদা ফন্ট বাছার উদাহরণ]
+\begin{code}
+\setbanglamainfont{Kalpurush}
+\setbanglasansfont{Noto Sans Bengali}
+\setbanglamonofont{FreeSerif}
+\setmainfont{TeX Gyre Pagella}
+\setsansfont{TeX Gyre Heros}
+\setmonofont{TeX Gyre Cursor}
+\end{code}
+\end{tcolorbox}
+ইংরেজির ফন্ট না বদলালে আগের ফন্টই থাকে। বাংলা ও ইংরেজির কমান্ড যেকোনো
+ক্রমে লেখা যায়; প্রতিটি কমান্ড শুধু তার জন্য নির্দিষ্ট ফন্টটি বদলায়।
+মিশ্র লেখায় আকার, ফন্টের পরিবার, গাঢ় ও তির্যক রূপ বজায় থাকে;
+\verb|\textbf|, \verb|\textit|, \verb|\textsf| ও \verb|\texttt| ব্যবহার করুন।
+স্বয়ংক্রিয় ফন্ট পরিবর্তন লেখার ভাষা বা লাইনের শেষে হাইফেন দিয়ে শব্দ ভাঙার
+নিয়ম বদলায় না। ইংরেজি অংশে ইংরেজির নিয়ম ব্যবহার করতে preamble-এ
+\verb|\setotherlanguage{english}| দিন, তারপর \verb|\textenglish{...}| ব্যবহার করুন।
+
+\subsection{Fontspec-এর অপশন, ফন্ট ফাইল ও ফাঁক}
+তিনটি বাংলা ফন্ট কমান্ডেই ফন্টের নামের আগে বা পরে অপশন লেখা যায়:
+\begin{code}
+\setbanglamainfont[features]{font}
+\setbanglamainfont{font}[features]
+\end{code}
+এগুলো fontspec-এরই অপশন; \pkg{Script=Bengali} আগে থেকে দেওয়া থাকে।
+আপনার দেওয়া মান প্যাকেজের স্বাভাবিক সেটিংকে প্রতিস্থাপন করে। যেমন আকার
+ও শব্দের ফাঁক বদলাতে বা ফাইল থেকে ফন্ট নিতে লিখতে পারেন:
+\begin{code}
+\setbanglamainfont[Scale=1.05,WordSpace=1.1]{Kalpurush}
+\setbanglamainfont[Path=fonts/]{fontkalpurush.ttf}
+\end{code}
+\pkg{WordSpace=1.1} শব্দের মাঝের ফাঁক ১০\% বাড়ায়। পরীক্ষিত ফন্টের নিজস্ব
+আকার ও ফাঁক রাখা হয়; ব্যতিক্রম Siyam Rupali, যার আকার মেলাতে
+\pkg{Scale=0.8} ও \pkg{WordSpace=1.2} ব্যবহার করা হয়। পরিচিত নাম ও প্রচলিত
+ফাইলের নাম অনুযায়ী সেটিং চেনা হয়; ফাইলের নাম বদলালে সাধারণ সেটিং প্রযোজ্য।
+আলাদা ফাইলে রাখা রূপ বাছতে \pkg{UprightFont}, \pkg{BoldFont},
+\pkg{ItalicFont} ও \pkg{BoldItalicFont} ব্যবহার করুন।
+
+\section{গাঢ় ও তির্যক লেখা নিয়ন্ত্রণ}
+সাধারণ সেটিংয়েই \verb|\textbf| ও \verb|\textit| কাজ করে। তবে কৃত্রিম গাঢ়
+লেখা আরেকটু মোটা চাইলে \pkg{AutoFakeBold}-এর মান বাড়াতে পারেন।
+গাঢ়-তির্যক লেখাতেও একই মাত্রা রাখতে সঙ্গে \pkg{AutoFakeSlant} দিন।
+নিচের উদাহরণে গাঢ় করার মাত্রা ৪ দিয়ে চারটি রূপ দেখানো হয়েছে:
+\begin{tcolorbox}[manualbox,title=গাঢ় ও তির্যক রূপের সেটিং (preamble)]
+\begin{code}
+\setbanglamainfont[
+  AutoFakeBold=4,
+  AutoFakeSlant=0.2
+]{Kalpurush}
+\end{code}
+\end{tcolorbox}
+\begingroup
+\let\bengalifont\manualstrongfont
+\bengalifont
+\begin{examplepair}
+সাধারণ লেখা।
+
+\textbf{গাঢ় লেখা।}
+
+\textit{তির্যক লেখা।}
+
+\textbf{\textit{গাঢ় ও তির্যক।}}
+\end{examplepair}
+\endgroup
+নিজে \pkg{AutoFakeBold} দিলে ফন্টের নিজস্ব গাঢ় রূপ থাকলেও কৃত্রিম গাঢ়
+ব্যবহৃত হবে। তাই সংখ্যাসহ অপশনটি দিন: শুধু \pkg{AutoFakeBold} লিখলে
+fontspec ১.৫ ধরে, LaTeXbangla-এর ফন্ট অনুযায়ী নির্ধারিত মান ধরে না।
+
+গাঢ় ও গাঢ়-তির্যক রূপ আলাদাভাবে বদলাতেও fontspec-এর অপশন ব্যবহার করতে পারেন:
+\begin{code}
+\setbanglamainfont[
+  BoldFeatures={FakeBold=4},
+  BoldItalicFeatures={FakeBold=4,FakeSlant=0.2}
+]{Kalpurush}
+\end{code}
+কৃত্রিম রূপ দরকার এমন ফন্টে এই অপশনগুলো বিশেষ কাজে আসে। পরীক্ষিত সেটিং
+ও নিজস্ব রূপের স্বয়ংক্রিয় নির্বাচন চাইলে সাধারণ ফন্ট কমান্ডই যথেষ্ট।
+Polyglossia-এর \verb|\bengalifont|, \verb|\bengalifontsf| ও
+\verb|\bengalifonttt| সরাসরি সংজ্ঞায়িত করেও ফন্ট বাছা যায়;
+সেক্ষেত্রে রূপগুলোর সেটিং নিজে দিন। আগে থেকে সংজ্ঞায়িত কমান্ড বদলাতে
+\verb|\renewfontfamily| ব্যবহার করুন; LaTeXbangla-এর দেওয়া sans ও mono
+ফন্টের কমান্ডও এর মধ্যে পড়ে।
+
+\subsection{যতিচিহ্ন, তালিকার বুলেট ও পাদটীকা}
+মিশ্র লেখাতেও যতিচিহ্ন ও পাদটীকা আগের মতোই ব্যবহার করতে পারেন। সরাসরি লেখা ড্যাশ,
+বাঁকানো উদ্ধৃতিচিহ্ন ও তিন-বিন্দু চিহ্ন (…) ইংরেজি ফন্ট থেকে আসে। বাংলা ফন্টে চিহ্ন না
+থাকলে সাধারণ বুলেট ও প্রতীকভিত্তিক পাদটীকার চিহ্নও সেখান থেকে নেওয়া হয়।
+সাধারণ পাদটীকায় বাংলা নম্বর আসে; Roman বা প্রতীকভিত্তিক বিন্যাস বাছলে তা-ই থাকে।
+\begin{examplepair}
+“বাংলা”—English… আবার বাংলা।
+\begin{itemize}
+  \item একটি কথা।
+  \item আরেকটি কথা।
+\end{itemize}
+একটি তথ্য\footnote{ছোট ব্যাখ্যা।}
+\end{examplepair}
+
+\section{ক্রমসংখ্যা, তালিকা ও নিজের কাউন্টার}\label{bn:sec:numbering}
+স্বাভাবিক সেটিং হলো \pkg{changecounternumbering=true}: অঙ্কে লেখা কাউন্টারের
+নম্বর বাংলা হয়, আর \verb|\alph| ও \verb|\Alph|-এ বাংলা বর্ণ আসে। কাউন্টারের মান,
+পুনরায় গণনা শুরুর নিয়ম ও যৌগিক নম্বরের কাঠামো একই থাকে। Roman ও
+প্রতীকভিত্তিক বিন্যাসও বদলায় না। নির্দেশিকার এই বাংলা অংশে পরিচ্ছেদ ও
+পাতার নম্বরসহ সব সাধারণ কাউন্টারেই বাংলা ব্যবহার করা হয়েছে। সাধারণ
+\pkg{enumerate}-এর চারটি স্তরে যথাক্রমে ১., (ক), i. ও ক. আসে; যতিচিহ্ন
+ও Roman সংখ্যা সাধারণ \LaTeX-এর মতোই থাকে।
+\begin{examplepair}
+\begin{enumerate}
+  \item প্রথম ধাপ।
+  \begin{enumerate}
+    \item তথ্য সংগ্রহ।
+    \item হিসাব করা।
+  \end{enumerate}
+\end{enumerate}
+\end{examplepair}
+
+\subsection{নিজের কাউন্টারও সরাসরি কাজ করে}
+অনুশীলনীর নম্বর দিতে আগের মতোই একটি কাউন্টার তৈরি করুন।
+\verb|\refstepcounter| মান এক বাড়ায় এবং \verb|\label| ও \verb|\ref|-এর
+ব্যবস্থা করে; \verb|\stepcounter| শুধু মান বাড়ায়।
+\begin{examplepair}
+\newcounter{practice}
+\setcounter{practice}{11}
+\refstepcounter{practice}
+\label{bn:ex:custom}
+অনুশীলনী \thepractice।\par
+\renewcommand{\thepractice}
+  {\alph{practice}}
+\setcounter{practice}{2}
+অনুশীলনী \thepractice।
+\end{examplepair}
+এখানে \texttt{[section]} প্রতি পরিচ্ছেদে কাউন্টার শূন্য করে;
+\verb|\theproblem|-এর সংজ্ঞা মুদ্রিত নম্বরে পরিচ্ছেদের নম্বর যোগ করে:
+\begin{code}
+\newcounter{problem}[section]
+\renewcommand{\theproblem}{\thesection.\arabic{problem}}
+\end{code}
+চাইলে শুধু একটি কাউন্টারের জন্যও বাংলা বা ইংরেজি অঙ্ক বেছে নিতে পারেন:
+\begin{code}
+\renewcommand{\thepractice}{\tobangla{practice}}       % বাংলা
+\renewcommand{\thepractice}{\number\value{practice}} % ইংরেজি
+\end{code}
+\verb|\arabic|, \verb|\alph| বা \verb|\Alph| ব্যবহার না করে লেখা
+বিন্যাস নিজের ফলাফল অপরিবর্তিত রাখে।
+
+\subsection{একাধিক বর্ণের নম্বর}
+সাধারণ বর্ণভিত্তিক নম্বর ৩৬তম বর্ণ ৎ-এ শেষ হয়। আরও নম্বর দরকার হলে
+\pkg{alphalph} দিয়ে এর পরে কক, কখ ইত্যাদি লেখা যায়। কাউন্টার রূপান্তর
+চালু রেখে, LaTeXbangla লোড করার পরে প্রিঅ্যাম্বলে লিখুন:
+\begin{code}
+\usepackage{alphalph}
+\makeatletter
+\newalphalph{\extendedBangla}{\@alph}{36}
+\makeatother
+\end{code}
+শেষ আর্গুমেন্টটি বর্ণের সংখ্যা। যে কাউন্টারে একাধিক বর্ণের নম্বর চান,
+সেটিতে নতুন বিন্যাসটি ব্যবহার করুন; অন্য কাউন্টারের আচরণ বদলাবে না:
+\begin{examplepair}
+\newcounter{extendedpractice}
+\renewcommand{\theextendedpractice}
+  {\extendedBangla{
+    \value{extendedpractice}}}
+\setcounter{extendedpractice}{36}
+\theextendedpractice,
+\stepcounter{extendedpractice}
+\theextendedpractice,
+\stepcounter{extendedpractice}
+\theextendedpractice
+\end{examplepair}
+\verb|\label| ও \verb|\ref| ব্যবহার করতে চাইলে \verb|\stepcounter|-এর
+বদলে \verb|\refstepcounter| লিখুন। প্যাকেজের নিজস্ব \verb|\alphalph| ও
+\verb|\AlphAlph| কমান্ডে ইংরেজি বর্ণই আসে; বাংলা নম্বরের জন্য এখানে
+তৈরি করা \verb|\extendedBangla| কমান্ডটি ব্যবহার করুন।
+
+\subsection{স্বয়ংক্রিয় বা সরাসরি রূপান্তর}
+\verb|\usepackage[changecounternumbering=false]{latexbangla}| দিলে
+কাউন্টার ও সংখ্যাভিত্তিক তথ্যসূত্রের আগের বিন্যাস থাকে; ফন্ট ও অনুবাদ কাজ করে।
+এটি প্যাকেজের অপশন; ভাষা বদলালে এর মান বদলায় না। রূপান্তর চালু বা বন্ধ,
+দুই অবস্থাতেই নিচের expandable কমান্ড দুটি ব্যবহার করা যায়:
+\begin{examplepair}
+\numtobangla{0012}; \tobangla{practice}
+\end{examplepair}
+\verb|\numtobangla| শুধু ইংরেজি অঙ্ক নেয় এবং শুরুর শূন্যগুলো রাখে;
+ধনাত্মক-ঋণাত্মক চিহ্ন বা দশমিক বিন্দু নেয় না। \verb|\tobangla|
+কাউন্টারের পূর্ণসংখ্যা মান বাংলায় লেখে; শূন্য ও ঋণাত্মক মানও চলে।
+
+\section{গণিত, সারণি ও উপপাদ্য}
+সংখ্যা যে লিপিতে দেখতে চান, সেই লিপিতেই লিখুন: \texttt{12} থাকে 12,
+\texttt{১২} থাকে ১২, লেখায় ও গণিতে দুজায়গাতেই। কাউন্টারের স্বয়ংক্রিয়
+রূপান্তর আপনার সূত্রের অঙ্ক বদলায় না। গণিতে বাংলা অঙ্ক মূল বাংলা ফন্ট থেকে আসে;
+সূত্রে তার অবস্থান অনুযায়ী আকার মেলে। অন্য চিহ্নগুলো আসে গণিতের ফন্ট থেকে।
+
+\pkg{amsmath} যোগ করে \verb|\text| দিয়ে সূত্রের ভেতরেও বাংলা শব্দ লিখতে পারেন:
+\begin{examplepair}
+\begin{equation}\label{bn:eq:speed}
+  \text{বেগ}=
+  \frac{\text{দূরত্ব}}{\text{সময়}}
+\end{equation}
+\[
+  x_৩^{২}+\sqrt{৪}=12+১২
+\]
+\end{examplepair}
+একইভাবে ভগ্নাংশ, মূল, ম্যাট্রিক্স ও একাধিক স্তরের সূচকেও বাংলা অঙ্ক লিখতে পারেন।
+একটি অঙ্ক হলে \verb|x^২|-এর মতো বন্ধনী ছাড়াই চলে; একাধিক অঙ্কে বন্ধনী দিন।
+গণিত গাঢ় করতে \verb|\boldmath| ব্যবহার করুন; শুধু বাইরের \verb|\textbf|
+গণিতের লেখা গাঢ় করে না। \verb|\mathbb|-এর মতো বিশেষ গাণিতিক বর্ণমালার কমান্ড
+বাংলা অঙ্কের আলাদা নকশা বেছে দেয় না।
+অন্য গাণিতিক চিহ্নের গাঢ় রূপ আপনার গণিতের ফন্টের সেটিংয়ের ওপর নির্ভর করে।
+
+\subsection{গণিতের ফন্ট আলাদা করে বাছুন}
+সূত্রের চেহারা বদলাতে \pkg{unicode-math} দিয়ে পছন্দের গণিতের ফন্ট বেছে নিন:
+\begin{code}
+\usepackage{unicode-math}
+\setmathfont{TeX Gyre Pagella Math}
+\end{code}
+প্রচলিত পদ্ধতিতে গণিতের ফন্ট বাছতে \pkg{latexbangla}-এর \emph{আগে}
+\pkg{amsmath,newtxmath} যোগ করুন। গণিতের ফন্ট নির্বাচন আপনার হাতেই থাকে।
+
+\subsection{সারণি ও নিজের তৈরি পরিবেশ}
+সাধারণ সারণির ঘরে বাংলা, ইংরেজি ও দুই লিপির অঙ্কই রাখতে পারেন।
+\pkg{siunitx}-এর সংখ্যার ঘরে ইংরেজি অঙ্ক দিন;
+সরাসরি বাংলা অঙ্ক লিখতে চাইলে সাধারণ লেখার কলাম ব্যবহার করুন।
+\begin{examplepair}
+\begin{tabular}{lc}
+বাহু & দৈর্ঘ্য \\
+\hline
+প্রথম & ৩ \\
+দ্বিতীয় & ৪
+\end{tabular}
+\end{examplepair}
+উপপাদ্য সংজ্ঞায়িত করতে \pkg{amsthm} ব্যবহার করুন। যেমন preamble-এ লিখুন:
+\begin{code}
+\newtheorem{theorem}{উপপাদ্য}
+\end{code}
+প্রমাণের বাংলা শিরোনাম Polyglossia দেয়;
+উপস্থাপনার নকশা ডকুমেন্ট ক্লাস বা theorem style অনুযায়ী হয়।
+\begin{examplepair}
+\begin{theorem}
+সমকোণী ত্রিভুজের লম্ব দুই বাহুর
+দৈর্ঘ্য ৩ ও ৪ হলে অতিভুজের দৈর্ঘ্য ৫।
+\end{theorem}
+\begin{proof}
+$৩^{২}+৪^{২}=৫^{২}$।
+\end{proof}
+\end{examplepair}
+
+\section{লেবেল, রেফারেন্স ও তথ্যসূত্র}
+অধ্যায়, চিত্র, সারণি, সূচিপত্র, পরিশিষ্ট ও তথ্যসূত্রের শিরোনাম এবং তারিখের
+বাংলা রূপ আসে Polyglossia থেকে। \pkg{hyperref} যোগ করলে LaTeXbangla
+স্বয়ংক্রিয় রেফারেন্সের নামও বাংলায় দেয়। এখানে আগের উদাহরণগুলোর রেফারেন্স
+দেওয়া হয়েছে। নতুন লেবেল বা তথ্যসূত্র যোগ করলে আবার কম্পাইল করুন,
+যাতে রেফারেন্সের নম্বরগুলো ঠিকভাবে আসে।
+\begin{examplepair}
+\autoref{bn:eq:speed};
+\eqref{bn:eq:speed}।
+
+\autoref{bn:sec:numbering}।
+অনুশীলনী \ref{bn:ex:custom}।
+\end{examplepair}
+\verb|\ref| নম্বর লেখে, \verb|\eqref| তার চারপাশে বন্ধনী দেয়,
+আর \verb|\autoref| অনূদিত নামসহ রেফারেন্স দেয়। নামগুলোর মধ্যে আছে
+পরিচ্ছেদ, উপপরিচ্ছেদ, সমীকরণ ও পাদটীকা। অন্য নাম চাইলে প্যাকেজগুলো
+লোড করার পরে hyperref-এর সংশ্লিষ্ট কমান্ড বদলান:
+\begin{code}
+\renewcommand{\sectionautorefname}{বিভাগ}
+\providecommand{\theoremautorefname}{উপপাদ্য}
+\renewcommand{\theoremautorefname}{উপপাদ্য}
+\end{code}
+আগে থেকে দেওয়া নিজস্ব রেফারেন্সের নাম অক্ষুণ্ণ থাকে। একাধিক উপপাদ্যের
+পরিবেশ একই কাউন্টার ব্যবহার করলে রেফারেন্সের ধরনেও hyperref-এর সাধারণ নিয়ম প্রযোজ্য।
+
+\subsection{সংখ্যাভিত্তিক তথ্যসূত্র}
+তথ্যসূত্রের তালিকা ছোট হলে সরাসরি লিখে আগের মতোই \verb|\cite| দিয়ে উল্লেখ করতে পারেন:
+\begin{examplepair}
+ইউক্লিডের বই দেখুন~\cite{bn:euclid}।
+\begin{thebibliography}{9}
+\bibitem{bn:euclid}
+Euclid. \textit{Elements}.
+\end{thebibliography}
+\end{examplepair}
+natbib-এর numeric mode-এ sorting ও compression-সহ সংখ্যার বাংলা রূপান্তর কাজ করে।
+biblatex-এ \pkg{numeric} ও \pkg{numeric-comp} style ব্যবহার করতে পারেন।
+শুধু অঙ্ক দিয়ে তৈরি লেবেল বাংলা হয়; \pkg{Knuth84}-এর মতো লেখা,
+নিজে লেখা সাল, টীকা ও লেখক-সালভিত্তিক তথ্যসূত্রের লিপি ও বিন্যাস একই থাকে।
+তথ্যসূত্রের key, সাজানোর ক্রম ও লিংক আগের মতোই কাজ করে।
+\pkg{changecounternumbering=false} দিলে সংখ্যাভিত্তিক লেবেলও আগের মতো থাকে।
+
+\subsection{Biblatex দিয়ে ডকুমেন্ট}
+biblatex-এর আগে LaTeXbangla যোগ করুন, যাতে Polyglossia প্রস্তুত থাকে।
+নিচের অংশটি preamble-এ দিন; তথ্যসূত্রের তালিকা যেখানে চান সেখানে
+\verb|\printbibliography| লিখুন:
+\begin{code}
+\usepackage{latexbangla}
+\setbanglamainfont{Kalpurush}
+\usepackage[backend=biber,style=numeric-comp]{biblatex}
+\addbibresource{references.bib}
+\usepackage{hyperref}
+\end{code}
+XeLaTeX, Biber, তারপর দুবার XeLaTeX চালান। বাংলা mapping শিরোনাম ও
+সংযোজক শব্দ অনুবাদ করে; বাকি শব্দ ইংরেজি mapping থেকে আসে।
+natbib-এর জন্য একটি BibTeX style বেছে নিয়ে যোগ করুন:
+\begin{code}
+\usepackage[numbers,sort&compress]{natbib}
+\end{code}
+
+\subsection{অন্য প্যাকেজের সঙ্গে ব্যবহার}
+পরীক্ষার ডকুমেন্টগুলোতে LaTeXbangla-এর সঙ্গে \pkg{mathtools}, \pkg{bm},
+\pkg{booktabs}, \pkg{tabularx}, \pkg{longtable}, \pkg{multirow},
+\pkg{caption}, \pkg{subcaption}, \pkg{fancyhdr}, \pkg{titlesec} ও
+\pkg{tcolorbox} ব্যবহার করা হয়েছে। বিন্যাস ও নকশা সংশ্লিষ্ট প্যাকেজই নিয়ন্ত্রণ করে।
+
+একসঙ্গে কয়েকটি রেফারেন্স বা একটি পরিসর লিখতে \pkg{amsmath}, \pkg{amsthm}
+ও \pkg{hyperref}-এর পরে \pkg{cleveref} লোড করুন। কাউন্টার ও পাতার নম্বর
+বাংলাই থাকে; রেফারেন্সের নাম ও সংযোজক শব্দ cleveref নিয়ন্ত্রণ করে। যেমন:
+\begin{code}
+\usepackage[english]{cleveref}
+\crefname{equation}{সমীকরণ}{সমীকরণসমূহ}
+\AtBeginDocument{%
+  \renewcommand{\crefrangeconjunction}{ থেকে }%
+  \renewcommand{\crefpairconjunction}{ ও }%
+}
+\end{code}
+এরপর \verb|\cref{eq:first,eq:second}| বা
+\verb|\crefrange{eq:first}{eq:last}| ব্যবহার করুন। \pkg{english} অপশনটি
+cleveref-এর প্রাথমিক নাম ও সংযোজক শব্দ দেয়; ওপরের কমান্ডগুলো সেগুলো বদলায়।
+বাংলা ও ইংরেজি ফন্ট একসঙ্গে ব্যবহার করেও \pkg{microtype} স্বাভাবিকভাবে লোড
+করে XeLaTeX-এ এর উপলব্ধ টাইপোগ্রাফির সুবিধাগুলো ব্যবহার করতে পারেন।
+
+\section{পুরোনো ডকুমেন্ট হালনাগাদ}
+পুরোনো ডকুমেন্টে \pkg{banglamainfont} ও \pkg{banglattfont} অপশন রেখেই কাজ
+চালিয়ে যেতে পারেন। নতুন ডকুমেন্টে এই নির্দেশিকার ফন্ট কমান্ডগুলো ব্যবহার করুন;
+একটি বাংলা ফন্ট বাছলেই চলে। নিচের ছকে পুরোনো সেটিংয়ের সমতুল্য নতুন কমান্ড আছে।
+\begin{center}
+\begin{tabularx}{\linewidth}{@{}lX@{}}
+\toprule
+\textbf{পুরোনো সেটিং} & \textbf{বর্তমান কমান্ড বা অপশন} \\
+\midrule
+\pkg{banglamainfont=Kalpurush} & \texttt{\detokenize{\setbanglamainfont{Kalpurush}}} \\
+\pkg{banglattfont=FreeSerif} & \texttt{\detokenize{\setbanglamonofont{FreeSerif}}} \\
+\pkg{changecounternumbering=1} & \pkg{changecounternumbering=true} (স্বাভাবিক সেটিং) \\
+\pkg{changecounternumbering=0} & \pkg{changecounternumbering=false} \\
+\bottomrule
+\end{tabularx}
+\end{center}
+পরে ফন্ট বাছার কমান্ড দিলে সেটি সংশ্লিষ্ট প্যাকেজ অপশনকে প্রতিস্থাপন করে।
+ক্রমসংখ্যার অপশনটি বর্তমান ইন্টারফেসেরই অংশ; Boolean ও সংখ্যায় লেখা দুই
+রূপই গ্রহণ করা হয়। পুরোনো \pkg{SiyamRupali} নামটিও \pkg{Siyam Rupali} হিসেবে চলে।
+
+ডকুমেন্টে \pkg{feature=0/1/2} থাকলে সেটি বাদ দিন; ভাষার সুবিধা পেতে এখন
+আলাদা স্তর বাছতে হয় না। প্রয়োজনীয় AMS, রেফারেন্স ও তথ্যসূত্রের প্যাকেজ যোগ করে নিজের
+উপপাদ্য বা সমাধানের পরিবেশ তৈরি করুন। মার্জিন, লাইনের ফাঁক, শিরোনামের
+যতিচিহ্ন, উপপাদ্যের নকশা ও সমীকরণের গণনা পুনরায় শুরুর নিয়ম ডকুমেন্ট ক্লাস
+বা style-এর বিষয়। একাধিক স্তরের তালিকায় অঙ্ক, বর্ণ বা Roman সংখ্যায় নম্বর দেওয়ার কাঠামো বজায় থাকে।
+
+পুরোনো \pkg{latin} পরিবেশের কাজ এখন স্বয়ংক্রিয় বাংলা-ইংরেজি ফন্ট পরিবর্তনেই
+হয়। শুধু ফন্টের বদলে লেখার ভাষাও বদলাতে চাইলে Polyglossia-এর ভাষা পরিবর্তনের কমান্ড ব্যবহার করুন।
+বন্ধনীসহ সমীকরণের নম্বরের জন্য \texttt{\detokenize{\eqref}}, নামসহ
+রেফারেন্সের জন্য \texttt{\detokenize{\autoref}} ব্যবহার করুন। বর্তমান
+Polyglossia-এর অঙ্ক রূপান্তরের ত্রুটি সংশোধিত হয়েছে; পুরোনো workaround আর দরকার নেই।
+
+\section*{এক নজরে কমান্ড}
+\phantomsection
+\addcontentsline{toc}{section}{এক নজরে কমান্ড}
+\begin{center}
+\begin{tabularx}{\linewidth}{@{}lX@{}}
+\toprule
+\textbf{কাজ} & \textbf{কমান্ড বা অপশন} \\
+\midrule
+মূল বাংলা ফন্ট বাছা & \texttt{\detokenize{\setbanglamainfont[features]{font}}} \\
+অন্য বাংলা ফন্ট বাছা & \texttt{\detokenize{\setbanglasansfont}}, \texttt{\detokenize{\setbanglamonofont}} \\
+ইংরেজি ফন্ট বাছা & \texttt{\detokenize{\setmainfont}}, \texttt{\detokenize{\setsansfont}}, \texttt{\detokenize{\setmonofont}} \\
+আগের কাউন্টারের বিন্যাস রাখা & \pkg{changecounternumbering=false} \\
+কাউন্টারের মান বাংলায় লেখা & \texttt{\detokenize{\tobangla{counter}}} \\
+অঙ্কের সারি রূপান্তর & \texttt{\detokenize{\numtobangla{0012}}} \\
+গণিতে বাংলা শব্দ লেখা & \texttt{\detokenize{\text{বাংলা}}} \\
+বর্ণভিত্তিক কাউন্টার & \texttt{\detokenize{\alph{counter}}} বা \texttt{\detokenize{\Alph{counter}}} \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+রূপান্তর চালু থাকলে বর্ণভিত্তিক নম্বর ক থেকে ৎ পর্যন্ত চলে (৩৬টি বর্ণ)।
+শূন্যে কিছু লেখা হয় না; ঋণাত্মক বা ৩৬-এর বেশি মানে ``Counter too large'' ত্রুটি আসে।
+পরিশিষ্টে পরিশিষ্ট ক-এর মতো নম্বর আসে।
+
+\subsection{নমুনা ও সহায়তা}
+সুবিধাগুলো একসঙ্গে দেখতে
+\href{https://github.com/Neehan/LaTeXbangla}{রিপোজিটরিতে দেওয়া}
+নমুনা ডকুমেন্ট ও ফন্ট নির্দেশিকা
+দেখতে পারেন; দুটিরই সোর্স ও PDF দেওয়া আছে। পরীক্ষিত ক্লাসের মধ্যে আছে
+article, report, book ও memoir। কোনো কিছু প্রত্যাশামতো কাজ না করলে একটি ছোট
+ডকুমেন্ট, ফন্টের নাম ও XeLaTeX log পাঠান; \texttt{\detokenize{\listfiles}}
+প্যাকেজের সংস্করণ লিখে রাখে। আমাদের সঙ্গে যোগাযোগ করতে পারেন
+\href{https://github.com/Neehan/LaTeXbangla/issues}{GitHub Issues}-এ বা
+\href{https://groups.google.com/g/latexbangla}{\texttt{latexbangla@googlegroups.com}}-এ।
+
+\smallskip
+{\small স্বত্ব ২০১৬, ২০২৬ আদীব হাসান।
+\href{https://www.latex-project.org/lppl.txt}{LaTeX Project Public License 1.3c বা পরবর্তী সংস্করণে}
+প্রকাশিত। এই নির্দেশিকায় বাংলায় Kalpurush ও ইংরেজি মূল লেখায় TeX Gyre Pagella
+ব্যবহার করা হয়েছে; প্রথম উদাহরণের ইংরেজি ফন্ট TeX Gyre Adventor।}
+\end{document}
