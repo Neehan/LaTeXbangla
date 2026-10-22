@@ -1,3 +1,4 @@
-# PDF inspection versions used for the recorded acceptance run.
+# PDF inspection and deterministic raster comparison.
 PyMuPDF==1.27.2.3
 pypdf==6.14.2
+Pillow==12.2.0

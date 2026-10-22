@@ -58,7 +58,46 @@ def cases():
             tex=document(pre, body, cls), passes=passes, backend=backend, expect_error=error
         )
 
+    add(
+        "preamble-font-box",
+        setup() + r"""
+\newfontfamily\alternateenglishfont{TeX Gyre Adventor}
+\newsavebox\preamblebox
+\sbox\preamblebox{\bengalifont\textbf{PreambleBold বাংলা}}
+""",
+        r"""
+\usebox\preamblebox\par
+{\let\rmfamilylatin\alternateenglishfont\bengalifont LocalEnglish বাংলা}\par
+OutsideEnglish বাংলা।
+""", passes=1,
+    )
+    # File loads name their faces explicitly. fontspec only forces synthetic
+    # bold italic when both AutoFakeBold and AutoFakeSlant are requested.
+    add(
+        "noto-file-faces",
+        r"\usepackage{latexbangla}" + FONTS
+        + r"\setbanglamainfont[Path=/work/tests/latex/fonts/,BoldFont=NotoSerifBengali-Bold.ttf,BoldItalicFont=NotoSerifBengali-Bold.ttf,BoldItalicFeatures={FakeSlant=0.2}]{NotoSerifBengali-Regular.ttf}",
+        FONT_FACE_BODY, passes=1,
+    )
+    add(
+        "noto-bold-override",
+        r"\usepackage{latexbangla}" + FONTS
+        + r"\setbanglamainfont[AutoFakeBold=4,AutoFakeSlant=0.2]{Noto Serif Bengali}",
+        r"বাংলা\par\textbf{বাংলা}\par\textbf{\textit{বাংলা}}", passes=1,
+    )
     add("one-font", setup(), FONT_BODY)
+    add(
+        "switching-contexts", setup() + r"\setotherlanguage{english}",
+        (FIXTURES / "switching-contexts.tex").read_text(encoding="utf-8"),
+        passes=1,
+    )
+    add(
+        "switching-node-font",
+        setup() + r"\setotherlanguage{english}"
+        + r"\ifdefined\directlua\setmainfont[Renderer=Node]{TeX Gyre Pagella}\fi",
+        (FIXTURES / "switching-contexts.tex").read_text(encoding="utf-8"),
+        passes=1,
+    )
     add(
         "english-first-families",
         setup(font="Noto Serif Bengali")
@@ -171,7 +210,7 @@ LatinAgain café Ānand বাংলা।\par
         "font-siyam-file",
         r"\usepackage{latexbangla}"
         + FONTS
-        + r"\setbanglamainfont[Path=/work/tests/xelatex/fonts/]{Siyamrupali.ttf}"
+        + r"\setbanglamainfont[Path=/work/tests/latex/fonts/]{Siyamrupali.ttf}"
         r"\usepackage[a4paper,margin=20mm]{geometry}",
         r"\bengalifont\typeout{PROFILE-SPACE: \the\fontdimen2\font}"
         r"\typeout{PROFILE-XHEIGHT: \the\fontdimen5\font}" + FONT_FACE_BODY,
@@ -789,4 +828,8 @@ English code 12; বাংলা ১২
     # Compile the exact README snippet; verify.py renders its preview for refreshing the README.
     readme_example = (REPO / "README.md").read_text(encoding="utf-8").split("```latex\n", 1)[1].split("```", 1)[0]
     data["readme-example"] = dict(tex=readme_example, passes=1, backend=None, expect_error=None)
+    # graphicx loads epstopdf on LuaTeX. Use TeX Live's normal restricted shell
+    # policy for these graphics examples, as for the minted manual.
+    for name in ("common-math", "common-layout", "common-boxes"):
+        data[name]["restricted_shell_escape"] = True
     return data

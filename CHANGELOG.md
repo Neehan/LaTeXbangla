@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1
+
+- Add LuaLaTeX support.
+- Keep font styles and sizing consistent across engines, including bold italic
+  and Siyam Rupali's heading spacing.
+
 ## 1.0
 
 - Modernize for current XeLaTeX and Polyglossia, fixing the old numbering incompatibility.

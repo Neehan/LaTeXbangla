@@ -1,4 +1,4 @@
-# XeLaTeX tests
+# XeLaTeX and LuaLaTeX tests
 
 Compile test documents and check their PDFs for correct fonts, numbering,
 references, links, and expected errors. Package usage is in the
@@ -13,25 +13,29 @@ tools on macOS). From the repository root:
 python3 -m venv .venv
 . .venv/bin/activate
 python3 -m pip install -r tests/requirements.txt
-sh tests/xelatex/run.sh
-python3 tests/xelatex/verify.py
+sh tests/latex/run.sh
+python3 tests/latex/verify.py
+sh tests/latex/run.sh --engine lualatex
+python3 tests/latex/verify.py --engine lualatex
 ```
 
 The first run downloads the pinned Docker image and test fonts. Subsequent runs
-reuse verified downloads. TeX compilation runs without network access. The manual
-uses restricted shell escape for minted; other tests disable shell escape.
+reuse verified downloads. LuaLaTeX runs register these fonts in luaotfload's
+database inside the disposable container. TeX compilation runs without network access. The manual
+and graphics examples use restricted shell escape for minted and epstopdf;
+other tests disable shell escape.
 PDF inspection runs on the host.
 
 To list or rerun individual tests:
 
 ```sh
-python3 tests/xelatex/run.py --list
-sh tests/xelatex/run.sh one-font math citations-biblatex
+python3 tests/latex/run.py --list
+sh tests/latex/run.sh one-font math citations-biblatex
 ```
 
 Run the full suite once before using the verifier, which checks all recorded
-results. Output is saved in the ignored `build/` directory. Each rerun replaces
-only the selected tests. Run one runner at a time: results share a JSON file.
+results. Output is saved in ignored `build/xelatex/` and `build/lualatex/` directories. Each rerun replaces
+only the selected tests. Run one runner per engine at a time: each engine has its own results file.
 
 ## Coverage
 
@@ -69,7 +73,8 @@ also inspect their rendered counters, citations, boldness, and reference links.
 [run.sh](run.sh) pins the TeX Live 2026 Docker image by digest. The baseline uses
 XeTeX 0.999998, LaTeX 2026-06-01, Polyglossia 2.13, fontspec 2.9h, and
 ucharclasses 2.6.0. Test logs record loaded package versions.
-Older distributions, LuaLaTeX, and hosted Overleaf builds are not covered.
+The LuaLaTeX baseline uses LuaHBTeX 1.24.0 with HarfBuzz shaping for Bangla.
+Older distributions and hosted Overleaf builds are not covered.
 
 | Fonts | Source |
 | --- | --- |
@@ -82,8 +87,8 @@ Noto license notice stay in the ignored `fonts/` directory; fonts are not
 redistributed. `fonts.conf` makes them available only to the test processes.
 
 For offline preparation, supply the Noto archive with
-`python3 tests/xelatex/fetch-fonts.py --archive /path/to/fonts-noto-core.deb`
-and place the pinned SolaimanLipi and Siyam Rupali files in `tests/xelatex/fonts/`.
+`python3 tests/latex/fetch-fonts.py --archive /path/to/fonts-noto-core.deb`
+and place the pinned SolaimanLipi and Siyam Rupali files in `tests/latex/fonts/`.
 The Docker image must already be available locally to run tests offline.
 
 ## Add or change tests
@@ -97,3 +102,23 @@ and the [font guide](../../examples/supported-fonts.pdf). Check conjuncts,
 spacing, bold contrast, and slant; successful compilation alone is insufficient.
 Synthetic-bold checks inspect PDF strokes because the face name can stay the same.
 Explicit user settings must continue to override package defaults.
+
+## Compare engines visually
+
+After compiling both suites, run:
+
+```sh
+python3 tests/latex/compare-engines.py
+```
+
+Open `build/engine-comparison/index.html` for all six fonts in regular, bold,
+italic and bold italic at 8, 11 and 16 pt. The report includes full pages,
+aligned text rows, color overlays and difference images. Rows are translated
+to the same origin and baseline without scaling or shearing. Magenta marks
+XeTeX-only ink, cyan marks LuaTeX-only ink, and black marks shared ink.
+
+TeX measurements compare font size, slant and shaped width; PDF measurements
+compare selected faces and synthetic stroke widths. Raster scores exclude blank
+background. Inspect differences in context: antialiasing can change edge pixels
+without changing the typography. Use `--dpi 300` for finer inspection. The report,
+PNGs and machine-readable measurements remain in the ignored build directory.

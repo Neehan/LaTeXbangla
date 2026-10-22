@@ -2,8 +2,8 @@
 /CONTRACT.md
 
 # Test output, downloaded test fonts, and generated upload bundles.
-/tests/xelatex/build/
-/tests/xelatex/fonts/
+/tests/latex/build/
+/tests/latex/fonts/
 *.zip
 
 # Python environments and caches.

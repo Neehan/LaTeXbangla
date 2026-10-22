@@ -5,6 +5,7 @@ Run on the host with PyMuPDF and pypdf. Outputs are disposable build artifacts.
 Ligatures can extract as decomposed Bengali text, so assertions use stable
 numeric labels, Latin marker words, font metadata and auxiliary-file records.
 """
+import argparse
 import json
 import math
 from pathlib import Path
@@ -16,10 +17,13 @@ from pypdf import PdfReader
 from pypdf.generic import ContentStream, DictionaryObject
 from cases import cases, BENGALI_FONTS, REPO
 
-BUILD = Path(__file__).resolve().parent / "build"
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument("--engine", choices=("xelatex", "lualatex"), default="xelatex")
+ENGINE = parser.parse_args().engine
+BUILD = Path(__file__).resolve().parent / "build" / ENGINE
 RESULTS_PATH = BUILD / "results.json"
 if not RESULTS_PATH.exists():
-    raise SystemExit("No test results found. Run sh tests/xelatex/run.sh first.")
+    raise SystemExit("No test results found. Run sh tests/latex/run.sh first.")
 RESULTS = json.loads(RESULTS_PATH.read_text(encoding="utf-8"))
 CHECKS = []
 PDFS = {}
@@ -620,6 +624,35 @@ check(
     "Explicit italic and bold-italic slant settings override the package defaults",
 )
 
+# Preamble boxes and local font overrides must retain their intended faces.
+for marker, family in (
+    ("PreambleBold", "TeXGyrePagella-Bold"),
+    ("LocalEnglish", "TeXGyreAdventor-Regular"),
+    ("OutsideEnglish", "TeXGyrePagella-Regular"),
+):
+    check(any(marker in span["text"] and span["font"] == family
+              for span in spans("preamble-font-box")),
+          f"Preamble/local font selection: {marker} uses {family}")
+
+for name in ("switching-contexts", "switching-node-font"):
+    log = (BUILD / name / "main.log").read_text(encoding="utf-8")
+    check(len(re.findall(r"FONT-PAIR-[a-z]+: equal", log)) == 15,
+          f"{name}: all fifteen automatic/direct font width comparisons agree")
+
+check(face_sample_sizes <= rendered_slant_sizes(
+    "noto-file-faces", "NotoSerifBengali-Bold", 0.2),
+    "Path-based Noto font loading honors the explicit bold-italic face and slant")
+with fitz.open(BUILD / "noto-file-faces/main.pdf") as document:
+    check(not any(t["type"] == 1 for page in document for t in page.get_texttrace()),
+          "Path-based Noto faces do not receive synthetic bold")
+with fitz.open(BUILD / "noto-bold-override/main.pdf") as document:
+    strokes = [t for t in document[0].get_texttrace() if t["type"] == 1]
+    check(len({round(t["chars"][0][2][1], 2) for t in strokes}) == 2
+          and all(t["font"] == "NotoSerifBengali-Regular"
+                  and math.isclose(t["linewidth"] / t["size"], 0.04, abs_tol=0.0002)
+                  for t in strokes),
+          "Explicit Noto AutoFakeBold=4 and AutoFakeSlant apply to both bold styles")
+
 # Synthetic bold shares the regular face's font name. Inspect the actual PDF
 # paint operations instead: bold and bold italic must add a 3.5% em stroke;
 # the identical regular line must remain unstroked.
@@ -627,7 +660,7 @@ with fitz.open(BUILD / "synthetic-bold/main.pdf") as document:
     traces = [trace for trace in document[0].get_texttrace() if trace["font"] == "Kalpurush"]
     strokes = [trace for trace in traces if trace["type"] == 1]
     check(
-        len(strokes) == 2
+        len({round(t["chars"][0][2][1], 2) for t in strokes}) == 2
         and all(math.isclose(t["linewidth"] / t["size"], 0.035, abs_tol=0.0002) for t in strokes),
         "Kalpurush bold and bold italic use the intended synthetic stroke strength",
     )
@@ -789,6 +822,11 @@ check(
     "latexbangla.sty" not in (BUILD / "manual-fontspec-comparison/main.log").read_text(encoding="utf-8"),
     "The fontspec-only manual comparison works without loading LaTeXbangla",
 )
+if ENGINE == "lualatex":
+    check(
+        "Kalpurush:mode=harf;" in (BUILD / "manual-fontspec-comparison/main.log").read_text(encoding="utf-8"),
+        "The standalone fontspec comparison enables HarfBuzz for Bangla shaping",
+    )
 
 # The manual's output panels execute their displayed source. Inspect the
 # result boxes so printed source or explanatory prose cannot satisfy assertions.
@@ -819,22 +857,39 @@ with fitz.open(BUILD / "manual/main.pdf") as document:
             bottom = heading_y(end) if end and page_index == last_page else page.rect.height
             yield page, fitz.Rect(0, top, page.rect.width, bottom)
 
-    def manual_result_text(title, result_title="Result"):
-        rendered = []
+    def manual_result_panels(title, result_title="Result"):
+        """Yield actual output panels, excluding the surrounding prose and code."""
         for page, region in manual_section_regions(title):
             for heading in page.search_for(result_title, clip=region):
                 frames = [
                     drawing["rect"] for drawing in page.get_drawings()
                     if drawing["fill"] is not None
                     and drawing["rect"].x0 > page.rect.width / 2
-                    and drawing["rect"].contains(heading)
+                    # Font ascender boxes can extend above a tightly set title.
+                    # Its center must still lie inside the actual panel.
+                    and drawing["rect"].contains((heading.tl + heading.br) / 2)
                 ]
                 if frames:
                     # The outer frame encloses both title and output; its title
                     # background is a smaller rectangle containing the same word.
                     panel = max(frames, key=lambda rect: rect.get_area())
-                    rendered.append(page.get_textpage(clip=panel).extractText())
+                    yield page, panel
+
+    def manual_result_text(title, result_title="Result"):
+        rendered = [page.get_textpage(clip=panel).extractText()
+                    for page, panel in manual_result_panels(title, result_title)]
         return re.sub(r"\s+", "", "".join(rendered))
+
+    for title, result_title in (("Quickstart", "Result"), ("দ্রুত আরম্ভ", "ফলাফল")):
+        preview_spans = [
+            span for page, panel in manual_result_panels(title, result_title)
+            for block in page.get_text("dict", clip=panel)["blocks"]
+            for line in block.get("lines", []) for span in line["spans"]
+            if "English" in span["text"]
+        ]
+        check(any(span["font"] == "TeXGyreAdventor-Regular" for span in preview_spans)
+              and not any(span["font"] == "TeXGyrePagella-Regular" for span in preview_spans),
+              f"Manual {title} preview preserves its local Adventor font")
 
     check(
         (REPO / "latexbangla/logo.png").read_bytes() == (REPO / "img/logo.png").read_bytes()
@@ -880,7 +935,7 @@ with fitz.open(BUILD / "manual/main.pdf") as document:
         and region.contains(fitz.Rect(t["bbox"]))
     ]
     check(
-        len(bold_strokes) == 2
+        len({round(t["chars"][0][2][1], 2) for t in bold_strokes}) == 2
         and all(math.isclose(t["linewidth"] / t["size"], 0.04, abs_tol=0.0002)
                 for t in bold_strokes),
         "Manual AutoFakeBold example applies strength 4 to both bold and bold italic",

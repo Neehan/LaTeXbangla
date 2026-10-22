@@ -16,8 +16,6 @@ from typing import TypedDict
 
 from cases import cases, FIXTURES, REPO, ROOT
 
-BUILD = ROOT / "build"
-
 
 class CompilationResult(TypedDict):
     """Per-specimen result, also serialized to build/results.json."""
@@ -44,7 +42,7 @@ def execute(
             capture_output=True,
             text=True,
             errors="replace",
-            timeout=60,
+            timeout=120,
         )
         return (
             process.returncode,
@@ -55,11 +53,13 @@ def execute(
         output = error.stdout or b""
         if isinstance(output, bytes):
             output = output.decode(errors="replace")
-        return 124, output + "\nTIMEOUT", 60
+        return 124, output + "\nTIMEOUT", 120
 
 
-def compile_case(name: str, case, environment: dict[str, str]) -> CompilationResult:
-    directory = BUILD / name
+def compile_case(
+    name: str, case, environment: dict[str, str], engine: str, build: Path
+) -> CompilationResult:
+    directory = build / name
     directory.mkdir(exist_ok=True)
     # Only generated files inside this named specimen directory are removed.
     for path in directory.iterdir():
@@ -72,7 +72,7 @@ def compile_case(name: str, case, environment: dict[str, str]) -> CompilationRes
     output = ""  # Fallback diagnostic when no TeX log is available.
     for pass_number in range(1, case["passes"] + 1):
         command = [
-            case.get("engine", "xelatex"),
+            case.get("engine", engine),
             # Minted in the manual uses TeX Live's allowlisted latexminted tool.
             "-shell-restricted" if case.get("restricted_shell_escape") else "-no-shell-escape",
             "-interaction=nonstopmode",
@@ -114,7 +114,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("names", nargs="*", help="specimen names; omit to run the complete suite")
     parser.add_argument("--list", action="store_true", help="list available specimens")
+    parser.add_argument("--engine", choices=("xelatex", "lualatex"), default="xelatex")
     args = parser.parse_args()
+    build = ROOT / "build" / args.engine
     specimens = cases()
     if args.list:
         print("\n".join(specimens))
@@ -122,7 +124,7 @@ def main():
     unknown = sorted(set(args.names) - specimens.keys())
     if unknown:
         parser.error("unknown specimens: " + ", ".join(unknown))
-    BUILD.mkdir(exist_ok=True)
+    build.mkdir(parents=True, exist_ok=True)
     # Keep font discovery local to the test processes. The trailing TEXINPUTS
     # separator retains TeX's normal package search path after the package source tree.
     environment = dict(
@@ -131,14 +133,14 @@ def main():
         FONTCONFIG_FILE=str(ROOT / "fonts.conf"),
         max_print_line="1000",
     )
-    version = subprocess.check_output(["xelatex", "--version"], text=True)
-    (BUILD / "engine.txt").write_text(version, encoding="utf-8")
-    results_path = BUILD / "results.json"
+    version = subprocess.check_output([args.engine, "--version"], text=True)
+    (build / "engine.txt").write_text(version, encoding="utf-8")
+    results_path = build / "results.json"
     results = json.loads(results_path.read_text(encoding="utf-8")) if results_path.exists() else {}
     failures = []
     for name in args.names or specimens:
         case = specimens[name]
-        result = compile_case(name, case, environment)
+        result = compile_case(name, case, environment, args.engine, build)
         results[name] = result
         results_path.write_text(
             json.dumps(results, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"

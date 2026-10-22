@@ -1,0 +1,34 @@
+% Compare automatic Latin runs with direct selection of their companion font.
+% A width mismatch catches wrong faces, size, ligatures or discretionary text.
+\newcommand\checkfontpair[4]{%
+  \setbox0=\hbox{#2\bengalifont #4}%
+  \setbox2=\hbox{#2#3#4}%
+  \ifdim\wd0=\wd2
+    \typeout{FONT-PAIR-#1: equal}%
+  \else
+    \errmessage{Font pair #1 differs: \the\wd0\space versus \the\wd2}%
+  \fi}
+% TeX punctuation must use the selected font's own ligature settings.
+\checkfontpair{texpunctuation}{}{\rmfamilylatin}{12--14---``quote''}
+\checkfontpair{monopunctuation}{\ttfamily}{\ttfamilylatin}{12--14---``quote''}
+\checkfontpair{roman}{}{\rmfamilylatin}{office}
+\checkfontpair{bold}{\bfseries}{\rmfamilylatin}{office}
+\checkfontpair{italic}{\itshape}{\rmfamilylatin}{office}
+\checkfontpair{bolditalic}{\bfseries\itshape}{\rmfamilylatin}{office}
+\checkfontpair{sans}{\sffamily}{\sffamilylatin}{office}
+\checkfontpair{sansbold}{\sffamily\bfseries}{\sffamilylatin}{office}
+\checkfontpair{mono}{\ttfamily}{\ttfamilylatin}{office}
+\checkfontpair{small}{\footnotesize}{\rmfamilylatin}{office}
+\checkfontpair{large}{\Large}{\rmfamilylatin}{office}
+\checkfontpair{discretionary}{}{\rmfamilylatin}{of\-fice}
+\checkfontpair{replacement}{}{\rmfamilylatin}{of\discretionary{f-}{i}{fi}ce}
+\checkfontpair{explicitspace}{\spaceskip=9pt}{\rmfamilylatin}{office words}
+\checkfontpair{explicitkern}{}{\rmfamilylatin}{office\kern3pt words}
+
+\noindent RomanBefore বাংলা
+{\sffamily SansBefore বাংলা {\bfseries SansBold বাংলা} SansAfter বাংলা}
+RomanAfter বাংলা।\par
+{\footnotesize SmallBefore বাংলা \textbf{SmallBold বাংলা} SmallAfter বাংলা।}\par
+{\Large LargeBefore বাংলা \textit{LargeItalic বাংলা} LargeAfter বাংলা।}\par
+\textenglish{English language, hyphenation and ordinary punctuation.}
+\[ x^২ + 12 = ১৪ \qquad \text{বাংলা MathText} \qquad \mathbf{ABC123} \]

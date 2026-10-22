@@ -1,5 +1,5 @@
 % ----------------------------------------------------------------
-% LaTeXbangla package - Enhanced LaTeX integration for Bangla
+% LaTeXbangla package - Writing Bangla with ordinary LaTeX
 % E-mail: latexbangla@googlegroups.com
 % Released under the LaTeX Project Public License v1.3c or later
 % See https://www.latex-project.org/lppl.txt
@@ -22,7 +22,7 @@
 % This work has the LPPL maintenance status "maintained".
 % The current maintainer is Adib Hasan.
 
-% This work consists of latexbangla.sty, code/latexbangla-*.tex,
+% This work consists of latexbangla.sty, code/latexbangla-*.tex, code/latexbangla-*.lua,
 % latexbangla-bengali.lbx, the manual source latexbangla.tex, its PDF and logo.png.
 % ------------------------------------------------------------------
 
@@ -30,16 +30,15 @@
 % intentionally conservative until an older-distribution test matrix exists.
 \NeedsTeXFormat{LaTeX2e}[2026-06-01]
 \RequirePackage{iftex}
-\RequireXeTeX
-\ProvidesExplPackage{latexbangla}{2026-10-22}{1.0}
-  {Bangla language support for XeLaTeX}
+\RequireTUTeX
+\ProvidesExplPackage{latexbangla}{2026-10-23}{1.1}
+  {Bangla language support for XeLaTeX and LuaLaTeX}
 
 % Polyglossia owns language data and decimal numbering; fontspec owns fonts.
 % amstext is the small, style-aware text-in-math component, not the AMS suite.
 \RequirePackage{fontspec}[2026/08/11]
 \RequirePackage{polyglossia}[2026/09/11]
 \RequirePackage{amstext}
-\RequirePackage[Latin,Bengali,Devanagari]{ucharclasses}
 
 \bool_new:N \g__latexbangla_convert_counters_bool
 \bool_gset_true:N \g__latexbangla_convert_counters_bool
@@ -96,6 +95,9 @@
 % Each file has one responsibility. They share the latexbangla namespace and
 % deliberately keep upstream compatibility details in their respective module.
 \file_input:n {code/latexbangla-fonts.tex}
+\sys_if_engine_xetex:TF
+  {\file_input:n {code/latexbangla-engine-xetex.tex}}
+  {\file_input:n {code/latexbangla-engine-luatex.tex}}
 \file_input:n {code/latexbangla-numbering.tex}
 \file_input:n {code/latexbangla-math-digits.tex}
 \file_input:n {code/latexbangla-references.tex}

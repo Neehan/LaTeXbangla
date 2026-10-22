@@ -1,0 +1,26 @@
+% Visual specimen: compare the same conjuncts and punctuation in all four
+% styles at body, footnote and heading sizes. Inspect the PDF as well as tests.
+\newcommand\facesample{শিক্ষার্থী, দৃষ্টি, স্বচ্ছ, স্বাধীনতা, পূর্ণসংখ্যা, ক্ষুদ্র, জ্ঞান।}
+% Record font geometry and shaped advance independently of rasterization.
+% The rendered rows remain unchanged; this box is measured but not printed.
+\newcommand\recordfacemetrics[1]{%
+  \begingroup\bengalifont
+  \setbox0=\hbox{\facesample}%
+  \typeout{FACE-METRICS: size=\csname f@size\endcsname; style=#1; em=\the\fontdimen6\font; slant=\the\fontdimen1\font; width=\the\wd0}%
+  \endgroup}
+% Extra leading isolates glyph rows for image crops without changing their size.
+\newcommand\facerows{%
+  Regular:\quad\recordfacemetrics{regular}\facesample\par\bigskip
+  Bold:\quad\textbf{\recordfacemetrics{bold}\facesample}\par\bigskip
+  Italic:\quad\textit{\recordfacemetrics{italic}\facesample}\par\bigskip
+  Bold italic:\quad\textbf{\textit{\recordfacemetrics{bolditalic}\facesample}}\par\bigskip
+}
+\setlength{\parindent}{0pt}
+\subsection*{Body: 11 pt}
+{\fontsize{11}{16.5}\selectfont\facerows}
+\subsection*{Footnotes: 8 pt}
+{\fontsize{8}{12}\selectfont\facerows}
+\subsection*{Headings: 16 pt}
+{\fontsize{16}{24}\selectfont\facerows}
+\medskip
+\textit{বাংলা italic English} এবং \textbf{\textit{বাংলা bold italic English}}।

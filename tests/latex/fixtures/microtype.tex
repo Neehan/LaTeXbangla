@@ -3,11 +3,18 @@
 \begingroup
 \protrusionfont
 English café naïve À. \textendash\ English.
+\ifdefined\XeTeXversion
 \typeout{PROTRUSION-MODE: \the\XeTeXprotrudechars}
 % XeTeX uses U-prefixed Unicode slots for OpenType fonts; bare numbers denote
 % glyph indices and would incorrectly report unused, zero-valued entries.
 \typeout{PROTRUSION-PERIOD: \the\rpcode\font U46}
 \typeout{PROTRUSION-ENDASH: \the\lpcode\font U8211}
 \typeout{PROTRUSION-ACCENT: \the\lpcode\font U192}
+\else
+\typeout{PROTRUSION-MODE: \the\protrudechars}
+\typeout{PROTRUSION-PERIOD: \the\rpcode\font 46}
+\typeout{PROTRUSION-ENDASH: \the\lpcode\font 8211}
+\typeout{PROTRUSION-ACCENT: \the\lpcode\font 192}
+\fi
 \endgroup
 \textbf{English café naïve.}

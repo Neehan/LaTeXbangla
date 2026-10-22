@@ -15,7 +15,7 @@ the package and its author, Adib Hasan. :))
 
 Copy `latexbangla.sty`, `latexbangla-bengali.lbx`, and the `code/` folder from
 [`latexbangla/`](latexbangla/) beside your document. Install one Bangla font and
-compile with **XeLaTeX**. Tested on TeX Live 2026.
+compile with **XeLaTeX or LuaLaTeX**. Tested on TeX Live 2026.
 
 **Supported Bangla fonts:** Kalpurush, SolaimanLipi, Siyam Rupali, Noto Serif Bengali,
 Noto Sans Bengali, and FreeSerif. [Compare the fonts](examples/supported-fonts.pdf).

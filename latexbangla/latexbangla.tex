@@ -31,7 +31,7 @@
 \definecolor{CodePaper}{HTML}{F4F6F8}
 \definecolor{ResultPaper}{HTML}{F0F8F4}
 \hypersetup{colorlinks,linkcolor=BanglaGreen,urlcolor=BanglaGreen,
-  citecolor=BanglaGreen,pdftitle={LaTeXbangla 1.0: User guide},pdfauthor={Adib Hasan}}
+  citecolor=BanglaGreen,pdftitle={LaTeXbangla 1.1: User guide},pdfauthor={Adib Hasan}}
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{4pt plus 1pt}
 \setlength{\emergencystretch}{2em}
@@ -46,7 +46,7 @@
 \pagestyle{fancy}
 \fancyhf{}
 \fancyhead[L]{\small\sffamily\color{BanglaGreen}LaTeXbangla}
-\fancyhead[R]{\small\sffamily\color{BanglaInk}Version 1.0\quad User guide}
+\fancyhead[R]{\small\sffamily\color{BanglaInk}Version 1.1\quad User guide}
 \fancyfoot[C]{\small\thepage}
 \renewcommand{\headrulewidth}{0.3pt}
 % Keep the English guide's navigation Western while examples use the package's
@@ -100,7 +100,7 @@
 {\Large\sffamily\color{BanglaGreen}Writing Bangla with ordinary \LaTeX}\\[5pt]
 {Adib Hasan}\\[2pt]
 {\small\href{https://groups.google.com/g/latexbangla}{\texttt{latexbangla@googlegroups.com}}}\\[3pt]
-{22 October 2026\quad\textcolor{BanglaRed}{\textbullet}\quad Version 1.0}
+{23 October 2026\quad\textcolor{BanglaRed}{\textbullet}\quad Version 1.1}
 \end{center}
 
 LaTeXbangla is a package for writing Bangla articles, reports and books with
@@ -118,14 +118,14 @@ fallbacks, alphabetic numbering, Bangla math digits and reference support.
 \hyperref[manual:bangla]{A complete Bangla translation follows this English guide}.
 
 \section{Quickstart}
-Compile with \textbf{XeLaTeX}. This release targets TeX Live 2026 with
+Compile with \textbf{XeLaTeX or LuaLaTeX}. This release targets TeX Live 2026 with
 LaTeX 2026-06-01, Polyglossia 2.13 and fontspec 2.9h (or newer compatible versions).
 Install a Bangla font from the list in section~2. Add this preamble:
 \begin{tcolorbox}[manualbox,title=Minimal document]
 \begin{code}
 \documentclass{article}
 \usepackage{fontspec}
-\setmainfont{TeX Gyre Adventor} % English font is preserved.
+\setmainfont{TeX Gyre Adventor} % Optional; English font is preserved.
 \usepackage{latexbangla}
 \setbanglamainfont{Kalpurush}
 \begin{document}
@@ -138,6 +138,8 @@ Notice how the English keeps Adventor's geometric sans serif shapes, even inside
 bold and italic text. Each Code/Result pair executes the source printed beside it.
 \begingroup
 \let\rmfamilylatin\manualexampleenglishfont
+% Reselect after replacing the companion so both engines capture this local setup.
+\bengalifont
 \begin{examplepair}
 বাংলা and English একই অনুচ্ছেদে।
 
@@ -153,11 +155,13 @@ For occasional Bangla in an English document, fontspec alone is often enough.
 Here is a complete document that reproduces the paragraph above. Declare a
 Bangla font, give Kalpurush its synthetic styles, and mark each Bangla passage
 with that font. English continues to use Adventor outside those groups.
+Under LuaLaTeX, also enable HarfBuzz for Bangla shaping:
 \begin{tcolorbox}[manualbox,title=Without LaTeXbangla]
 \begin{code}
 \documentclass{article}
-\usepackage{fontspec}
+\usepackage{fontspec,iftex}
 \setmainfont{TeX Gyre Adventor}
+\ifluatex\defaultfontfeatures{Renderer=HarfBuzz}\fi
 \newfontfamily\banglatext[
   Script=Bengali,
   AutoFakeBold=3.5,
@@ -241,7 +245,8 @@ All three setters accept features before or after the font name:
 \setbanglamainfont[features]{font}
 \setbanglamainfont{font}[features]
 \end{code}
-Use ordinary fontspec features; \pkg{Script=Bengali} is already set.
+The defaults include \pkg{Script=Bengali} and, under LuaLaTeX,
+\pkg{Renderer=HarfBuzz}.
 Your choices override the defaults. For example, adjust size and spacing or load a file:
 \begin{code}
 \setbanglamainfont[Scale=1.05,WordSpace=1.1]{Kalpurush}
@@ -508,7 +513,7 @@ Use this preamble and add \verb|\printbibliography| where the list belongs:
 \addbibresource{references.bib}
 \usepackage{hyperref}
 \end{code}
-Run XeLaTeX, Biber, then XeLaTeX twice. The Bengali mapping translates headings
+Run your chosen LaTeX engine, Biber, then the same engine twice. The Bengali mapping translates headings
 and conjunctions; remaining bibliography strings inherit English.
 For natbib, choose a BibTeX style and load:
 \begin{code}
@@ -535,7 +540,7 @@ cleveref controls reference names and connecting words. For example:
 Then use \verb|\cref{eq:first,eq:second}| or
 \verb|\crefrange{eq:first}{eq:last}|. The \pkg{english} option supplies
 cleveref's initial names and connecting words; the commands above customize them.
-Load \pkg{microtype} normally to use its XeLaTeX-supported typography features
+Load \pkg{microtype} normally to use its available typography features
 with mixed Bangla and English fonts.
 
 \section{Updating an older document}
@@ -600,7 +605,7 @@ To see the features together, try the example document and font guide in
 \href{https://github.com/Neehan/LaTeXbangla}{the repository},
 both supplied with sources and PDFs. Tested classes include article, report, book and memoir.
 If something does not work as expected, send a small document, your font names
-and the XeLaTeX log; \texttt{\detokenize{\listfiles}} records package versions. You can reach us through
+and the compiler name and log; \texttt{\detokenize{\listfiles}} records package versions. You can reach us through
 \href{https://github.com/Neehan/LaTeXbangla/issues}{GitHub Issues} or
 \href{https://groups.google.com/g/latexbangla}{\texttt{latexbangla@googlegroups.com}}.
 
@@ -625,7 +630,7 @@ the opening example uses TeX Gyre Adventor.}
 \setcounter{theorem}{0}
 \renewcommand{\manualcodetitle}{কোড}
 \renewcommand{\manualresulttitle}{ফলাফল}
-\fancyhead[R]{\small\sffamily\color{BanglaInk}সংস্করণ ১.০\quad ব্যবহার নির্দেশিকা}
+\fancyhead[R]{\small\sffamily\color{BanglaInk}সংস্করণ ১.১\quad ব্যবহার নির্দেশিকা}
 \phantomsection\label{manual:bangla}
 \addcontentsline{toc}{part}{বাংলা ব্যবহার নির্দেশিকা}
 \thispagestyle{empty}
@@ -634,7 +639,7 @@ the opening example uses TeX Gyre Adventor.}
 {\Large\sffamily\color{BanglaGreen}চেনা \LaTeX-এর কমান্ডেই বাংলা লেখা}\\[5pt]
 {আদীব হাসান}\\[2pt]
 {\small\href{https://groups.google.com/g/latexbangla}{\texttt{latexbangla@googlegroups.com}}}\\[3pt]
-{২২ অক্টোবর ২০২৬\quad\textcolor{BanglaRed}{\textbullet}\quad সংস্করণ ১.০}
+{২৩ অক্টোবর ২০২৬\quad\textcolor{BanglaRed}{\textbullet}\quad সংস্করণ ১.১}
 \end{center}
 
 LaTeXbangla হলো পরিচিত \LaTeX-এর কমান্ড দিয়ে বাংলা প্রবন্ধ, প্রতিবেদন ও
@@ -653,15 +658,16 @@ LaTeXbangla ডকুমেন্টের অন্য অংশগুলোও
 ও রেফারেন্সের বাংলা রূপ। পরের অংশগুলোতে উদাহরণসহ এগুলোর ব্যবহার দেখানো হয়েছে।
 
 \section{দ্রুত আরম্ভ}
-\textbf{XeLaTeX} দিয়ে কম্পাইল করুন। এই সংস্করণের পরীক্ষিত ভিত্তি TeX Live 2026,
+\textbf{XeLaTeX অথবা LuaLaTeX} দিয়ে কম্পাইল করুন। এই সংস্করণের পরীক্ষিত ভিত্তি TeX Live 2026,
 LaTeX 2026-06-01, Polyglossia 2.13 ও fontspec 2.9h;
-পরের সামঞ্জস্যপূর্ণ সংস্করণও ব্যবহার করা যাবে। ২ নম্বর পরিচ্ছেদের তালিকা থেকে
+পরের সামঞ্জস্যপূর্ণ সংস্করণও ব্যবহার করা যাবে।
+২ নম্বর পরিচ্ছেদের তালিকা থেকে
 একটি বাংলা ফন্ট ইনস্টল করে এভাবে শুরু করুন:
 \begin{tcolorbox}[manualbox,title=ন্যূনতম ডকুমেন্ট]
 \begin{code}
 \documentclass{article}
 \usepackage{fontspec}
-\setmainfont{TeX Gyre Adventor} % ইংরেজি ফন্ট অক্ষুণ্ণ থাকে।
+\setmainfont{TeX Gyre Adventor} % ঐচ্ছিক; ইংরেজি ফন্ট অক্ষুণ্ণ থাকে।
 \usepackage{latexbangla}
 \setbanglamainfont{Kalpurush}
 \begin{document}
@@ -674,6 +680,8 @@ LaTeX 2026-06-01, Polyglossia 2.13 ও fontspec 2.9h;
 চেহারা ধরে রাখে। প্রতিটি ফলাফলের বাক্সে পাশের কোডটিই চালানো হয়েছে।
 \begingroup
 \let\rmfamilylatin\manualexampleenglishfont
+% Reselect after replacing the companion so both engines capture this local setup.
+\bengalifont
 \begin{examplepair}
 বাংলা and English একই অনুচ্ছেদে।
 
@@ -689,11 +697,13 @@ English keeps its own typeface.
 উপরের অনুচ্ছেদটি একইভাবে দেখাতে নিচের সম্পূর্ণ ডকুমেন্টটি ব্যবহার করতে পারেন।
 বাংলার জন্য আলাদা ফন্ট বেছে Kalpurush-এর গাঢ় ও তির্যক রূপের সেটিং দিন,
 তারপর প্রতিটি বাংলা অংশ সেই ফন্টের গ্রুপে রাখুন। গ্রুপের বাইরে ইংরেজি Adventor-এই থাকে।
+LuaLaTeX-এ বাংলা অক্ষরের যুক্তরূপ ও অবস্থান ঠিক রাখতে HarfBuzz-ও চালু করুন:
 \begin{tcolorbox}[manualbox,title=LaTeXbangla ছাড়া]
 \begin{code}
 \documentclass{article}
-\usepackage{fontspec}
+\usepackage{fontspec,iftex}
 \setmainfont{TeX Gyre Adventor}
+\ifluatex\defaultfontfeatures{Renderer=HarfBuzz}\fi
 \newfontfamily\banglatext[
   Script=Bengali,
   AutoFakeBold=3.5,
@@ -780,6 +790,7 @@ LaTeXbangla-এর ভাষা সহায়তার আরও কিছু 
 \setbanglamainfont{font}[features]
 \end{code}
 এগুলো fontspec-এরই অপশন; \pkg{Script=Bengali} আগে থেকে দেওয়া থাকে।
+LuaLaTeX-এ স্বাভাবিকভাবে \pkg{Renderer=HarfBuzz}-ও দেওয়া থাকে।
 আপনার দেওয়া মান প্যাকেজের স্বাভাবিক সেটিংকে প্রতিস্থাপন করে। যেমন আকার
 ও শব্দের ফাঁক বদলাতে বা ফাইল থেকে ফন্ট নিতে লিখতে পারেন:
 \begin{code}
@@ -1052,7 +1063,7 @@ biblatex-এর আগে LaTeXbangla যোগ করুন, যাতে Polyg
 \addbibresource{references.bib}
 \usepackage{hyperref}
 \end{code}
-XeLaTeX, Biber, তারপর দুবার XeLaTeX চালান। বাংলা mapping শিরোনাম ও
+আপনার নির্বাচিত LaTeX ইঞ্জিন, তারপর Biber, তারপর একই ইঞ্জিন আরও দুবার চালান। বাংলা mapping শিরোনাম ও
 সংযোজক শব্দ অনুবাদ করে; বাকি শব্দ ইংরেজি mapping থেকে আসে।
 natbib-এর জন্য একটি BibTeX style বেছে নিয়ে যোগ করুন:
 \begin{code}
@@ -1080,7 +1091,7 @@ natbib-এর জন্য একটি BibTeX style বেছে নিয়�
 \verb|\crefrange{eq:first}{eq:last}| ব্যবহার করুন। \pkg{english} অপশনটি
 cleveref-এর প্রাথমিক নাম ও সংযোজক শব্দ দেয়; ওপরের কমান্ডগুলো সেগুলো বদলায়।
 বাংলা ও ইংরেজি ফন্ট একসঙ্গে ব্যবহার করেও \pkg{microtype} স্বাভাবিকভাবে লোড
-করে XeLaTeX-এ এর উপলব্ধ টাইপোগ্রাফির সুবিধাগুলো ব্যবহার করতে পারেন।
+করে আপনার ইঞ্জিনে এর উপলব্ধ টাইপোগ্রাফির সুবিধাগুলো ব্যবহার করতে পারেন।
 
 \section{পুরোনো ডকুমেন্ট হালনাগাদ}
 পুরোনো ডকুমেন্টে \pkg{banglamainfont} ও \pkg{banglattfont} অপশন রেখেই কাজ
@@ -1144,7 +1155,7 @@ Polyglossia-এর অঙ্ক রূপান্তরের ত্রুট�
 নমুনা ডকুমেন্ট ও ফন্ট নির্দেশিকা
 দেখতে পারেন; দুটিরই সোর্স ও PDF দেওয়া আছে। পরীক্ষিত ক্লাসের মধ্যে আছে
 article, report, book ও memoir। কোনো কিছু প্রত্যাশামতো কাজ না করলে একটি ছোট
-ডকুমেন্ট, ফন্টের নাম ও XeLaTeX log পাঠান; \texttt{\detokenize{\listfiles}}
+ডকুমেন্ট, ফন্টের নাম, ইঞ্জিনের নাম ও log পাঠান; \texttt{\detokenize{\listfiles}}
 প্যাকেজের সংস্করণ লিখে রাখে। আমাদের সঙ্গে যোগাযোগ করতে পারেন
 \href{https://github.com/Neehan/LaTeXbangla/issues}{GitHub Issues}-এ বা
 \href{https://groups.google.com/g/latexbangla}{\texttt{latexbangla@googlegroups.com}}-এ।

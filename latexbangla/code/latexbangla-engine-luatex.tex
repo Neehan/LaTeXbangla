@@ -1,0 +1,97 @@
+% LuaTeX font selection and the bridge to the pre-hyphenation node callback.
+% Part of latexbangla, LPPL 1.3c or later; copyright 2026 Adib Hasan.
+
+% HarfBuzz provides the Bengali shaping used by the tested XeTeX fonts too.
+% This is a default for Bangla setters only; user features are applied last.
+\tl_gset:Nn \g__latexbangla_renderer_features_tl {Renderer=HarfBuzz,}
+
+% Lua's font resolver does not always substitute a bold face for missing bold
+% italic. If bold has Bengali glyphs, slant that face instead of emboldening
+% the regular face. Resolve its actual file through LuaTeX's font API; Path is
+% local to this face, so both family-name and Path-based font loads work.
+% Preserve a requested synthetic weight on bold too; never invent FakeBold=0,
+% which LuaTeX renders with a nonzero PDF stroke.
+\tl_new:N \l__latexbangla_bold_face_file_tl
+\tl_new:N \l__latexbangla_bold_face_directory_tl
+\tl_new:N \l__latexbangla_bold_face_weight_tl
+\cs_new_eq:NN \__latexbangla_synthetic_bold_italic_fallback:
+  \__latexbangla_supply_bold_italic_fallback:
+\cs_set_protected:Npn \__latexbangla_supply_bold_italic_fallback:
+  {
+    \__latexbangla_face_has_bengali:nnTF {b}{n}
+      {
+        \group_begin:
+          \fontencoding{TU}\fontfamily{\l__latexbangla_font_family_tl}
+          \fontseries{b}\fontshape{n}\selectfont
+          \lua_now:n
+            {
+              local~selected~=~font.getfont(font.current());
+              local~filename~=~selected.filename;
+              filename~=~filename:gsub("^harfloaded:",~"");
+              local~directory,~basename~=~filename:match("^(.-)([^/]+)$");
+              token.set_macro("l__latexbangla_bold_face_file_tl",~basename);
+              token.set_macro("l__latexbangla_bold_face_directory_tl",~directory);
+              local~weight~=~selected.specification.features.normal.embolden;
+              token.set_macro("l__latexbangla_bold_face_weight_tl",
+                ~weight~and~("FakeBold="~..~weight~..~",")~or~"");
+            }
+          \use:e
+            {
+              \group_end:
+              \tl_put_right:Nn \exp_not:N \l__latexbangla_fallback_features_tl
+                {BoldItalicFont={\exp_not:V \l__latexbangla_bold_face_file_tl},
+                 BoldItalicFeatures={Path={\exp_not:V \l__latexbangla_bold_face_directory_tl},
+                   \exp_not:V \l__latexbangla_bold_face_weight_tl FakeSlant=0.2},}
+            }
+      }
+      {\__latexbangla_synthetic_bold_italic_fallback:}
+  }
+
+% Nodes carry the selected companion font, not just a map from Bangla fonts.
+% The same Bangla font can serve roman, sans and mono roles, each with a
+% different English companion. Attributes are local to TeX groups and survive
+% delayed paragraph shaping, boxes, footnotes and nested text styles.
+\newattribute\g__latexbangla_latin_font_attribute
+\int_const:Nn \c__latexbangla_latin_font_attribute_int {\allocationnumber}
+\bool_new:N \l__latexbangla_selecting_latin_font_bool
+
+% Selecting the companion itself calls selectfont, hence the recursion guard.
+% Resolve it afresh so local changes to Polyglossia's Latin font commands work.
+% NFSS already caches loaded fonts; a second cache would risk stale selections.
+% Start as soon as a Bangla font exists, including saveboxes in the preamble.
+% Math font setup can also call selectfont; it must not run text-family commands.
+\cs_new_protected:Npn \__latexbangla_capture_latin_font:
+  {
+    \mode_if_math:F
+      {
+        \cs_if_exist:NT \bengalifont
+          {
+            \bool_if:NF \l__latexbangla_selecting_latin_font_bool
+              {
+                \group_begin:
+                  \bool_set_true:N \l__latexbangla_selecting_latin_font_bool
+                  \__latexbangla_select_latin_font:
+                  \use:e
+                    {\group_end:
+                     \g__latexbangla_latin_font_attribute =
+                       \int_eval:n {\tex_fontid:D \tex_font:D}\scan_stop:}
+              }
+          }
+      }
+  }
+\AddToHook{selectfont}[latexbangla/latin-font]{\__latexbangla_capture_latin_font:}
+% Public family commands finish setting their role after their selectfont call.
+% Refresh once more after the shared role-tracking hook has run.
+\clist_map_inline:nn {rmfamily,sffamily,ttfamily}
+  {
+    \AddToHook{cmd/#1/after}[latexbangla/latin-font]{\__latexbangla_capture_latin_font:}
+    \DeclareHookRule{cmd/#1/after}{latexbangla/latin-font}{after}{latexbangla/family}
+  }
+\AddToHook{begindocument/end}[latexbangla/latin-font]{\__latexbangla_capture_latin_font:}
+
+\lua_now:e
+  {
+    local~install~=~dofile(kpse.find_file("code/latexbangla-switching-luatex.lua",~"tex"));
+    install(\int_use:N \c__latexbangla_latin_font_attribute_int);
+  }
+\endinput
