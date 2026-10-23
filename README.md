@@ -19,6 +19,8 @@ Manual: [English](latexbangla/latexbangla.pdf#nameddest=guide-english) · [ব�
 
 ## Get started
 
+**Using Overleaf?** Make a copy of the [demo project](https://www.overleaf.com/project/6adbaac1d48d9344680c2fe1/share#6b9d2d41b2de0b80c2de0d11c68ce7c79f33cbe1edef7ec7) to get started with the latest version.
+
 Copy `latexbangla.sty`, the `latexbangla-*.lbx` files, and the complete `code/` folder from
 [`latexbangla/`](latexbangla/) beside your document. Install one Bangla font and
 compile with **XeLaTeX or LuaLaTeX**. Tested on TeX Live 2026.
