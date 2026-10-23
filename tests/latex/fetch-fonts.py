@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""Fetch checksum-pinned Bengali fonts for the XeLaTeX acceptance tests.
+"""Fetch checksum-pinned Bengali fonts for the acceptance tests.
 
 Noto comes from Ubuntu 22.04; SolaimanLipi and Siyam Rupali from OmicronLab.
+Anek Bangla comes from Google Fonts.
 Overleaf documents this Ubuntu release as its Noto font source. Keep the test
 assets reproducible without installing fonts on the host or redistributing them
 as part of the LaTeX package. Existing files are reused only after hash checks.
@@ -27,6 +28,20 @@ NOTO_FILES = {
 OMICRONLAB_FONTS = {
     "Siyamrupali.ttf": "54a85c66ad1e6f0c50d3bda85eba5a4975fe49d06819d23230a15f3d7f0573ae",
     "SolaimanLipi_20-04-07.ttf": "16bbf4f0140dab8fcf53ab34a923674ea8c9de2f8583d110c7e62b0094a22fe6",
+}
+ANEK_BASE_URL = (
+    "https://raw.githubusercontent.com/google/fonts/"
+    "95f4904fc8bcf26d3420fe315560c96417c6dec7/ofl/anekbangla/"
+)
+ANEK_FILES = {
+    "AnekBangla-VF.ttf": (
+        "AnekBangla%5Bwdth%2Cwght%5D.ttf",
+        "8b4ec2eaf7400ea9903718a4addf3135475292e6e0b04db7735d0f999289d919",
+    ),
+    "AnekBangla-OFL.txt": (
+        "OFL.txt",
+        "de62be758bba267e653a5f457dfebb4680957e2c343eb3e7de15aff4746bed05",
+    ),
 }
 
 
@@ -87,12 +102,27 @@ def prepare_omicronlab():
     print("Pinned SolaimanLipi and Siyam Rupali test fonts verified.")
 
 
+def prepare_anek():
+    DIRECTORY.mkdir(exist_ok=True)
+    for name, (remote_name, expected) in ANEK_FILES.items():
+        path = DIRECTORY / name
+        if path.exists() and digest(path.read_bytes()) == expected:
+            continue
+        with urllib.request.urlopen(ANEK_BASE_URL + remote_name, timeout=60) as response:
+            data = response.read()
+        if digest(data) != expected:
+            raise SystemExit(f"Font checksum mismatch: {name}")
+        path.write_bytes(data)
+    print("Pinned Anek Bangla variable font and license verified.")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--archive", type=Path, help="use an already downloaded Noto .deb")
     args = parser.parse_args()
     prepare_noto(args.archive)
     prepare_omicronlab()
+    prepare_anek()
 
 
 if __name__ == "__main__":

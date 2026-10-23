@@ -3,6 +3,7 @@
 ## 1.1
 
 - Add LuaLaTeX support.
+- Add Anek Bangla to the tested fonts and font guide.
 - Keep font styles and sizing consistent across engines, including bold italic
   and Siyam Rupali's heading spacing.
 

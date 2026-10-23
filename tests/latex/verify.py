@@ -432,7 +432,7 @@ check(
 # Each supported Bengali family must stand on its own, including sans/mono
 # fallback, text faces, formula digits, lists, tables and citation labels.
 for suffix, family in BENGALI_FONTS.items():
-    font_prefix = family.replace(" ", "")
+    font_prefix = family.removesuffix("-VF.ttf").replace(" ", "")
     for ending in ("", "-unicode"):
         name = "font-" + suffix + ending
         check(
@@ -716,6 +716,23 @@ check(
     "Legacy SiyamRupali alias preserves subsequent English bold-font discovery",
 )
 
+if ENGINE == "lualatex":
+    anek_log = (BUILD / "anek-variable-weights/main.log").read_text(encoding="utf-8")
+    for style, weight in (("REGULAR", 400), ("BOLD", 700), ("BOLDITALIC", 700)):
+        match = re.search(rf"ANEK-{style}-FONT: (.*)", anek_log)
+        selected_font = match.group(1) if match else ""
+        check(
+            f"wght={weight}" in selected_font and "embolden" not in selected_font,
+            f"Anek {style.lower()} uses real variable weight {weight}",
+        )
+    condensed = re.search(r"ANEK-CONDENSED: ([\d.]+)pt", anek_log)
+    expanded = re.search(r"ANEK-EXPANDED: ([\d.]+)pt", anek_log)
+    check(
+        condensed is not None and expanded is not None
+        and float(condensed.group(1)) < float(expanded.group(1)),
+        "Anek Width selects distinct condensed and expanded designs",
+    )
+
 # The public guide changes fonts page by page. Check the rendered selections,
 # not just the labels, so an accidentally shared family cannot mislead readers.
 guide_fonts = (
@@ -725,12 +742,13 @@ guide_fonts = (
     ("Noto Serif Bengali", "NotoSerifBengali", None),
     ("Noto Sans Bengali", "NotoSansBengali", None),
     ("FreeSerif", "FreeSerif", 3.5),
+    ("Anek Bangla", "AnekBangla", 2.5),
 )
 with fitz.open(BUILD / "supported-fonts/main.pdf") as document:
     check(
-        len(document) == 6
+        len(document) == len(guide_fonts)
         and document.get_toc() == [[1, name, i + 1] for i, (name, _, _) in enumerate(guide_fonts)],
-        "Public font guide has six pages and bookmarks in the intended order",
+        "Public font guide has one page per font and bookmarks in the intended order",
     )
     for index, (name, family, strength) in enumerate(guide_fonts):
         page = document[index]

@@ -223,7 +223,9 @@ All numeric deltas are LuaLaTeX minus XeLaTeX.</p>"""]
     report.insert(1, "\n".join(overview))
     (output / "measurements.json").write_text(json.dumps(results, indent=2) + "\n", encoding="utf-8")
     (output / "index.html").write_text("\n".join(report) + "</html>\n", encoding="utf-8")
-    print(f"Compared 72 style/size samples across six fonts: {output / 'index.html'}")
+    sample_count = sum(len(rows) for rows in results.values())
+    print(f"Compared {sample_count} style/size samples across {len(results)} fonts: "
+          f"{output / 'index.html'}")
     return 0
 
 

@@ -22,7 +22,10 @@ fonts, then use its name below:
     \end{document}
 
 Supported fonts: Kalpurush, SolaimanLipi, Siyam Rupali, Noto Serif Bengali,
-Noto Sans Bengali and FreeSerif. Fonts are not included.
+Noto Sans Bengali, FreeSerif and Anek Bangla. Fonts are not included.
+For Anek, rename the downloaded variable font to AnekBangla-VF.ttf,
+put it beside your document, and use
+\setbanglamainfont{AnekBangla-VF.ttf}.
 
 Choosing an English font is optional: use \setmainfont as usual if you want
 to change it. Automatic numbers use Bangla by default; set the package option

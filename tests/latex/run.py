@@ -131,6 +131,7 @@ def main():
         os.environ,
         TEXINPUTS=".:" + str(REPO / "latexbangla") + ":",
         FONTCONFIG_FILE=str(ROOT / "fonts.conf"),
+        OSFONTDIR=str(ROOT / "fonts") + "//:",
         max_print_line="1000",
     )
     version = subprocess.check_output([args.engine, "--version"], text=True)

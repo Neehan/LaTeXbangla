@@ -18,8 +18,9 @@ Copy `latexbangla.sty`, `latexbangla-bengali.lbx`, and the `code/` folder from
 compile with **XeLaTeX or LuaLaTeX**. Tested on TeX Live 2026.
 
 **Supported Bangla fonts:** Kalpurush, SolaimanLipi, Siyam Rupali, Noto Serif Bengali,
-Noto Sans Bengali, and FreeSerif. [Compare the fonts](examples/supported-fonts.pdf).
-Use your chosen font name in `\setbanglamainfont`.
+Noto Sans Bengali, FreeSerif, and Anek Bangla.
+[Compare the fonts](examples/supported-fonts.pdf).
+Use your chosen font name or filename in `\setbanglamainfont`.
 
 ```latex
 \documentclass{article}

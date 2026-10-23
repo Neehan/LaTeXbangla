@@ -8,7 +8,9 @@
 
 % An ordinary document needs just one of these setters. This comparison saves
 % each configured family so that every page uses the package's actual defaults.
-% Install all six fonts to compile this complete specimen.
+% Rename the downloaded Anek variable font to AnekBangla-VF.ttf.
+% Install the other fonts and place that file beside this
+% document to compile the complete specimen.
 \setbanglamainfont{Kalpurush}
 \NewCommandCopy\kalpurushfont\bengalifont
 \setbanglamainfont{SolaimanLipi}
@@ -21,6 +23,8 @@
 \NewCommandCopy\notosansbengalifont\bengalifont
 \setbanglamainfont{FreeSerif}
 \NewCommandCopy\freeseriffont\bengalifont
+\setbanglamainfont{AnekBangla-VF.ttf}
+\NewCommandCopy\anekbanglafont\bengalifont
 
 % Keep the text identical across fonts to make differences easy to compare.
 \newcommand{\samplewords}{শিক্ষার্থী, দৃষ্টি, স্বচ্ছ, স্বাধীনতা, পূর্ণসংখ্যা, ক্ষুদ্র, জ্ঞান।}
@@ -36,16 +40,17 @@
 
 % The saved family becomes the page's Bangla main font. Local assignment lets
 % the normal English/Bangla transitions and fallback font roles keep working.
-\newcommand{\fontsample}[3]{%
+% The optional argument gives a filename when it differs from the family name.
+\NewDocumentCommand{\fontsample}{O{} m m m}{%
   \clearpage
   \begingroup
-  \let\bengalifont#1%
+  \let\bengalifont#2%
   \bengalifont
-  \pdfbookmark[0]{#2}{#2}
-  \section*{#2}
-  \noindent\texttt{\textbackslash setbanglamainfont\{#2\}}\par
+  \pdfbookmark[0]{#3}{#3}
+  \section*{#3}
+  \noindent\texttt{\textbackslash setbanglamainfont\{\IfBlankTF{#1}{#3}{#1}\}}\par
   \smallskip
-  \noindent#3\par
+  \noindent#4\par
   \subsection*{Body text: 11 pt}
   \samplestyles{11}{17}
   \subsection*{Footnotes: 8 pt}
@@ -77,4 +82,9 @@
   {Real bold face. Native size and word spacing.}
 \fontsample{\freeseriffont}{FreeSerif}
   {Synthetic bold: 3.5; real italic face. Native size and word spacing.}
+\fontsample[AnekBangla-VF.ttf]{\anekbanglafont}{Anek Bangla}
+  {Variable font loaded by filename. Synthetic bold: 2.5; synthetic slant: 0.2.
+   Native size and word spacing.\newline
+   If loading by name fails, save the TTF beside your document as
+   \texttt{AnekBangla-VF.ttf} and use the command above.}
 \end{document}

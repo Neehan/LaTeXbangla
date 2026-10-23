@@ -70,6 +70,8 @@
   colbacktitle=BanglaGreen!9!white,coltitle=BanglaGreen,
   fonttitle=\small\sffamily\bfseries,left=3mm,right=3mm,top=2mm,bottom=2mm,
   before skip=5pt,after skip=5pt}}
+\tcbset{manualwarning/.style={manualbox,
+  colframe=BanglaRed!45!white,colback=BanglaRed!5!white}}
 % Minted supplies LaTeX syntax highlighting through Pygments. Its verbatim
 % renderer preserves the Bangla text and uses the same fonts as the document.
 \setminted{style=default,breaklines=true,breakanywhere=true}
@@ -198,7 +200,8 @@ The tested versions are LaTeX 2026-06-01, Polyglossia 2.13 and fontspec 2.9h.
 \section{Choose fonts and text styles}
 \subsection{Supported Bangla fonts}
 Choose a font that suits your document. Any family below can be your only
-Bangla font; put its name in \verb|\setbanglamainfont{...}|. You can compare
+Bangla font; put its name in \verb|\setbanglamainfont{...}|, or use Anek's
+filename as noted below. You can compare
 samples in the font guide included in
 \href{https://github.com/Neehan/LaTeXbangla}{the repository}.
 \begin{center}
@@ -212,6 +215,7 @@ samples in the font guide included in
 \texttt{Noto Serif Bengali} & Real bold face \\
 \texttt{Noto Sans Bengali} & Real bold face \\
 \texttt{FreeSerif} & Synthetic, strength 3.5; real italic face \\
+\texttt{Anek Bangla} & Variable file: synthetic, strength 2.5 \\
 \bottomrule
 \end{tabularx}
 \end{center}
@@ -219,6 +223,11 @@ LaTeXbangla uses bold and italic faces that contain Bangla glyphs, creating
 missing styles with added weight or slant. For unlisted fonts, these synthetic
 fallbacks use a weight of 2.5 and a slant of 0.2.
 Other shapes, including small caps, depend on the font. Install fonts separately.
+
+\begin{tcolorbox}[manualwarning]
+If Anek Bangla fails to load by name, save its TTF as \texttt{AnekBangla-VF.ttf}
+beside your document and use \verb|\setbanglamainfont{AnekBangla-VF.ttf}|.
+\end{tcolorbox}
 
 \subsection{Separate Bangla and English families}
 Give body text, headings and typewriter text their own appearance while keeping
@@ -783,7 +792,7 @@ LaTeXbangla-এর ভাষা সহায়তার আরও কিছু 
 \subsection{পরীক্ষিত বাংলা ফন্ট}
 আপনার লেখার সঙ্গে মানায় এমন একটি ফন্ট দিয়ে শুরু করুন। নিচের যেকোনো
 পরীক্ষিত ফন্ট দিয়েই পুরো বাংলা ডকুমেন্ট লেখা যায়; নামটি বসান
-\verb|\setbanglamainfont{...}|-এ। বেছে নেওয়ার আগে
+\verb|\setbanglamainfont{...}|-এ। Anek-এর জন্য নিচের নির্দেশনা অনুযায়ী ফাইলের নাম দিন। বেছে নেওয়ার আগে
 \href{https://github.com/Neehan/LaTeXbangla}{রিপোজিটরিতে দেওয়া}
 ফন্ট তুলনার PDF-এ নমুনাগুলো দেখে নিতে পারেন।
 \begin{center}
@@ -797,6 +806,7 @@ LaTeXbangla-এর ভাষা সহায়তার আরও কিছু 
 \texttt{Noto Serif Bengali} & ফন্টের নিজস্ব গাঢ় রূপ \\
 \texttt{Noto Sans Bengali} & ফন্টের নিজস্ব গাঢ় রূপ \\
 \texttt{FreeSerif} & কৃত্রিম গাঢ়, মাত্রা ৩.৫; নিজস্ব তির্যক রূপ \\
+\texttt{Anek Bangla} & ভ্যারিয়েবল ফাইলে কৃত্রিম গাঢ়, মাত্রা ২.৫ \\
 \bottomrule
 \end{tabularx}
 \end{center}
@@ -804,6 +814,11 @@ LaTeXbangla-এর ভাষা সহায়তার আরও কিছু 
 না থাকলে অক্ষরের রেখা মোটা করে বা হেলিয়ে সেই রূপ তৈরি করে। তালিকার বাইরের
 ফন্টে কৃত্রিম রূপ দরকার হলে গাঢ় করার মাত্রা ২.৫ ও তির্যক করার মাত্রা ০.২। Small caps ও অন্য রূপের
 প্রাপ্যতা ফন্টের ওপর নির্ভর করে। ফন্ট আলাদা করে ইনস্টল করুন।
+
+\begin{tcolorbox}[manualwarning]
+Anek Bangla নাম দিয়ে লোড না হলে TTF ফাইলটি \texttt{AnekBangla-VF.ttf} নামে
+ডকুমেন্টের পাশে রেখে \verb|\setbanglamainfont{AnekBangla-VF.ttf}| লিখুন।
+\end{tcolorbox}
 
 \subsection{বাংলা ও ইংরেজির আলাদা ফন্ট}
 বাংলা ও ইংরেজি একসঙ্গে রেখেই মূল লেখা, শিরোনাম ও টাইপরাইটার ধরনের লেখায়

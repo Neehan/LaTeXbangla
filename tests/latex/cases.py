@@ -32,8 +32,7 @@ def document(preamble, body, document_class="article"):
     )
 
 
-# Supported Bengali font families. Noto test assets are
-# pinned separately because the TeX Live image does not include the OS fonts.
+# Supported font selections. fetch-fonts.py pins assets not bundled in TeX Live.
 BENGALI_FONTS = {
     "noto-serif": "Noto Serif Bengali",
     "noto-sans": "Noto Sans Bengali",
@@ -41,6 +40,10 @@ BENGALI_FONTS = {
     "freeserif": "FreeSerif",
     "solaimanlipi": "SolaimanLipi",
     "siyam-rupali": "Siyam Rupali",
+    # Load the variable file directly: XeTeX's family-name lookup can select
+    # a named instance that xdvipdfmx cannot embed. A bracket-free filename
+    # avoids XeTeX's interpretation of brackets in a font loading request.
+    "anek-bangla": "AnekBangla-VF.ttf",
 }
 
 
@@ -113,6 +116,30 @@ EnglishStart বাংলা EnglishEnd.
     )
     add("default-english", r"\usepackage{latexbangla}\setbanglamainfont{Kalpurush}", FONT_BODY)
     add("real-faces", setup(font="FreeSerif"), FONT_BODY)
+    # XeLaTeX exercises the portable file default; LuaLaTeX also supports
+    # real weight and width selection through the public fontspec features.
+    anek_settings = r"""\setbanglamainfont[
+  Weight=400,
+  BoldFont=*, BoldFeatures={Weight=700},
+  BoldItalicFont=*,
+  BoldItalicFeatures={Weight=700,FakeSlant=0.2}
+]{AnekBangla-VF.ttf}"""
+    add(
+        "anek-variable-weights",
+        r"\usepackage{latexbangla}" + FONTS + r"\ifLuaTeX" + anek_settings
+        + r"\else\setbanglamainfont{AnekBangla-VF.ttf}\fi",
+        FONT_FACE_BODY + r"""
+\ifLuaTeX
+  \begingroup\bengalifont
+    \typeout{ANEK-REGULAR-FONT: \fontname\font}
+    {\bfseries\typeout{ANEK-BOLD-FONT: \fontname\font}}
+    {\bfseries\itshape\typeout{ANEK-BOLDITALIC-FONT: \fontname\font}}
+    {\addfontfeatures{Width=75}\setbox0=\hbox{বাংলা ভাষা}\typeout{ANEK-CONDENSED: \the\wd0}}
+    {\addfontfeatures{Width=125}\setbox0=\hbox{বাংলা ভাষা}\typeout{ANEK-EXPANDED: \the\wd0}}
+  \endgroup
+\fi
+""", passes=1,
+    )
     add(
         "legacy-siyam-alias",
         r"\usepackage[banglamainfont=SolaimanLipi,banglattfont=SiyamRupali]{latexbangla}" + FONTS,
