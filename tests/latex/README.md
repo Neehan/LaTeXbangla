@@ -60,6 +60,8 @@ Common-package tests cover these combinations:
 | Typography | `microtype`; supported Bangla fonts, both load orders and nonzero English protrusion matching fontspec |
 
 These tests exercise the listed features, not every option of each package.
+The [historical issue audit](issue-coverage.md) maps TeX Stack Exchange reports
+to regression tests and records remaining gaps.
 Cleveref names and connecting words use its own customization commands;
 LaTeXbangla preserves Bengali label display while adapting numeric sorting.
 

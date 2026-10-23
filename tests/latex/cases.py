@@ -616,6 +616,108 @@ Long: \numtobangla{12345678901234567890}.
         r"বাংলা \textbullet\ \textendash\ \textasteriskcentered\ \textperiodcentered\ বাংলা",
     )
     add("math", setup() + r"\usepackage{amsmath}", MATH_BODY)
+    # Historical reports are linked in issue-coverage.md. These specimens
+    # exercise the reported interactions without obsolete template workarounds.
+    for language in ("bangla", "assamese"):
+        add(
+            "reported-headings-" + language,
+            setup("language=" + language)
+            + r"\usepackage{tocloft,hyperref}\setcounter{tocdepth}{3}\setcounter{secnumdepth}{3}",
+            r"""
+\tableofcontents
+\chapter{Chapter বাংলা}\label{reported:chapter}
+\section{Section বাংলা}\label{reported:section}
+\subsection{Subsection বাংলা}\label{reported:subsection}
+\subsubsection{Detail বাংলা}\label{reported:detail}
+References: \ref{reported:section}, \ref{reported:subsection}, \ref{reported:detail}.
+\section{Next বাংলা}\subsection{Reset বাংলা}\label{reported:reset}
+Reset: \ref{reported:reset}.
+""", cls="book",
+        )
+    for variant in ("plain", "titlesec"):
+        # titlesec does not record starred section names for nameref. The
+        # author's explicit name and anchor are needed independently of us.
+        starred_section = r"\section*{Unnumbered Section}\label{reported:star-section}"
+        if variant == "titlesec":
+            starred_section = r"""\section*{Unnumbered Section}\phantomsection
+\makeatletter\def\@currentlabelname{Unnumbered Section}\makeatother
+\label{reported:star-section}"""
+        add(
+            "reported-nameref-" + variant,
+            setup() + (r"\usepackage{titlesec}" if variant == "titlesec" else "")
+            + r"\usepackage{hyperref}",
+            r"""
+\chapter*{Unnumbered Chapter}\label{reported:star-chapter}
+STARREDSECTION
+\chapter{Numbered Chapter}\label{reported:numbered-chapter}
+\section{Numbered Section}\label{reported:numbered-section}
+Names: \nameref{reported:star-chapter}; \nameref{reported:star-section};
+\nameref{reported:numbered-chapter}; \nameref{reported:numbered-section}.
+""".replace("STARREDSECTION", starred_section), cls="book",
+        )
+    add(
+        "reported-quotation",
+        setup() + r"""
+\setotherlanguage{english}
+\usepackage[style=english]{csquotes}
+\newenvironment{chapterquote}[1]
+  {\def\quoteauthor{#1}\begin{quotation}\itshape}
+  {\par\raggedleft\normalfont\quoteauthor\par\end{quotation}}
+""",
+        r"""
+বাংলা BeforeQuote.
+\begin{chapterquote}{লেখক (Author)}
+বাংলা \enquote{English \enquote{বাংলা} English} বাংলা।
+\par\textenglish{EnglishQuotation}
+\end{chapterquote}
+বাংলা AfterQuote.
+\par ``বাংলা'' and ``English''.
+""",
+    )
+    add(
+        "reported-language-captions",
+        setup() + r"\setotherlanguage{english}"
+        r"\gappto\captionsenglish{\renewcommand\figurename{Fig.}}",
+        r"""
+Native: \figurename.
+\begin{english}English: \figurename.\end{english}
+Restored: \figurename.
+\begin{english}EnglishAgain: \figurename.\end{english}
+""", passes=1,
+    )
+    add(
+        "reported-biblatex-english",
+        setup() + r"\setotherlanguage{english}\usepackage[style=english]{csquotes}"
+        r"\usepackage[backend=biber,style=alphabetic,sorting=nyt,language=english,autolang=other]{biblatex}"
+        r"\addbibresource{references.bib}\usepackage{hyperref}",
+        r"বাংলা \cite{alpha,gamma}.\printbibliography",
+        backend="biber",
+    )
+    add(
+        "reported-enumerate",
+        setup() + r"\usepackage{enumerate}",
+        r"""
+\begin{enumerate}[(1।)]
+\item First বাংলা\label{reported:outer}
+\begin{enumerate}[(a)]
+\item Inner বাংলা\item Next বাংলা\label{reported:inner}
+\end{enumerate}
+\item Second বাংলা
+\end{enumerate}
+References: \ref{reported:outer}, \ref{reported:inner}.
+""",
+    )
+    add(
+        "reported-ornaments",
+        setup() + r"\usepackage{pgfornament}",
+        r"""
+\begin{tikzpicture}
+\node[draw,align=center] (text) {\textbf{বাংলা English}\\আরও লেখা};
+\node[anchor=south] at (text.north) {\pgfornament[width=3cm]{71}};
+\end{tikzpicture}
+""", passes=1,
+    )
+    data["reported-ornaments"]["restricted_shell_escape"] = True
     add(
         "common-math",
         setup() + r"\usepackage{mathtools,amssymb,bm,cancel,amsthm,hyperref}"

@@ -345,6 +345,59 @@ check(
     all(token in text("common-boxes") for token in ("Exercise ১.", "(ক)", "(খ)", "১২")),
     "Tcolorbox theorem and enumitem labels retain Bengali numbers and letters",
 )
+for language in ("bangla", "assamese"):
+    name = "reported-headings-" + language
+    for label, number in (("chapter", "১"), ("section", "১.১"),
+                          ("subsection", "১.১.১"), ("detail", "১.১.১.১"),
+                          ("reset", "১.২.১")):
+        check(r"\newlabel{reported:" + label + "}{{" + number + "}" in aux(name),
+              f"{name}: {label} preserves hierarchy and counter resets")
+    toc = (BUILD / name / "main.toc").read_text(encoding="utf-8")
+    check(all(r"\contentsline {" + level + "}" in toc
+              for level in ("chapter", "section", "subsection", "subsubsection")),
+          f"{name}: tocloft retains every requested heading level")
+    check("References: ১.১, ১.১.১, ১.১.১.১." in text(name)
+          and "Reset: ১.২.১." in text(name),
+          f"{name}: compound references render without added spaces")
+    with fitz.open(BUILD / name / "main.pdf") as heading_pdf:
+        check(all(title in heading_pdf[0].get_text() for title in
+                  ("Subsection", "Detail", "Reset")),
+              f"{name}: subsection entries actually appear on the contents page")
+
+for variant in ("plain", "titlesec"):
+    name = "reported-nameref-" + variant
+    for label, title in (("star-chapter", "Unnumbered Chapter"),
+                         ("star-section", "Unnumbered Section"),
+                         ("numbered-chapter", "Numbered Chapter"),
+                         ("numbered-section", "Numbered Section")):
+        check(re.search(r"\\newlabel\{reported:" + label
+                        + r"\}\{\{[^}]*\}\{[^}]*\}\{" + title + r"\}", aux(name)),
+              f"{name}: nameref records {title}")
+    check("Names: Unnumbered Chapter; Unnumbered Section; Numbered Chapter;"
+          in text(name), f"{name}: starred names are printed, not empty links")
+
+check(all(token in text("reported-quotation") for token in
+          ("BeforeQuote", "AfterQuote", "EnglishQuotation", "Author", "‘", "’", "“", "”")),
+      "Nested bilingual quotation environments retain text and quotation marks")
+check(any("EnglishQuotation" in span["text"] and span["font"] == "TeXGyrePagella-Italic"
+          for span in spans("reported-quotation"))
+      and any("AfterQuote" in span["text"] and span["font"] == "TeXGyrePagella-Regular"
+              for span in spans("reported-quotation")),
+      "Quotation italic ends with the author's environment")
+caption_text = text("reported-language-captions")
+caption_match = re.search(r"Native: (.*?)\. English: Fig\.\. Restored: (.*?)\.", caption_text)
+check(caption_match is not None and caption_match[1] == caption_match[2]
+      and "EnglishAgain: Fig.." in caption_text,
+      "English caption customization survives language switches and restores Bangla")
+check(all(token in text("reported-biblatex-english") for token in
+          ("Alp20", "Gam22", "Alice Alpha", "Grace Gamma", "English title", "Another title")),
+      "English alphabetic biblatex citations and bibliography survive language switching")
+check(all(token in text("reported-enumerate") for token in
+          ("(১।)", "(২।)", "(ক)", "(খ)", "References: ১, ১খ.")),
+      "The enumerate package localizes its standard numeric and alphabetic placeholders")
+check("বাংলা" in text("reported-ornaments") and "English" in text("reported-ornaments"),
+      "Bilingual multiline TikZ text renders beside pgfornament decorations")
+
 for name in ("book", "memoir", "report", "hyperref-first"):
     check(
         r"\newlabel{app:book}{{ক}" in aux(name),
