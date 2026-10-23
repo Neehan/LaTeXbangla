@@ -29,8 +29,13 @@
 % Known-font adjustments are deliberately small. Unlisted fonts retain native
 % scale/spacing and synthetic weight 2.5. Recognize family names and standard
 % filenames, including Path= loads; renamed files use the generic defaults.
-% Reviewed weights: Kalpurush and FreeSerif 3.5; SolaimanLipi and Siyam Rupali 4.5.
+% Reviewed weights: Kalpurush, SolaimanLipi and Anek Bangla 4;
+% FreeSerif 3.5; Siyam Rupali 4.5.
 % Real bold faces never receive this synthetic-weight setting.
+% Word-space presets were measured against default Latin Modern Roman and
+% checked in mixed paragraphs with Pagella and Termes. They bring narrow spaces
+% near the default English width, rather than tracking the chosen English font.
+% Keep Kalpurush's already generous spacing. Explicit fontspec options win.
 \cs_new_protected:Npn \__latexbangla_select_font_defaults:n #1
   {
     \tl_clear:N \l__latexbangla_font_defaults_tl
@@ -39,17 +44,37 @@
     \regex_replace_once:nnN {\A .* [/\\]} {} \l__latexbangla_font_profile_name_tl
     \regex_replace_once:nnN {\.(ttf|otf|ttc)\Z} {} \l__latexbangla_font_profile_name_tl
     \regex_replace_all:nnN {\s+} {} \l__latexbangla_font_profile_name_tl
+    % Resolve the filenames used by supported font downloads to their families.
     \str_case:Vn \l__latexbangla_font_profile_name_tl
       {
-        {freeserif}{\tl_set:Nn \l__latexbangla_synthetic_bold_tl {3.5}}
-        {kalpurush}{\tl_set:Nn \l__latexbangla_synthetic_bold_tl {3.5}}
-        {fontkalpurush}{\tl_set:Nn \l__latexbangla_synthetic_bold_tl {3.5}}
-        {solaimanlipi}{\tl_set:Nn \l__latexbangla_synthetic_bold_tl {4.5}}
-        {solaimanlipi_20-04-07}{\tl_set:Nn \l__latexbangla_synthetic_bold_tl {4.5}}
+        {fontkalpurush}{\tl_set:Nn \l__latexbangla_font_profile_name_tl {kalpurush}}
+        {solaimanlipi_20-04-07}{\tl_set:Nn \l__latexbangla_font_profile_name_tl {solaimanlipi}}
+        {notoserifbengali-regular}{\tl_set:Nn \l__latexbangla_font_profile_name_tl {notoserifbengali}}
+        {notoserifbengali-bold}{\tl_set:Nn \l__latexbangla_font_profile_name_tl {notoserifbengali}}
+        {notosansbengali-regular}{\tl_set:Nn \l__latexbangla_font_profile_name_tl {notosansbengali}}
+        {notosansbengali-bold}{\tl_set:Nn \l__latexbangla_font_profile_name_tl {notosansbengali}}
+        {anekbangla-vf}{\tl_set:Nn \l__latexbangla_font_profile_name_tl {anekbangla}}
+        {anekbangla[wdth,wght]}{\tl_set:Nn \l__latexbangla_font_profile_name_tl {anekbangla}}
+      }
+    \str_case:Vn \l__latexbangla_font_profile_name_tl
+      {
+        {freeserif}
+          {\tl_set:Nn \l__latexbangla_synthetic_bold_tl {3.5}
+           \tl_set:Nn \l__latexbangla_font_defaults_tl {WordSpace=1.33,}}
+        {kalpurush}{\tl_set:Nn \l__latexbangla_synthetic_bold_tl {4}}
+        {solaimanlipi}
+          {\tl_set:Nn \l__latexbangla_synthetic_bold_tl {4}
+           \tl_set:Ne \l__latexbangla_font_defaults_tl
+             {WordSpace=1.2,\exp_not:V \g__latexbangla_proportional_spacing_features_tl}}
+        {notoserifbengali}{\tl_set:Nn \l__latexbangla_font_defaults_tl {WordSpace=1.3,}}
+        {notosansbengali}{\tl_set:Nn \l__latexbangla_font_defaults_tl {WordSpace=1.2,}}
+        {anekbangla}
+          {\tl_set:Nn \l__latexbangla_synthetic_bold_tl {4}
+           \tl_set:Nn \l__latexbangla_font_defaults_tl {Scale=0.9,WordSpace=2.1,}}
         {siyamrupali}
           {\tl_set:Nn \l__latexbangla_synthetic_bold_tl {4.5}
            \tl_set:Nn \l__latexbangla_font_defaults_tl
-            {Scale=0.8,WordSpace=1.2,
+            {Scale=0.8,WordSpace=1.12,
              FontAdjustment={\__latexbangla_repair_xheight:},}}
       }
   }
@@ -97,6 +122,7 @@
 % Engine defaults are kept out of user feature lists. Explicit features still
 % win, and an engine backend may refine face lookup without duplicating setters.
 \tl_new:N \g__latexbangla_renderer_features_tl
+\tl_new:N \g__latexbangla_proportional_spacing_features_tl
 \cs_new_protected:Npn \__latexbangla_supply_bold_italic_fallback:
   {
     \tl_put_right:Ne \l__latexbangla_fallback_features_tl

@@ -89,6 +89,10 @@ redistributed. `fonts.conf` and `OSFONTDIR` make them available to the test proc
 Anek is loaded by filename on both engines; its variable-weight example is
 checked with LuaLaTeX. The default uses synthetic bold and italic.
 
+Spacing tests measure native and selected space, stretch and shrink, plus actual
+Bangla, English and mixed word pairs. Default Latin Modern is the spacing
+reference; explicit `WordSpace` settings are checked separately.
+
 For offline preparation, supply the Noto archive with
 `python3 tests/latex/fetch-fonts.py --archive /path/to/fonts-noto-core.deb`
 and place the other pinned fonts and license files in `tests/latex/fonts/`.

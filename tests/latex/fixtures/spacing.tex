@@ -1,0 +1,22 @@
+% Measure glue as well as the visible result. A word pair's width minus its
+% isolated words gives the actual natural space, including script transitions.
+\newcommand\recordwordgap[3]{%
+  \setbox0=\hbox{#2 #3}%
+  \setbox1=\hbox{#2}%
+  \setbox2=\hbox{#3}%
+  \typeout{WORD-GAP #1: \the\dimexpr\wd0-\wd1-\wd2\relax}}
+\begingroup\spacingdefaultfont
+\typeout{DEFAULT-ENGLISH-SPACE: \the\fontdimen2\font}
+\endgroup
+\bengalifont
+\typeout{SELECTED-SPACING: \the\fontdimen2\font,\the\fontdimen3\font,\the\fontdimen4\font}
+\recordwordgap{Bangla}{বাংলা}{ভাষা}
+\recordwordgap{English}{word}{word}
+\recordwordgap{Bangla-English}{বাংলা}{word}
+\recordwordgap{English-Bangla}{word}{বাংলা}
+{\raggedright
+সমকোণী ত্রিভুজের দুই লম্ব বাহুর দৈর্ঘ্য জানা থাকলে অতিভুজের দৈর্ঘ্য নির্ণয় করা যায়।
+বাংলা লেখার মধ্যে English words এবং 12 ও ১২ থাকলেও শব্দগুলোর মাঝে স্বাভাবিক ফাঁক থাকা উচিত।\par}
+\medskip
+সমকোণী ত্রিভুজের দুই লম্ব বাহুর দৈর্ঘ্য জানা থাকলে অতিভুজের দৈর্ঘ্য নির্ণয় করা যায়।
+বাংলা লেখার মধ্যে English words এবং 12 ও ১২ থাকলেও শব্দগুলোর মাঝে স্বাভাবিক ফাঁক থাকা উচিত।

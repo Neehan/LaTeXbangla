@@ -177,7 +177,11 @@ LatinAgain café Ānand বাংলা।\par
             passes=1,
         )
         for adjusted in (False, True):
-            pre = r"\usepackage{latexbangla}" + FONTS
+            # Capture LaTeX's actual default English family before Polyglossia
+            # and the specimen's English font choices replace it.
+            pre = (r"\usepackage{fontspec}\edef\spacingdefaultfamily{\rmdefault}"
+                   r"\newcommand\spacingdefaultfont{\fontfamily{\spacingdefaultfamily}\selectfont}"
+                   r"\usepackage{latexbangla}" + FONTS)
             pre += (
                 r"\begingroup\fontspec[Script=Bengali]{" + font + r"}"
                 r"\typeout{NATIVE-SPACING: \the\fontdimen2\font,"
@@ -191,16 +195,7 @@ LatinAgain café Ānand বাংলা।\par
             add(
                 "spacing-" + suffix + ("-adjusted" if adjusted else "-default"),
                 pre,
-                r"""
-\bengalifont
-\typeout{SELECTED-SPACING: \the\fontdimen2\font,\the\fontdimen3\font,\the\fontdimen4\font}
-{\raggedright
-সমকোণী ত্রিভুজের দুই লম্ব বাহুর দৈর্ঘ্য জানা থাকলে অতিভুজের দৈর্ঘ্য নির্ণয় করা যায়।
-বাংলা লেখার মধ্যে English words এবং 12 ও ১২ থাকলেও শব্দগুলোর মাঝে স্বাভাবিক ফাঁক থাকা উচিত।\par}
-\medskip
-সমকোণী ত্রিভুজের দুই লম্ব বাহুর দৈর্ঘ্য জানা থাকলে অতিভুজের দৈর্ঘ্য নির্ণয় করা যায়।
-বাংলা লেখার মধ্যে English words এবং 12 ও ১২ থাকলেও শব্দগুলোর মাঝে স্বাভাবিক ফাঁক থাকা উচিত।
-""",
+                (FIXTURES / "spacing.tex").read_text(encoding="utf-8"),
                 passes=1,
             )
     add(

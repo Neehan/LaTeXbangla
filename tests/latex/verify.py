@@ -551,6 +551,15 @@ for name in ("math-weight", "math-weight-unicode"):
 
 # Check all three glue dimensions: natural width, stretch and shrink. The
 # tolerance covers TeX's fixed-point rounding, not a visual spacing judgment.
+font_spacing_defaults = {
+    "kalpurush": (1, 1),
+    "solaimanlipi": (1, 1.2),
+    "siyam-rupali": (0.8, 1.12),
+    "noto-serif": (1, 1.3),
+    "noto-sans": (1, 1.2),
+    "freeserif": (1, 1.33),
+    "anek-bangla": (0.9, 2.1),
+}
 for suffix in BENGALI_FONTS:
     for adjusted in (False, True):
         name = "spacing-" + suffix + ("-adjusted" if adjusted else "-default")
@@ -559,20 +568,44 @@ for suffix in BENGALI_FONTS:
         for label in ("NATIVE", "SELECTED"):
             match = re.search(label + r"-SPACING: ([\d.]+)pt,([\d.]+)pt,([\d.]+)pt", log)
             dimensions[label] = tuple(map(float, match.groups())) if match else ()
-        factors = (
-            (1.2, 1.3, 1.4) if adjusted else ((1.2,) * 3 if suffix == "siyam-rupali" else (1,) * 3)
-        )
-        scale = 0.8 if suffix == "siyam-rupali" else 1
+        scale, default_word_space = font_spacing_defaults[suffix]
+        factors = (1.2, 1.3, 1.4) if adjusted else (default_word_space,) * 3
+        native_dimensions = dimensions["NATIVE"]
+        if ENGINE == "lualatex" and suffix == "solaimanlipi" and len(native_dimensions) == 3:
+            # The original font wrongly advertises fixed pitch. Its corrected
+            # proportional spacing has the same stretch/shrink ratios as XeTeX.
+            width = native_dimensions[0]
+            native_dimensions = (width, width / 2, width / 3)
         check(
             len(dimensions["NATIVE"]) == len(dimensions["SELECTED"]) == 3
             and all(
                 math.isclose(actual, native * scale * factor, abs_tol=0.0001)
                 for native, actual, factor in zip(
-                    dimensions["NATIVE"], dimensions["SELECTED"], factors
+                    native_dimensions, dimensions["SELECTED"], factors
                 )
             ),
             f"{name}: default or explicit spacing is applied exactly once at the selected scale",
         )
+        gaps = re.findall(r"WORD-GAP [\w-]+: ([\d.]+)pt", log)
+        check(
+            len(gaps) == 4 and len(dimensions["SELECTED"]) == 3
+            # HarfBuzz can also kern across a word space: Anek changes this
+            # pair's advance by 0.012 pt at 12 pt. Glue itself is checked above
+            # at fixed-point precision; allow that small shaping difference here.
+            and all(math.isclose(float(gap), dimensions["SELECTED"][0], abs_tol=0.02)
+                    for gap in gaps),
+            f"{name}: actual Bangla, English and mixed word pairs use the selected space",
+        )
+        if not adjusted:
+            reference = re.search(r"DEFAULT-ENGLISH-SPACE: ([\d.]+)pt", log)
+            # Kalpurush already has generous spacing; the other presets target
+            # the default English range without forcing all fonts to one width.
+            check(
+                reference is not None and len(dimensions["SELECTED"]) == 3
+                and 0.95 <= dimensions["SELECTED"][0] / float(reference.group(1))
+                <= (1.15 if suffix == "kalpurush" else 1.05),
+                f"{name}: preset spacing stays near the measured default English reference",
+            )
 
 # Font names alone do not establish an italic shape: the system can resolve
 # Noto's bold-italic request to upright bold. Check the actual PDF text matrix.
@@ -654,14 +687,14 @@ with fitz.open(BUILD / "noto-bold-override/main.pdf") as document:
           "Explicit Noto AutoFakeBold=4 and AutoFakeSlant apply to both bold styles")
 
 # Synthetic bold shares the regular face's font name. Inspect the actual PDF
-# paint operations instead: bold and bold italic must add a 3.5% em stroke;
+# paint operations instead: bold and bold italic must add a 4% em stroke;
 # the identical regular line must remain unstroked.
 with fitz.open(BUILD / "synthetic-bold/main.pdf") as document:
     traces = [trace for trace in document[0].get_texttrace() if trace["font"] == "Kalpurush"]
     strokes = [trace for trace in traces if trace["type"] == 1]
     check(
         len({round(t["chars"][0][2][1], 2) for t in strokes}) == 2
-        and all(math.isclose(t["linewidth"] / t["size"], 0.035, abs_tol=0.0002) for t in strokes),
+        and all(math.isclose(t["linewidth"] / t["size"], 0.04, abs_tol=0.0002) for t in strokes),
         "Kalpurush bold and bold italic use the intended synthetic stroke strength",
     )
     check(
@@ -699,8 +732,8 @@ with fitz.open(BUILD / "example/main.pdf") as document:
     ]
     check(
         bool(strokes)
-        and all(math.isclose(t["linewidth"] / t["size"], 0.035, abs_tol=0.0002) for t in strokes),
-        "Public example uses Kalpurush's tested default synthetic bold strength of 3.5",
+        and all(math.isclose(t["linewidth"] / t["size"], 0.04, abs_tol=0.0002) for t in strokes),
+        "Public example uses Kalpurush's tested default synthetic bold strength of 4",
     )
 
 # Legacy font-name resolution must not interfere with English face discovery.
@@ -736,13 +769,13 @@ if ENGINE == "lualatex":
 # The public guide changes fonts page by page. Check the rendered selections,
 # not just the labels, so an accidentally shared family cannot mislead readers.
 guide_fonts = (
-    ("Kalpurush", "Kalpurush", 3.5),
-    ("SolaimanLipi", "SolaimanLipiNormal", 4.5),
+    ("Kalpurush", "Kalpurush", 4),
+    ("SolaimanLipi", "SolaimanLipiNormal", 4),
     ("Siyam Rupali", "SiyamRupali", 4.5),
     ("Noto Serif Bengali", "NotoSerifBengali", None),
     ("Noto Sans Bengali", "NotoSansBengali", None),
+    ("Anek Bangla", "AnekBangla", 4),
     ("FreeSerif", "FreeSerif", 3.5),
-    ("Anek Bangla", "AnekBangla", 2.5),
 )
 with fitz.open(BUILD / "supported-fonts/main.pdf") as document:
     check(
@@ -769,10 +802,11 @@ with fitz.open(BUILD / "supported-fonts/main.pdf") as document:
         )
 
 for suffix, family, strength, scale in (
-    ("kalpurush", "Kalpurush", 3.5, 1),
+    ("kalpurush", "Kalpurush", 4, 1),
     ("freeserif", "FreeSerif", 3.5, 1),
-    ("solaimanlipi", "SolaimanLipiNormal", 4.5, 1),
+    ("solaimanlipi", "SolaimanLipiNormal", 4, 1),
     ("siyam-rupali", "SiyamRupali", 4.5, 0.8),
+    ("anek-bangla", "AnekBangla", 4, 0.9),
 ):
     with fitz.open(BUILD / ("font-faces-" + suffix) / "main.pdf") as document:
         strokes = [
@@ -797,8 +831,8 @@ for suffix, family, strength, scale in (
 
 for name, expected_space in (
     ("font-profile-overrides", 4.35938),
-    ("font-siyam-file", 4.185),
-    ("font-profile-reselection", 4.185),
+    ("font-siyam-file", 3.906),
+    ("font-profile-reselection", 3.906),
 ):
     log = (BUILD / name / "main.log").read_text(encoding="utf-8")
     space = re.search(r"PROFILE-SPACE: ([\d.]+)pt", log)
@@ -978,6 +1012,17 @@ with fitz.open(BUILD / "manual/main.pdf") as document:
             "ৎ,কক,কখ" in manual_result_text(title, result_title),
             f"Manual extended alphabet example executes correctly: {title}",
         )
+    for title, result_title, prefix in (
+        ("Keep selected counters in English", "Result", ""),
+        ("নির্দিষ্ট কাউন্টারের নম্বর ইংরেজিতে রাখা", "ফলাফল", "bn:"),
+    ):
+        output = manual_result_text(title, result_title)
+        check(
+            r"\newlabel{" + prefix + r"ex:western}{{3}" in manual_aux
+            and r"\newlabel{" + prefix + r"item:latin}{{a}" in manual_aux
+            and output.count("3") == 2 and "a." in output and "b." in output,
+            f"Manual Western counter and list examples retain Latin labels and references: {title}",
+        )
     check(
         all(token in manual_result_text("Mathematics, tables and theorems")
             for token in ("12", "১২", "৩", "৪")),
@@ -992,9 +1037,9 @@ with fitz.open(BUILD / "manual/main.pdf") as document:
     ]
     check(
         len({round(t["chars"][0][2][1], 2) for t in bold_strokes}) == 2
-        and all(math.isclose(t["linewidth"] / t["size"], 0.04, abs_tol=0.0002)
+        and all(math.isclose(t["linewidth"] / t["size"], 0.05, abs_tol=0.0002)
                 for t in bold_strokes),
-        "Manual AutoFakeBold example applies strength 4 to both bold and bold italic",
+        "Manual AutoFakeBold example applies strength 5 to both bold and bold italic",
     )
     check(
         "Overfull" not in (BUILD / "manual/main.log").read_text(encoding="utf-8"),
