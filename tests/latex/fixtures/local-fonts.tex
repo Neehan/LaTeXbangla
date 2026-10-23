@@ -1,0 +1,38 @@
+% Font-family declarations before and after the package must behave alike.
+% Each Latin marker identifies a face in the PDF; Bangla stays in its own font.
+DefaultBefore বাংলা।
+\textit{\textenglish{\quotefont QuotationTypeface}}
+\usebox\localfontbox\par
+{\quotefont
+  QuoteRoman বাংলা QuoteAfterBangla।
+  \textbf{QuoteBold বাংলা}\textit{QuoteItalic বাংলা}
+  \textbf{\textit{QuoteBoldItalic বাংলা}}
+  {\fontsize{16}{20}\selectfont QuoteLarge বাংলা}\par
+  {\nestedfont NestedRoman বাংলা} QuoteRestored বাংলা।
+  \textsf{SansReset বাংলা} QuoteAfterSans বাংলা।
+  \texttt{MonoReset বাংলা} QuoteAfterMono বাংলা।
+  {\rmfamily RomanReset বাংলা} QuoteAfterRoman বাংলা।
+  {\normalfont NormalReset বাংলা} QuoteAfterNormal বাংলা।
+  \begin{quotation}\textit{QuotedEnvironment বাংলা}\end{quotation}
+  \textenglish{\quotefont ExplicitEnglish বাংলা}
+  \footnote{\quotefont FootnoteQuote বাংলা।}
+  \begin{tabular}{ll}TableQuote & বাংলা\\\textbf{TableBold} & বাংলা\end{tabular}
+  \setbox0=\hbox{BoxQuote বাংলা}\box0
+  $x^২+\text{MathTextQuote বাংলা}$
+  {\addfontfeatures{LetterSpace=10}SpacedQuote বাংলা} QuoteAfterFeatures বাংলা।
+}
+DefaultAfter বাংলা।
+{\fontspec{TeX Gyre Termes}InlineRoman বাংলা \textbf{InlineBold বাংলা}}
+DefaultAfterInline বাংলা।
+{\fontspec[Scale=1.2]{TeX Gyre Termes}InlineScaled বাংলা}
+{\fontspec{FreeSerif}BroadCoverage বাংলা}
+{\quotefont UnbracedSwitch বাংলা \nestedfont UnbracedNested বাংলা}
+DefaultLast বাংলা।
+% Check feature application and restoration with the same shaped Latin word.
+{\quotefont
+ \setbox0=\hbox{SpacingProbe}\typeout{LOCAL-SPACING-BASE: \the\wd0}
+ {\addfontfeatures{LetterSpace=10}
+  \setbox0=\hbox{SpacingProbe}\typeout{LOCAL-SPACING-WIDE: \the\wd0}}
+ {\addfontfeature{LetterSpace=10}
+  \setbox0=\hbox{SpacingProbe}\typeout{LOCAL-SPACING-ALIAS: \the\wd0}}
+ \setbox0=\hbox{SpacingProbe}\typeout{LOCAL-SPACING-RESTORED: \the\wd0}}

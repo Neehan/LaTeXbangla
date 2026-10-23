@@ -165,6 +165,16 @@ AlphabetRa: \alph{review}.\setcounter{review}{29} AlphabetWa: \Alph{review}.
         r"অসমীয়া ৰ ৱ প্ৰ ৰু ৰূ।\textbf{অসমীয়া}\textit{অসমীয়া}\textbf{\textit{অসমীয়া}}", passes=1)
 
     add("one-font", setup(), FONT_BODY)
+    for language in ("bangla", "assamese"):
+        add(
+            "local-fonts-" + language,
+            r"\usepackage{fontspec}\newfontfamily\quotefont{TeX Gyre Adventor}"
+            + setup("language=" + language)
+            + r"\setotherlanguage{english}\usepackage{amsmath}"
+            r"\newfontfamily\nestedfont{TeX Gyre Termes}"
+            r"\newsavebox\localfontbox\sbox\localfontbox{\quotefont PreambleQuote বাংলা}",
+            (FIXTURES / "local-fonts.tex").read_text(encoding="utf-8"), passes=1,
+        )
     add(
         "switching-contexts", setup() + r"\setotherlanguage{english}",
         (FIXTURES / "switching-contexts.tex").read_text(encoding="utf-8"),
@@ -553,9 +563,10 @@ Example \theexample. Reference: \ref{extended-example}.
                 for i in range(1, size + 1)
             ),
         )
-    for command in ("alph", "Alph"):
+    # Case names must also be distinct on case-insensitive filesystems.
+    for command, suffix in (("alph", "lowercase"), ("Alph", "uppercase")):
         add(
-            f"overflow-{command}",
+            f"overflow-{suffix}",
             setup(),
             alph + "{36}\\" + command + "{test}",
             error="Counter too large",
@@ -801,7 +812,12 @@ Second page বাংলা.\par\textbf{Bold English বাংলা.}
             pre = pre.replace("amsmath,amsthm,hyperref", "amsmath,amsthm")
         add("common-cleveref" + variant, pre, reference_body)
     protrusion_body = (FIXTURES / "microtype.tex").read_text(encoding="utf-8")
-    protrusion_font = r"\newfontfamily\protrusionfont{TeX Gyre Pagella}"
+    # Save the actual Latin font before automatic switching starts. Between
+    # text runs the selected font may be Bengali; its protrusion is unrelated.
+    protrusion_font = r"""\newfontfamily\protrusionfont{TeX Gyre Pagella}
+\AtBeginDocument{\begingroup\protrusionfont
+\global\expandafter\let\expandafter\protrusiontestfont\the\font\endgroup}
+"""
     add(
         "microtype-baseline",
         r"\usepackage{fontspec}" + FONTS + r"\usepackage{microtype}" + protrusion_font,

@@ -58,9 +58,11 @@
 % delayed paragraph shaping, boxes, footnotes and nested text styles.
 \newattribute\g__latexbangla_latin_font_attribute
 \int_const:Nn \c__latexbangla_latin_font_attribute_int {\allocationnumber}
-\bool_new:N \l__latexbangla_selecting_latin_font_bool
+\bool_new:N \l__latexbangla_capturing_latin_font_bool
 
-% Selecting the companion itself calls selectfont, hence the recursion guard.
+% Capturing the companion's font ID calls selectfont again. This guard prevents
+% recursive capture; the shared selection guard separately prevents recording
+% our internal font selections as author overrides.
 % Resolve it afresh so local changes to Polyglossia's Latin font commands work.
 % NFSS already caches loaded fonts; a second cache would risk stale selections.
 % Start as soon as a Bangla font exists, including saveboxes in the preamble.
@@ -71,10 +73,10 @@
       {
         \cs_if_exist:cT {\g__latexbangla_language_tl font}
           {
-            \bool_if:NF \l__latexbangla_selecting_latin_font_bool
+            \bool_if:NF \l__latexbangla_capturing_latin_font_bool
               {
                 \group_begin:
-                  \bool_set_true:N \l__latexbangla_selecting_latin_font_bool
+                  \bool_set_true:N \l__latexbangla_capturing_latin_font_bool
                   \__latexbangla_select_latin_font:
                   \use:e
                     {\group_end:
@@ -85,13 +87,9 @@
       }
   }
 \AddToHook{selectfont}[latexbangla/latin-font]{\__latexbangla_capture_latin_font:}
-% Public family commands finish setting their role after their selectfont call.
-% Refresh once more after the shared role-tracking hook has run.
-\clist_map_inline:nn {rmfamily,sffamily,ttfamily}
-  {
-    \AddToHook{cmd/#1/after}[latexbangla/latin-font]{\__latexbangla_capture_latin_font:}
-    \DeclareHookRule{cmd/#1/after}{latexbangla/latin-font}{after}{latexbangla/family}
-  }
+\DeclareHookRule{selectfont}{latexbangla/latin-font}{after}{latexbangla/local-font}
+% Shared family tracking runs before rmfamily/sffamily/ttfamily select a font,
+% so their normal selectfont hook already captures the correct companion.
 \AddToHook{begindocument/end}[latexbangla/latin-font]{\__latexbangla_capture_latin_font:}
 
 \lua_now:e

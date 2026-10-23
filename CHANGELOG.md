@@ -6,6 +6,7 @@
 - Add LuaLaTeX support.
 - Expand the supported Bangla fonts and the font comparison guide.
 - Refine boldness, size and word spacing across supported fonts.
+- Preserve locally selected English fonts, including nested font and style changes.
 - Keep font styles and sizing consistent across engines, including bold italic
   and Siyam Rupali's heading spacing.
 

@@ -1,0 +1,93 @@
+% Shared Latin family selection and scoped fontspec overrides.
+% Part of latexbangla, LPPL 1.3c or later; copyright 2026 Adib Hasan.
+
+\tl_new:N \l__latexbangla_text_family_tl
+\tl_set:Nn \l__latexbangla_text_family_tl {rm}
+\tl_new:N \l__latexbangla_local_latin_family_tl
+\bool_new:N \l__latexbangla_selecting_font_bool
+\bool_new:N \g__latexbangla_track_local_fonts_bool
+
+% Public family commands deliberately return to a document family. Clear a
+% local fontspec selection before Polyglossia selects that family's Bangla
+% font. TeX grouping restores both choices when a nested text command ends.
+\clist_map_inline:nn {rm,sf,tt}
+  {
+    \AddToHook{cmd/#1family/before}[latexbangla/family]
+      {\tl_set:Nn \l__latexbangla_text_family_tl {#1}
+       \tl_clear:N \l__latexbangla_local_latin_family_tl}
+  }
+
+% Keep our automatic selections out of the author-selection hook. Do not use
+% a TeX group here: callers need the chosen font to remain selected. Nested
+% calls inherit the guard and leave its enclosing value intact.
+\cs_new_protected:Npn \__latexbangla_select_font_guarded:n #1
+  {
+    \bool_if:NTF \l__latexbangla_selecting_font_bool
+      {#1}
+      {\bool_set_true:N \l__latexbangla_selecting_font_bool
+       #1
+       \bool_set_false:N \l__latexbangla_selecting_font_bool}
+  }
+
+\cs_new_protected:Npn \__latexbangla_select_latin_font:
+  {
+    \__latexbangla_select_font_guarded:n
+      {
+        \tl_if_empty:NTF \l__latexbangla_local_latin_family_tl
+          {\str_case:Vn \l__latexbangla_text_family_tl
+            {{rm}{\rmfamilylatin} {sf}{\sffamilylatin} {tt}{\ttfamilylatin}}}
+          {\fontencoding{TU}
+           \exp_args:NV \fontfamily \l__latexbangla_local_latin_family_tl
+           \selectfont}
+      }
+  }
+
+% A fontspec family selected for Latin text becomes the local companion. Keep
+% the Bangla family as the enclosing text font so mixed text still shapes in
+% Bangla; the engine selects the companion only for Latin runs. Store a family,
+% not a fixed face, so later bold/italic/size changes retain ordinary NFSS rules.
+% Script selection, rather than glyph coverage, distinguishes a Latin FreeSerif
+% declaration from a Bengali FreeSerif declaration of the very same font.
+\cs_new_protected:Npn \__latexbangla_remember_local_latin_font:
+  {
+    \bool_lazy_or:nnT
+      {\bool_if_p:N \g__latexbangla_track_local_fonts_bool}
+      {\mode_if_horizontal_p:}
+      {
+        \bool_if:NF \l__latexbangla_selecting_font_bool
+          {
+            \mode_if_math:F
+              {
+                \fontspec_if_current_script:nT {latn}
+                  {
+                    \tl_set:Ne \l__latexbangla_local_latin_family_tl {\f@family}
+                    \__latexbangla_select_font_guarded:n
+                      {
+                        \str_case:Vn \l__latexbangla_text_family_tl
+                          {
+                            {rm}{\use:c {\g__latexbangla_language_tl font}}
+                            {sf}{\use:c {\g__latexbangla_language_tl fontsf}}
+                            {tt}{\use:c {\g__latexbangla_language_tl fonttt}}
+                          }
+                      }
+                  }
+              }
+          }
+      }
+  }
+\AddToHook{selectfont}[latexbangla/local-font]{\__latexbangla_remember_local_latin_font:}
+% Font discovery and mathematics setup in the preamble must see their actual
+% selected font. Track preamble selections only inside actual text boxes;
+% activate general author tracking after document initialization finishes.
+\AddToHook{begindocument/end}[latexbangla/local-font]
+  {\bool_gset_true:N \g__latexbangla_track_local_fonts_bool}
+% With a local Latin selection, fontspec features belong to that companion,
+% even though the enclosing font remains Bangla for automatic script switching.
+\clist_map_inline:nn {addfontfeatures,addfontfeature}
+  {
+    \AddToHook{cmd/#1/before}[latexbangla/local-font]
+      {\tl_if_empty:NF \l__latexbangla_local_latin_family_tl
+        {\__latexbangla_select_latin_font:}}
+  }
+
+\endinput

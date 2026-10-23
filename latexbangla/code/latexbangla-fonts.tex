@@ -9,8 +9,6 @@
 \tl_new:N \l__latexbangla_font_profile_name_tl
 \tl_new:N \l__latexbangla_font_defaults_tl
 \tl_new:N \l__latexbangla_synthetic_bold_tl
-\tl_new:N \l__latexbangla_text_family_tl
-\tl_set:Nn \l__latexbangla_text_family_tl {rm}
 
 % Siyam Rupali 1.070 and Mukti 3 report invalid x-heights. LaTeX uses ex
 % units for heading spacing, so these metrics can distort document layout.
@@ -316,26 +314,6 @@
 \cs_if_exist:cF {\g__latexbangla_language_tl fonttt}
   {\cs_new_protected:cpn {\g__latexbangla_language_tl fonttt}
     {\use:c {\g__latexbangla_language_tl font}}}
-
-% Track public family switches using LaTeX command hooks. This avoids depending
-% on Polyglossia's private family-state variable. Assignments are local, so a
-% grouped \textsf or \texttt restores the enclosing family automatically.
-\AddToHook{cmd/rmfamily/after}[latexbangla/family]
-  {\tl_set:Nn \l__latexbangla_text_family_tl {rm}}
-\AddToHook{cmd/sffamily/after}[latexbangla/family]
-  {\tl_set:Nn \l__latexbangla_text_family_tl {sf}}
-\AddToHook{cmd/ttfamily/after}[latexbangla/family]
-  {\tl_set:Nn \l__latexbangla_text_family_tl {tt}}
-
-\cs_new_protected:Npn \__latexbangla_select_latin_font:
-  {
-    \str_case:Vn \l__latexbangla_text_family_tl
-      {
-        {rm}{\rmfamilylatin}
-        {sf}{\sffamilylatin}
-        {tt}{\ttfamilylatin}
-      }
-  }
 
 % TU text-symbol definitions are the shared dispatch point for standard lists,
 % enumitem labels, direct symbol commands and aliases such as

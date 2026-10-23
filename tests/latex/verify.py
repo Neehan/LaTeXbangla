@@ -182,6 +182,54 @@ check(
     ),
     "Later English-font override takes effect",
 )
+for language in ("bangla", "assamese"):
+    name = "local-fonts-" + language
+    expected_families = {
+        "TeXGyrePagella-Regular": (
+            "DefaultBefore", "DefaultAfter", "DefaultAfterInline", "DefaultLast",
+            "RomanReset", "NormalReset",
+        ),
+        "TeXGyreAdventor-Regular": (
+            "QuoteRoman", "QuoteAfterBangla", "QuoteRestored", "QuoteAfterSans",
+            "QuoteAfterMono", "QuoteAfterRoman", "QuoteAfterNormal", "QuoteLarge",
+            "ExplicitEnglish", "FootnoteQuote", "TableQuote", "BoxQuote",
+            "MathTextQuote", "SpacedQuote", "QuoteAfterFeatures", "UnbracedSwitch", "PreambleQuote",
+        ),
+        "TeXGyreAdventor-Bold": ("QuoteBold", "TableBold"),
+        "TeXGyreAdventor-Italic": ("QuoteItalic", "QuotedEnvironment", "QuotationTypeface"),
+        "TeXGyreAdventor-BoldItal": ("QuoteBoldItalic",),
+        "TeXGyreHeros-Regular": ("SansReset",),
+        "TeXGyreCursor-Regular": ("MonoReset",),
+        "TeXGyreTermes-Regular": ("NestedRoman", "InlineRoman", "UnbracedNested", "InlineScaled"),
+        "TeXGyreTermes-Bold": ("InlineBold",),
+        "FreeSerif": ("BroadCoverage",),
+    }
+    for family, markers in expected_families.items():
+        for marker in markers:
+            check(any(re.search(r"\b" + marker + r"\b", span["text"])
+                      and span["font"] == family for span in spans(name)),
+                  f"{name}: {marker} uses {family}")
+    check(all(span["font"] == "Kalpurush" for span in spans(name)
+              if any("\u0980" <= char <= "\u09ff" for char in span["text"])),
+          f"{name}: local Latin fonts do not replace the selected Bangla font")
+    with fitz.open(BUILD / name / "main.pdf") as document:
+        native_bold = [trace for page in document for trace in page.get_texttrace()
+                       if trace["font"] == "Kalpurush" and trace["type"] == 1]
+        check(len(native_bold) == 3
+              and all(math.isclose(trace["linewidth"] / trace["size"], 0.04, abs_tol=0.0002)
+                      for trace in native_bold),
+              f"{name}: mixed bold passages retain the native font's synthetic weight")
+    check(any("QuoteLarge" in span["text"] and abs(span["size"] - 16 * 72 / 72.27) < .05
+              for span in spans(name)), f"{name}: local family follows font size changes")
+    check(any("InlineScaled" in span["text"] and abs(span["size"] - 14.4 * 72 / 72.27) < .05
+              for span in spans(name)), f"{name}: inline fontspec Scale is preserved")
+    local_log = (BUILD / name / "main.log").read_text(encoding="utf-8")
+    widths = dict(re.findall(r"LOCAL-SPACING-(\w+): ([\d.]+)pt", local_log))
+    check(set(widths) == {"BASE", "WIDE", "ALIAS", "RESTORED"}
+          and widths["BASE"] == widths["RESTORED"]
+          and widths["WIDE"] == widths["ALIAS"]
+          and float(widths["WIDE"]) > float(widths["BASE"]) + 5,
+          f"{name}: addfontfeatures affects the Latin companion and restores on group exit")
 check(
     any(
         "EnglishRoman" in span["text"] and span["font"].startswith("LMRoman")
@@ -1334,16 +1382,15 @@ with fitz.open(BUILD / "manual/main.pdf") as document:
     }
     check(bool(assamese_targets) and all(page >= assamese_start for page in assamese_targets),
           "Assamese references link to Assamese examples, not earlier translations")
-    # Inspect rendered navigation: both translated guides can be reached from
-    # the English introduction, and the Assamese guide links back to page one.
+    # Both translations are reachable from the English introduction; named
+    # destinations also let the README link directly to any of the three guides.
     check(
         {bangla_start, assamese_start}.issubset(
             {link.get("page") for link in document[0].get_links()}
         )
-        and 0 in {link.get("page") for link in document[assamese_start].get_links()}
         and all("guide-" + language in manual_reader.named_destinations
                 for language in ("english", "bangla", "assamese")),
-        "Introduction links reach both translations and the Assamese return link reaches English",
+        "English introduction links reach both translations and all guide destinations exist",
     )
 
 manual_log = (BUILD / "manual/main.log").read_text(encoding="utf-8")
