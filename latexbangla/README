@@ -21,9 +21,10 @@ fonts, then use its name below:
     \textbf{বাংলা and English দুটোই bold।}
     \end{document}
 
-Supported fonts: Kalpurush, SolaimanLipi, Siyam Rupali, Noto Serif Bengali,
-Noto Sans Bengali, Anek Bangla, Tiro Bangla, Galada and FreeSerif.
-Fonts are not included.
+Tested Bangla fonts: Kalpurush, SolaimanLipi, Siyam Rupali, Noto Serif Bengali,
+Noto Sans Bengali, Anek Bangla, Tiro Bangla, Galada, Hind Siliguri, Nikosh,
+Kohinoor Bangla, Mukti, Baloo Da 2, Lohit Bengali and FreeSerif.
+Other Bangla fonts may work too, but have not been tested. Fonts are not included.
 For Anek, rename the downloaded variable font to AnekBangla-VF.ttf,
 put it beside your document, and use
 \setbanglamainfont{AnekBangla-VF.ttf}.

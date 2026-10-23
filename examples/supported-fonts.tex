@@ -10,7 +10,8 @@
 % each configured family so that every page uses the settings shown there.
 % Rename the downloaded Anek variable font to AnekBangla-VF.ttf.
 % Install the other fonts and place that file beside this
-% document to compile the complete specimen.
+% document to compile the complete specimen. Use Mukti 3 and the static Baloo
+% Da 2 faces. Kohinoor Bangla is shown only if installed on your system.
 \setbanglamainfont{Kalpurush}
 \NewCommandCopy\kalpurushfont\bengalifont
 \setbanglamainfont{SolaimanLipi}
@@ -27,6 +28,20 @@
 \NewCommandCopy\tirobanglafont\bengalifont
 \setbanglamainfont{Galada}
 \NewCommandCopy\galadafont\bengalifont
+\setbanglamainfont{Hind Siliguri}
+\NewCommandCopy\hindfont\bengalifont
+\setbanglamainfont{Nikosh}
+\NewCommandCopy\nikoshfont\bengalifont
+\IfFontExistsTF{Kohinoor Bangla}{%
+\setbanglamainfont{Kohinoor Bangla}
+\NewCommandCopy\kohinoorfont\bengalifont
+}{}
+\setbanglamainfont{Mukti}
+\NewCommandCopy\muktifont\bengalifont
+\setbanglamainfont{Baloo Da 2}
+\NewCommandCopy\baloofont\bengalifont
+\setbanglamainfont{Lohit Bengali}
+\NewCommandCopy\lohitfont\bengalifont
 \setbanglamainfont{FreeSerif}
 \NewCommandCopy\freeseriffont\bengalifont
 
@@ -78,7 +93,7 @@
 \fontsample{\kalpurushfont}{Kalpurush}
   {Synthetic bold: 4. Native size and word spacing.}
 \fontsample{\solaimanlipifont}{SolaimanLipi}
-  {Synthetic bold: 4. Native size; word-space factor: 1.2.}
+  {Synthetic bold: 4. Scale: 0.9; word-space factor: 1.33.}
 \fontsample{\siyamrupalifont}{Siyam Rupali}
   {Synthetic bold: 4.5. Scale: 0.8; word-space factor: 1.12.}
 \fontsample{\notoserifbengalifont}{Noto Serif Bengali}
@@ -91,9 +106,23 @@
    If loading by name fails, save the TTF beside your document as
    \texttt{AnekBangla-VF.ttf} and use the command above.}
 \fontsample{\tirobanglafont}{Tiro Bangla}
-  {Synthetic bold: 3.5; real italic face. Native size; word-space factor: 1.25.}
+  {Synthetic bold: 3.5; real italic face. Scale: 0.9; word-space factor: 1.39.}
 \fontsample{\galadafont}{Galada}
   {Synthetic bold: 3.5; slant: 0.2. Scale: 0.9; word-space factor: 1.67.}
+\fontsample{\hindfont}{Hind Siliguri}
+  {Real bold face. Scale: 0.9; word-space factor: 1.64.}
+\fontsample{\nikoshfont}{Nikosh}
+  {Synthetic bold: 3.5. Native size; word-space factor: 1.37.}
+\ifdefined\kohinoorfont
+\fontsample{\kohinoorfont}{Kohinoor Bangla}
+  {Real bold face. Scale: 0.9; word-space factor: 1.29.}
+\fi
+\fontsample{\muktifont}{Mukti}
+  {Real bold and italic faces. Scale: 0.9; word-space factor: 1.33.}
+\fontsample{\baloofont}{Baloo Da 2}
+  {Real bold face. Scale: 0.9; word-space factor: 1.86.}
+\fontsample{\lohitfont}{Lohit Bengali}
+  {Synthetic bold: 4.5. Scale: 0.9; word-space factor: 1.33.}
 \fontsample{\freeseriffont}{FreeSerif}
   {Synthetic bold: 3.5; real italic face. Native size; word-space factor: 1.33.}
 \end{document}

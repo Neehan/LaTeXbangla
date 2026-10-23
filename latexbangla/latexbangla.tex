@@ -102,8 +102,10 @@
    \end{tcbraster}}
 
 \begin{document}
-% The guide's own tables use English labels in this half. Keep the language
+% The guide's navigation and tables use English labels in this half. Keep the language
 % package's names to restore them for the translated guide below.
+\NewCommandCopy\manualbanglasectionautorefname\sectionautorefname
+\renewcommand{\sectionautorefname}{section}
 \NewCommandCopy\manualbanglatablename\tablename
 \NewCommandCopy\manualbanglatableautorefname\tableautorefname
 \renewcommand{\thetable}{\number\value{table}}
@@ -211,6 +213,7 @@ Bangla font; put its name in \verb|\setbanglamainfont{...}|, or use Anek's
 filename as noted below. You can compare
 samples in the font guide included in
 \href{https://github.com/Neehan/LaTeXbangla}{the repository}.
+For Mukti, use version 3; for Baloo Da 2, install the static font files.
 \begin{table}[htbp]
 \centering\small
 \caption{Default settings for supported Bangla fonts.}\label{tab:font-defaults}
@@ -219,13 +222,19 @@ samples in the font guide included in
 \textbf{Font name} & \textbf{Default bold} & \textbf{Default italic} & \textbf{Scale} & \textbf{WordSpace} \\
 \midrule
 \texttt{Kalpurush} & Synthetic 4 & Synthetic 0.2 & 1 & 1 \\
-\texttt{SolaimanLipi} & Synthetic 4 & Synthetic 0.2 & 1 & 1.2 \\
+\texttt{SolaimanLipi} & Synthetic 4 & Synthetic 0.2 & 0.9 & 1.33 \\
 \texttt{Siyam Rupali} & Synthetic 4.5 & Synthetic 0.2 & 0.8 & 1.12 \\
 \texttt{Noto Serif Bengali} & Real face & Synthetic 0.2 & 1 & 1.3 \\
 \texttt{Noto Sans Bengali} & Real face & Synthetic 0.2 & 1 & 1.2 \\
 \texttt{Anek Bangla} & Synthetic 4 & Synthetic 0.2 & 0.9 & 2.1 \\
-\texttt{Tiro Bangla} & Synthetic 3.5 & Real face & 1 & 1.25 \\
+\texttt{Tiro Bangla} & Synthetic 3.5 & Real face & 0.9 & 1.39 \\
 \texttt{Galada} & Synthetic 3.5 & Synthetic 0.2 & 0.9 & 1.67 \\
+\texttt{Hind Siliguri} & Real face & Synthetic 0.2 & 0.9 & 1.64 \\
+\texttt{Nikosh} & Synthetic 3.5 & Synthetic 0.2 & 1 & 1.37 \\
+\texttt{Kohinoor Bangla} & Real face & Synthetic 0.2 & 0.9 & 1.29 \\
+\texttt{Mukti} & Real face & Real face & 0.9 & 1.33 \\
+\texttt{Baloo Da 2} & Real face & Synthetic 0.2 & 0.9 & 1.86 \\
+\texttt{Lohit Bengali} & Synthetic 4.5 & Synthetic 0.2 & 0.9 & 1.33 \\
 \texttt{FreeSerif} & Synthetic 3.5 & Real face & 1 & 1.33 \\
 \bottomrule
 \end{tabularx}
@@ -720,6 +729,7 @@ Noto Sans Bengali and Siyam Rupali.}
 \renewcommand{\thesubsection}{\thesection.\arabic{subsection}}
 \renewcommand{\thepage}{\arabic{page}}
 \renewcommand{\thetable}{\arabic{table}}
+\RenewCommandCopy\sectionautorefname\manualbanglasectionautorefname
 \RenewCommandCopy\tablename\manualbanglatablename
 \RenewCommandCopy\tableautorefname\manualbanglatableautorefname
 \renewcommand{\theHsection}{bangla.\number\value{section}}
@@ -840,6 +850,7 @@ LaTeXbangla-এর ভাষা সহায়তার আরও কিছু 
 \verb|\setbanglamainfont{...}|-এ। Anek-এর জন্য নিচের নির্দেশনা অনুযায়ী ফাইলের নাম দিন। বেছে নেওয়ার আগে
 \href{https://github.com/Neehan/LaTeXbangla}{রিপোজিটরিতে দেওয়া}
 ফন্ট তুলনার PDF-এ নমুনাগুলো দেখে নিতে পারেন।
+Mukti-এর ৩ সংস্করণ এবং Baloo Da 2-এর static ফন্ট ফাইল ব্যবহার করুন।
 \begin{table}[htbp]
 \centering\small
 \caption{পরীক্ষিত বাংলা ফন্টের পূর্বনির্ধারিত সেটিং।}\label{bn:tab:font-defaults}
@@ -848,13 +859,19 @@ LaTeXbangla-এর ভাষা সহায়তার আরও কিছু 
 \textbf{ফন্টের নাম} & \textbf{স্বাভাবিক গাঢ়} & \textbf{স্বাভাবিক তির্যক} & \textbf{Scale} & \textbf{WordSpace} \\
 \midrule
 \texttt{Kalpurush} & কৃত্রিম ৪ & কৃত্রিম ০.২ & ১ & ১ \\
-\texttt{SolaimanLipi} & কৃত্রিম ৪ & কৃত্রিম ০.২ & ১ & ১.২ \\
+\texttt{SolaimanLipi} & কৃত্রিম ৪ & কৃত্রিম ০.২ & ০.৯ & ১.৩৩ \\
 \texttt{Siyam Rupali} & কৃত্রিম ৪.৫ & কৃত্রিম ০.২ & ০.৮ & ১.১২ \\
 \texttt{Noto Serif Bengali} & নিজস্ব রূপ & কৃত্রিম ০.২ & ১ & ১.৩ \\
 \texttt{Noto Sans Bengali} & নিজস্ব রূপ & কৃত্রিম ০.২ & ১ & ১.২ \\
 \texttt{Anek Bangla} & কৃত্রিম ৪ & কৃত্রিম ০.২ & ০.৯ & ২.১ \\
-\texttt{Tiro Bangla} & কৃত্রিম ৩.৫ & নিজস্ব রূপ & ১ & ১.২৫ \\
+\texttt{Tiro Bangla} & কৃত্রিম ৩.৫ & নিজস্ব রূপ & ০.৯ & ১.৩৯ \\
 \texttt{Galada} & কৃত্রিম ৩.৫ & কৃত্রিম ০.২ & ০.৯ & ১.৬৭ \\
+\texttt{Hind Siliguri} & নিজস্ব রূপ & কৃত্রিম ০.২ & ০.৯ & ১.৬৪ \\
+\texttt{Nikosh} & কৃত্রিম ৩.৫ & কৃত্রিম ০.২ & ১ & ১.৩৭ \\
+\texttt{Kohinoor Bangla} & নিজস্ব রূপ & কৃত্রিম ০.২ & ০.৯ & ১.২৯ \\
+\texttt{Mukti} & নিজস্ব রূপ & নিজস্ব রূপ & ০.৯ & ১.৩৩ \\
+\texttt{Baloo Da 2} & নিজস্ব রূপ & কৃত্রিম ০.২ & ০.৯ & ১.৮৬ \\
+\texttt{Lohit Bengali} & কৃত্রিম ৪.৫ & কৃত্রিম ০.২ & ০.৯ & ১.৩৩ \\
 \texttt{FreeSerif} & কৃত্রিম ৩.৫ & নিজস্ব রূপ & ১ & ১.৩৩ \\
 \bottomrule
 \end{tabularx}
@@ -1071,7 +1088,7 @@ Polyglossia-এর \verb|\bengalifont|, \verb|\bengalifontsf| ও
   \item প্রথম।\label{bn:item:latin}
   \item দ্বিতীয়।
 \end{enumerate}
-দফা~\ref{bn:item:latin} দেখুন।
+পদ~\ref{bn:item:latin} দেখুন।
 \end{examplepair}
 এই তালিকায় 1, 2, \ldots\ চাইলে বদলে \verb|\number\value{enumi}| লিখুন।
 নিজের কাউন্টারের জন্য \verb|\thepractice|-এর সংজ্ঞায়

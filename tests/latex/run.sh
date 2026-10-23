@@ -14,7 +14,9 @@ docker run --rm --network none \
       case "$argument" in
         lualatex|--engine=lualatex)
           mkdir -p /usr/local/share/fonts/latexbangla-tests
-          cp tests/latex/fonts/*.ttf /usr/local/share/fonts/latexbangla-tests/
+          for font_file in tests/latex/fonts/*.ttf tests/latex/fonts/*.otf tests/latex/fonts/*.ttc; do
+            [ ! -f "$font_file" ] || cp "$font_file" /usr/local/share/fonts/latexbangla-tests/
+          done
           fc-cache -f
           luaotfload-tool --update --force >/tmp/latexbangla-font-cache.log 2>&1
           break ;;

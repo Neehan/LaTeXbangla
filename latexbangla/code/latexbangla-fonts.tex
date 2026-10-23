@@ -12,25 +12,32 @@
 \tl_new:N \l__latexbangla_text_family_tl
 \tl_set:Nn \l__latexbangla_text_family_tl {rm}
 
-% Siyam Rupali 1.070 reports an invalid x-height: negative in XeTeX,
-% greater than an em with LuaTeX/HarfBuzz. LaTeX uses ex units for
-% heading spacing, so this can turn a display heading into a run-in heading.
-% Repair only an invalid metric, using this face's actual x glyph at its final
-% size. FontAdjustment runs for every size/face; the font file is untouched.
+% Siyam Rupali 1.070 and Mukti 3 report invalid x-heights. LaTeX uses ex
+% units for heading spacing, so these metrics can distort document layout.
+% Repair only an invalid metric from the actual x glyph, or Bengali ka when
+% the face has no Latin alphabet. FontAdjustment runs at each size and face;
+% the font file is untouched.
 \cs_new_protected:Npn \__latexbangla_repair_xheight:
   {
     \bool_lazy_or:nnT
       {\dim_compare_p:nNn {\tex_fontdimen:D 5\tex_font:D} < {0.01pt}}
       {\dim_compare_p:nNn {\tex_fontdimen:D 5\tex_font:D} > {\tex_fontdimen:D 6\tex_font:D}}
-      {\tex_fontdimen:D 5\tex_font:D =
-        \tex_fontcharht:D \tex_font:D `x\scan_stop:}
+      {
+        \tex_iffontchar:D \tex_font:D `x\scan_stop:
+          \tex_fontdimen:D 5\tex_font:D =
+            \tex_fontcharht:D \tex_font:D `x\scan_stop:
+        \else:
+          \tex_fontdimen:D 5\tex_font:D =
+            \tex_fontcharht:D \tex_font:D "0995\scan_stop:
+        \fi:
+      }
   }
 
 % Known-font adjustments are deliberately small. Unlisted fonts retain native
 % scale/spacing and synthetic weight 2.5. Recognize family names and standard
 % filenames, including Path= loads; renamed files use the generic defaults.
 % Reviewed weights: Kalpurush, SolaimanLipi and Anek Bangla 4;
-% FreeSerif, Tiro Bangla and Galada 3.5; Siyam Rupali 4.5.
+% FreeSerif, Tiro Bangla, Galada and Nikosh 3.5; Siyam Rupali and Lohit Bengali 4.5.
 % Real bold faces never receive this synthetic-weight setting.
 % Word-space presets were measured against default Latin Modern Roman and
 % checked in mixed paragraphs with Pagella and Termes. They bring narrow spaces
@@ -53,6 +60,11 @@
         {notoserifbengali-bold}{\tl_set:Nn \l__latexbangla_font_profile_name_tl {notoserifbengali}}
         {notosansbengali-regular}{\tl_set:Nn \l__latexbangla_font_profile_name_tl {notosansbengali}}
         {notosansbengali-bold}{\tl_set:Nn \l__latexbangla_font_profile_name_tl {notosansbengali}}
+        {hindsiliguri-regular}{\tl_set:Nn \l__latexbangla_font_profile_name_tl {hindsiliguri}}
+        {hindsiliguri-bold}{\tl_set:Nn \l__latexbangla_font_profile_name_tl {hindsiliguri}}
+        {balooda2-regular}{\tl_set:Nn \l__latexbangla_font_profile_name_tl {balooda2}}
+        {balooda2-bold}{\tl_set:Nn \l__latexbangla_font_profile_name_tl {balooda2}}
+        {lohit-bengali}{\tl_set:Nn \l__latexbangla_font_profile_name_tl {lohitbengali}}
         {galada-regular}{\tl_set:Nn \l__latexbangla_font_profile_name_tl {galada}}
         {tirobangla-regular}{\tl_set:Nn \l__latexbangla_font_profile_name_tl {tirobangla}}
         {tirobangla-italic}{\tl_set:Nn \l__latexbangla_font_profile_name_tl {tirobangla}}
@@ -68,16 +80,56 @@
         {solaimanlipi}
           {\tl_set:Nn \l__latexbangla_synthetic_bold_tl {4}
            \tl_set:Ne \l__latexbangla_font_defaults_tl
-             {WordSpace=1.2,\exp_not:V \g__latexbangla_proportional_spacing_features_tl}}
+             {Scale=0.9,WordSpace=1.33,\exp_not:V \g__latexbangla_proportional_spacing_features_tl}}
         {notoserifbengali}{\tl_set:Nn \l__latexbangla_font_defaults_tl {WordSpace=1.3,}}
         {notosansbengali}{\tl_set:Nn \l__latexbangla_font_defaults_tl {WordSpace=1.2,}}
+        {hindsiliguri}{\tl_set:Nn \l__latexbangla_font_defaults_tl {Scale=0.9,WordSpace=1.64,}}
+        {nikosh}
+          {\tl_set:Nn \l__latexbangla_synthetic_bold_tl {3.5}
+           \tl_set:Nn \l__latexbangla_font_defaults_tl {WordSpace=1.37,}}
+        {mukti}
+          {
+            \tl_set:Nn \l__latexbangla_font_defaults_tl
+              {Scale=0.9,WordSpace=1.33,FontAdjustment={\__latexbangla_repair_xheight:},}
+            % Mukti 3 has inconsistent style names. Select available companions
+            % by full face name so bold and bold italic cannot be interchanged.
+            \str_if_eq:eeT {\str_lowercase:f {#1}} {mukti}
+              {
+                \fontspec_font_if_exist:nT {Mukti~Bold}
+                  {\tl_put_right:Nn \l__latexbangla_font_defaults_tl
+                    {BoldFont={Mukti~Bold},}}
+                \fontspec_font_if_exist:nT {Mukti~Italic}
+                  {\tl_put_right:Nn \l__latexbangla_font_defaults_tl
+                    {ItalicFont={Mukti~Italic},}}
+                \fontspec_font_if_exist:nT {Mukti~Bold~Italic}
+                  {\tl_put_right:Nn \l__latexbangla_font_defaults_tl
+                    {BoldItalicFont={Mukti~Bold~Italic},}}
+              }
+          }
+        {kohinoorbangla}
+          {
+            \tl_set:Nn \l__latexbangla_font_defaults_tl {Scale=0.9,WordSpace=1.29,}
+            % Collection style lookup can return semibold for bold, or regular
+            % for bold italic. Name the bold face; the fallback supplies slant.
+            \str_if_eq:eeT {\str_lowercase:f {#1}} {kohinoor~bangla}
+              {
+                \fontspec_font_if_exist:nT {Kohinoor~Bangla~Bold}
+                  {\tl_put_right:Nn \l__latexbangla_font_defaults_tl
+                    {BoldFont={Kohinoor~Bangla~Bold},
+                     BoldItalicFont={Kohinoor~Bangla~Bold},}}
+              }
+          }
+        {balooda2}{\tl_set:Nn \l__latexbangla_font_defaults_tl {Scale=0.9,WordSpace=1.86,}}
+        {lohitbengali}
+          {\tl_set:Nn \l__latexbangla_synthetic_bold_tl {4.5}
+           \tl_set:Nn \l__latexbangla_font_defaults_tl {Scale=0.9,WordSpace=1.33,}}
         {galada}
           {\tl_set:Nn \l__latexbangla_synthetic_bold_tl {3.5}
            \tl_set:Nn \l__latexbangla_font_defaults_tl {Scale=0.9,WordSpace=1.67,}}
         {tirobangla}
           {
             \tl_set:Nn \l__latexbangla_synthetic_bold_tl {3.5}
-            \tl_set:Nn \l__latexbangla_font_defaults_tl {WordSpace=1.25,}
+            \tl_set:Nn \l__latexbangla_font_defaults_tl {Scale=0.9,WordSpace=1.39,}
             % Tiro has a real italic but no bold italic. Name that companion
             % explicitly for installed-family loads: engine substitutions differ.
             % A regular-only installation keeps the ordinary synthetic fallbacks.

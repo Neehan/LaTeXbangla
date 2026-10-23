@@ -448,7 +448,8 @@ check(
 # Each supported Bengali family must stand on its own, including sans/mono
 # fallback, text faces, formula digits, lists, tables and citation labels.
 for suffix, family in BENGALI_FONTS.items():
-    font_prefix = family.removesuffix("-VF.ttf").replace(" ", "")
+    font_prefix = ("Lohit-Bengali" if suffix == "lohit-bengali"
+                   else family.removesuffix("-VF.ttf").replace(" ", ""))
     for ending in ("", "-unicode"):
         name = "font-" + suffix + ending
         check(
@@ -569,14 +570,20 @@ for name in ("math-weight", "math-weight-unicode"):
 # tolerance covers TeX's fixed-point rounding, not a visual spacing judgment.
 font_spacing_defaults = {
     "kalpurush": (1, 1),
-    "solaimanlipi": (1, 1.2),
+    "solaimanlipi": (0.9, 1.33),
     "siyam-rupali": (0.8, 1.12),
     "noto-serif": (1, 1.3),
     "noto-sans": (1, 1.2),
     "freeserif": (1, 1.33),
     "anek-bangla": (0.9, 2.1),
-    "tiro-bangla": (1, 1.25),
+    "tiro-bangla": (0.9, 1.39),
     "galada": (0.9, 1.67),
+    "hind-siliguri": (0.9, 1.64),
+    "nikosh": (1, 1.37),
+    "kohinoor-bangla": (0.9, 1.29),
+    "mukti": (0.9, 1.33),
+    "baloo-da-2": (0.9, 1.86),
+    "lohit-bengali": (0.9, 1.33),
 }
 for suffix in BENGALI_FONTS:
     for adjusted in (False, True):
@@ -604,15 +611,22 @@ for suffix in BENGALI_FONTS:
             ),
             f"{name}: default or explicit spacing is applied exactly once at the selected scale",
         )
-        gaps = re.findall(r"WORD-GAP [\w-]+: ([\d.]+)pt", log)
+        gaps = re.findall(r"WORD-GAP ([\w-]+): ([\d.]+)pt", log)
+        # Baloo 1.640 kerns the space before bha by +20/1000 em. A plain
+        # HarfBuzz confirms this adjustment; convert it at the selected scale.
+        # LuaTeX retains it across words, whereas XeTeX shapes words separately.
+        bangla_space_kern = (12 * scale * 0.02
+                            if ENGINE == "lualatex" and suffix == "baloo-da-2" else 0)
         check(
             len(gaps) == 4 and len(dimensions["SELECTED"]) == 3
             # HarfBuzz can also kern across a word space: Anek changes this
             # pair's advance by 0.012 pt at 12 pt. Glue itself is checked above
             # at fixed-point precision; allow that small shaping difference here.
-            and all(math.isclose(float(gap), dimensions["SELECTED"][0], abs_tol=0.02)
-                    for gap in gaps),
-            f"{name}: actual Bangla, English and mixed word pairs use the selected space",
+            and all(math.isclose(float(gap), dimensions["SELECTED"][0]
+                                 + (bangla_space_kern if label == "Bangla" else 0),
+                                 abs_tol=0.02)
+                    for label, gap in gaps),
+            f"{name}: actual word pairs preserve selected spacing and native kerning",
         )
         if not adjusted:
             reference = re.search(r"DEFAULT-ENGLISH-SPACE: ([\d.]+)pt", log)
@@ -635,7 +649,7 @@ def rendered_slant_sizes(name, family, slant):
         resources = cast(DictionaryObject, page["/Resources"])
         font_resources = cast(DictionaryObject, resources["/Font"])
         fonts = {
-            key: str(cast(DictionaryObject, value.get_object())["/BaseFont"])
+            key: str(cast(DictionaryObject, value.get_object())["/BaseFont"]).removesuffix("-Identity-H")
             for key, value in font_resources.items()
         }
         current_font = ""
@@ -654,12 +668,19 @@ def rendered_slant_sizes(name, family, slant):
 
 
 face_sample_sizes = {round(size * 72 / 72.27, 2) for size in (8, 11, 16)}
-for suffix in ("noto-serif", "noto-sans"):
+for suffix, family in (
+    ("noto-serif", "NotoSerifBengali"), ("noto-sans", "NotoSansBengali"),
+    ("hind-siliguri", "HindSiliguri"), ("baloo-da-2", "BalooDa2"),
+    ("kohinoor-bangla", "KohinoorBangla"),
+):
+    if suffix not in BENGALI_FONTS:
+        continue
     name = "font-faces-" + suffix
-    family = "NotoSerifBengali" if suffix == "noto-serif" else "NotoSansBengali"
     for weight in ("Regular", "Bold"):
         check(
-            face_sample_sizes <= rendered_slant_sizes(name, family + "-" + weight, 0.2),
+            {round(size * font_spacing_defaults[suffix][0] * 72 / 72.27, 2)
+             for size in (8, 11, 16)}
+            <= rendered_slant_sizes(name, family + "-" + weight, 0.2),
             f"{name}: {weight} italic has visible slant at footnote, body and heading sizes",
         )
     with fitz.open(BUILD / name / "main.pdf") as document:
@@ -674,6 +695,44 @@ check(
     <= rendered_slant_sizes("font-slant-override", "NotoSerifBengali-Bold", 0.15),
     "Explicit italic and bold-italic slant settings override the package defaults",
 )
+
+# Mukti's family metadata can silently substitute italic for bold italic.
+# Inspect all four embedded faces, not merely whether textbf compiled.
+with fitz.open(BUILD / "font-faces-mukti/main.pdf") as document:
+    mukti_traces = [t for page in document for t in page.get_texttrace()
+                    if t["font"].startswith("Mukti")]
+    check({t["font"] for t in mukti_traces}
+          == {"Mukti", "MuktiBold", "MuktiItalic", "MuktiBoldItalic"}
+          and all(t["type"] == 0 for t in mukti_traces),
+          "Mukti uses four genuine faces without synthetic thickening")
+
+for suffix, family in (("mukti", "Mukti"), ("kohinoor-bangla", "KohinoorBangla-Regular")):
+    if suffix not in BENGALI_FONTS:
+        continue
+    name = "font-faces-" + suffix + "-overrides"
+    with fitz.open(BUILD / name / "main.pdf") as document:
+        traces = [t for page in document for t in page.get_texttrace()
+                  if t["font"].startswith(family)]
+        strokes = [t for t in traces if t["type"] == 1]
+        check(bool(strokes)
+              and all(t["font"] == family for t in traces)
+              and all(math.isclose(t["linewidth"] / t["size"], 0.04, abs_tol=0.0002)
+                      for t in strokes)
+              and {round(s * 0.95 * 72 / 72.27, 2) for s in (8, 11, 16)}
+              <= rendered_slant_sizes(name, family, 0.1),
+              f"{name}: explicit scale, weight and slant override family defaults")
+
+mukti_metrics = re.search(
+    r"MUKTI-XHEIGHT: ([\d.]+)pt; ka: ([\d.]+)pt",
+    (BUILD / "font-faces-mukti/main.log").read_text(encoding="utf-8"),
+)
+check(mukti_metrics is not None
+      and 0 < float(mukti_metrics[1]) < 12
+      and math.isclose(float(mukti_metrics[1]), float(mukti_metrics[2]), abs_tol=0.0001),
+      "Mukti's invalid ex metric is repaired from its Bengali consonant height")
+if "kohinoor-bangla" in BENGALI_FONTS:
+    check(not any("Semibold" in span["font"] for span in spans("font-faces-kohinoor-bangla")),
+          "Kohinoor uses bold rather than the collection's semibold substitute")
 
 # Preamble boxes and local font overrides must retain their intended faces.
 for marker, family in (
@@ -758,13 +817,14 @@ with fitz.open(BUILD / "example/main.pdf") as document:
 # outline, with a synthetic stroke only on the bold-italic row at each size.
 for name in ("font-faces-tiro-bangla", "tiro-file-faces"):
     check(
-        face_sample_sizes <= rendered_slant_sizes(name, "TiroBangla-Italic", 0),
+        {round(size * 0.9 * 72 / 72.27, 2) for size in (8, 11, 16)}
+        <= rendered_slant_sizes(name, "TiroBangla-Italic", 0),
         f"{name}: real italic outlines receive no extra synthetic slant",
     )
     with fitz.open(BUILD / name / "main.pdf") as document:
         traces = [t for t in document[0].get_texttrace() if t["font"] == "TiroBangla-Italic"]
         for size in (8, 11, 16):
-            at_size = [t for t in traces if math.isclose(t["size"], size * 72 / 72.27, abs_tol=0.01)]
+            at_size = [t for t in traces if math.isclose(t["size"], size * 0.9 * 72 / 72.27, abs_tol=0.01)]
             fills = {round(t["chars"][0][2][1], 2) for t in at_size if t["type"] == 0}
             strokes = [t for t in at_size if t["type"] == 1]
             check(
@@ -812,6 +872,8 @@ if ENGINE == "lualatex":
 
 # The public guide changes fonts page by page. Check the rendered selections,
 # not just the labels, so an accidentally shared family cannot mislead readers.
+# FakeBold stroke ratios include the TeX-point/PDF-point conversion; allow
+# for LuaTeX rounding PDF stroke widths to three decimal places.
 guide_fonts = (
     ("Kalpurush", "Kalpurush", 4),
     ("SolaimanLipi", "SolaimanLipiNormal", 4),
@@ -821,6 +883,13 @@ guide_fonts = (
     ("Anek Bangla", "AnekBangla", 4),
     ("Tiro Bangla", "TiroBangla", 3.5),
     ("Galada", "Galada", 3.5),
+    ("Hind Siliguri", "HindSiliguri", None),
+    ("Nikosh", "Nikosh", 3.5),
+    *([("Kohinoor Bangla", "KohinoorBangla", None)]
+      if "kohinoor-bangla" in BENGALI_FONTS else []),
+    ("Mukti", "Mukti", None),
+    ("Baloo Da 2", "BalooDa2", None),
+    ("Lohit Bengali", "Lohit-Bengali", 4.5),
     ("FreeSerif", "FreeSerif", 3.5),
 )
 with fitz.open(BUILD / "supported-fonts/main.pdf") as document:
@@ -838,11 +907,11 @@ with fitz.open(BUILD / "supported-fonts/main.pdf") as document:
             and (
                 bool(strokes)
                 and all(
-                    math.isclose(t["linewidth"] / t["size"], strength / 100, abs_tol=0.0002)
+                    math.isclose(t["linewidth"] / t["size"], strength / 100 * 72.27 / 72, abs_tol=0.0002)
                     for t in strokes
                 )
                 if strength is not None
-                else not strokes and any(t["font"].endswith("-Bold") for t in traces)
+                else not strokes and any(t["font"].endswith("Bold") for t in traces)
             ),
             f"Public font guide: {name} uses its intended face and bold weight",
         )
@@ -850,13 +919,15 @@ with fitz.open(BUILD / "supported-fonts/main.pdf") as document:
 for suffix, family, strength, scale in (
     ("kalpurush", "Kalpurush", 4, 1),
     ("freeserif", "FreeSerif", 3.5, 1),
-    ("solaimanlipi", "SolaimanLipiNormal", 4, 1),
+    ("solaimanlipi", "SolaimanLipiNormal", 4, 0.9),
     ("siyam-rupali", "SiyamRupali", 4.5, 0.8),
     ("anek-bangla", "AnekBangla", 4, 0.9),
-    ("tiro-bangla", "TiroBangla", 3.5, 1),
+    ("tiro-bangla", "TiroBangla", 3.5, 0.9),
     ("tiro-overrides", "TiroBangla", 4, 0.95),
     ("galada", "Galada", 3.5, 0.9),
     ("galada-file", "Galada", 3.5, 0.9),
+    ("nikosh", "Nikosh", 3.5, 1),
+    ("lohit-bengali", "Lohit-Bengali", 4.5, 0.9),
 ):
     with fitz.open(BUILD / ("font-faces-" + suffix) / "main.pdf") as document:
         strokes = [
@@ -868,7 +939,7 @@ for suffix, family, strength, scale in (
         check(
             bool(strokes)
             and all(
-                math.isclose(t["linewidth"] / t["size"], strength / 100, abs_tol=0.0002)
+                math.isclose(t["linewidth"] / t["size"], strength / 100 * 72.27 / 72, abs_tol=0.0002)
                 for t in strokes
             ),
             f"{suffix}: synthetic faces use the visually reviewed weight",

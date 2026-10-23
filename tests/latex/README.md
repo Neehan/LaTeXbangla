@@ -85,6 +85,13 @@ Older distributions and hosted Overleaf builds are not covered.
 | Tiro Bangla 1.52, regular and italic | [Google Fonts](https://github.com/google/fonts/tree/main/ofl/tirobangla), pinned revision |
 | Galada 1.261 | [Google Fonts](https://github.com/google/fonts/tree/main/ofl/galada), pinned revision |
 
+Hind Siliguri and Lohit Bengali come from pinned Google Fonts revisions;
+Nikosh comes from the Bangladesh Navy's font download. Mukti 3.4.3 and the
+static Baloo Da 2 1.640 faces come from their authors' releases.
+Kohinoor Bangla tests run when a local copy is available. On macOS the fetcher
+uses the installed collection; elsewhere, pass `--kohinoor-font /path/to/KohinoorBangla.ttc`
+to `fetch-fonts.py`. The collection remains in the ignored font directory.
+
 [fetch-fonts.py](fetch-fonts.py) verifies SHA-256 hashes. Downloaded fonts and the
 license notices stay in the ignored `fonts/` directory; fonts are not
 redistributed. `fonts.conf` and `OSFONTDIR` make them available to the test processes.

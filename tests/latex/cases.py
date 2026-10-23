@@ -46,7 +46,15 @@ BENGALI_FONTS = {
     "anek-bangla": "AnekBangla-VF.ttf",
     "tiro-bangla": "Tiro Bangla",
     "galada": "Galada",
+    "hind-siliguri": "Hind Siliguri",
+    "nikosh": "Nikosh",
+    "mukti": "Mukti",
+    "baloo-da-2": "Baloo Da 2",
+    "lohit-bengali": "Lohit Bengali",
 }
+# Kohinoor is supplied by the tester, never downloaded or distributed here.
+if (ROOT / "fonts/KohinoorBangla.ttc").exists():
+    BENGALI_FONTS["kohinoor-bangla"] = "Kohinoor Bangla"
 
 
 def setup(options="", font="Kalpurush"):
@@ -109,6 +117,16 @@ OutsideEnglish বাংলা।
         + r"\setbanglamainfont[AutoFakeBold=4,AutoFakeSlant=0.2]{Noto Serif Bengali}",
         r"বাংলা\par\textbf{বাংলা}\par\textbf{\textit{বাংলা}}", passes=1,
     )
+    # Family-specific face hints must remain defaults, not override user choices.
+    for suffix in ("mukti", "kohinoor-bangla"):
+        if suffix in BENGALI_FONTS:
+            add(
+                "font-faces-" + suffix + "-overrides",
+                r"\usepackage{latexbangla}" + FONTS
+                + r"\setbanglamainfont[Scale=0.95,AutoFakeBold=4,AutoFakeSlant=0.1]{"
+                + BENGALI_FONTS[suffix] + "}",
+                FONT_FACE_BODY, passes=1,
+            )
     add("one-font", setup(), FONT_BODY)
     add(
         "switching-contexts", setup() + r"\setotherlanguage{english}",
@@ -194,7 +212,10 @@ LatinAgain café Ānand বাংলা।\par
         add(
             "font-faces-" + suffix,
             setup(font=font) + r"\usepackage[a4paper,margin=20mm]{geometry}",
-            FONT_FACE_BODY,
+            FONT_FACE_BODY + (
+                r"\bengalifont\typeout{MUKTI-XHEIGHT: \the\fontdimen5\font; ka: \the\fontcharht\font`ক}"
+                if suffix == "mukti" else ""
+            ),
             passes=1,
         )
         for adjusted in (False, True):

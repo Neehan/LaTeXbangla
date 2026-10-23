@@ -2,18 +2,22 @@
 """Fetch checksum-pinned Bengali fonts for the acceptance tests.
 
 Noto comes from Ubuntu 22.04; SolaimanLipi and Siyam Rupali from OmicronLab.
-Anek Bangla, Tiro Bangla and Galada come from Google Fonts.
+Google Fonts and the font authors supply the other downloadable families.
+Kohinoor Bangla is tested only with a locally supplied copy.
 Overleaf documents this Ubuntu release as its Noto font source. Keep the test
 assets reproducible without installing fonts on the host or redistributing them
 as part of the LaTeX package. Existing files are reused only after hash checks.
 """
+
 import argparse
 import hashlib
 import io
 from pathlib import Path
+import shutil
 import subprocess
 import tarfile
 import urllib.request
+import zipfile
 
 DIRECTORY = Path(__file__).resolve().parent / "fonts"
 NOTO_URL = "https://archive.ubuntu.com/ubuntu/pool/main/f/fonts-noto/fonts-noto-core_20201225-1build1_all.deb"
@@ -76,6 +80,62 @@ GALADA_FILES = {
     ),
 }
 
+# Additional upstream assets; downloaded only into the ignored test directory.
+ADDITIONAL_FILES = {
+    "BalooDa2-OFL.txt": (
+        "https://raw.githubusercontent.com/EkType/Baloo2/1.640/OFL.txt",
+        "71553532f1a32adcd610d11a79535fae28c56df4e3e877c5ae3b585633e36efc",
+    ),
+    "HindSiliguri-Regular.ttf": (
+        "https://raw.githubusercontent.com/google/fonts/e7db6ca603fd4862010383ff17ffd6cc4ffac1c0/ofl/hindsiliguri/HindSiliguri-Regular.ttf",
+        "45071a7da902a74877f432722f525d00502d61aef71fca4cab3da8a23156c33d",
+    ),
+    "HindSiliguri-Bold.ttf": (
+        "https://raw.githubusercontent.com/google/fonts/e7db6ca603fd4862010383ff17ffd6cc4ffac1c0/ofl/hindsiliguri/HindSiliguri-Bold.ttf",
+        "d135765781d1a4aebc7dd4a2af221427ec8689060121d8a48b19bca3eeb3977e",
+    ),
+    "HindSiliguri-OFL.txt": (
+        "https://raw.githubusercontent.com/google/fonts/e7db6ca603fd4862010383ff17ffd6cc4ffac1c0/ofl/hindsiliguri/OFL.txt",
+        "4b255eb44f613a8e426e195f0d0b7e10fcba1af7eb6047d9a7f4f3c449940e19",
+    ),
+    "Lohit-Bengali.ttf": (
+        "https://raw.githubusercontent.com/google/fonts/e7db6ca603fd4862010383ff17ffd6cc4ffac1c0/ofl/lohitbengali/Lohit-Bengali.ttf",
+        "609aefb344d7c7e5b082f7dad501c5479f668896088a93b198675bf6213e8ee1",
+    ),
+    "Lohit-Bengali-OFL.txt": (
+        "https://raw.githubusercontent.com/google/fonts/e7db6ca603fd4862010383ff17ffd6cc4ffac1c0/ofl/lohitbengali/OFL.txt",
+        "e88691a5e0a8a3f788f31db959701ec90a1d5e7505f1cc53c5663180a7d23c81",
+    ),
+    "Nikosh.ttf": (
+        "https://www.navy.mil.bd/public/backend/ckfinder/core/connector/php/files/Nikosh.ttf",
+        "fcebcd9cae1a833a62ae32787dbe03e71df2bc76b4dbc07c1d51cab461bdd4ca",
+    ),
+    "mukti.otf": (
+        "https://github.com/mitradranirban/fonts-mukti/releases/download/v3.4.3/mukti.otf",
+        "38e8c89c7b64ecf8a59e9b049ee9c80cc0d58115371db42aa3c94c755e0b2c79",
+    ),
+    "muktibold.otf": (
+        "https://github.com/mitradranirban/fonts-mukti/releases/download/v3.4.3/muktibold.otf",
+        "ea721c4d78354b38de6d0dbe8b1198af887284f747b66199bbab2481b3b67118",
+    ),
+    "muktiita.otf": (
+        "https://github.com/mitradranirban/fonts-mukti/releases/download/v3.4.3/muktiita.otf",
+        "8cdb72c0030a4d0dbe803f2ed92f86c9d31117030291504a97c34c57eacacc34",
+    ),
+    "muktibi.otf": (
+        "https://github.com/mitradranirban/fonts-mukti/releases/download/v3.4.3/muktibi.otf",
+        "be92daf654ec906ed94f4886d0b790f9c55310d0b85ed65b6aa95b133d340946",
+    ),
+    "Mukti-LICENCE.txt": (
+        "https://raw.githubusercontent.com/mitradranirban/fonts-mukti/v3.4.3/LICENCE",
+        "e197b622b786220bf9ab4ab009f512addaeff979cab07575c32278ba191bd345",
+    ),
+    "Mukti-copyright.txt": (
+        "https://raw.githubusercontent.com/mitradranirban/fonts-mukti/v3.4.3/copyright",
+        "f7b3c0548573de3690cee9f183924e2f6cf7d0aa6bd7a4560e99b00bd6d6fec0",
+    ),
+}
+
 
 def digest(data):
     return hashlib.sha256(data).hexdigest()
@@ -83,7 +143,8 @@ def digest(data):
 
 def prepare_noto(local_archive: Path | None):
     if all(
-        (DIRECTORY / name).exists() and digest((DIRECTORY / name).read_bytes()) == expected
+        (DIRECTORY / name).exists()
+        and digest((DIRECTORY / name).read_bytes()) == expected
         for name, expected in NOTO_FILES.items()
     ):
         print("Pinned Noto Bengali test fonts verified.")
@@ -134,7 +195,7 @@ def prepare_omicronlab():
     print("Pinned SolaimanLipi and Siyam Rupali test fonts verified.")
 
 
-def prepare_google_font(base_url, files):
+def prepare_pinned_files(base_url, files):
     DIRECTORY.mkdir(exist_ok=True)
     for name, (remote_name, expected) in files.items():
         path = DIRECTORY / name
@@ -147,17 +208,62 @@ def prepare_google_font(base_url, files):
         path.write_bytes(data)
 
 
+def prepare_baloo():
+    """Use the author's static Regular/Bold release for portable face discovery."""
+    files = {
+        "BalooDa2-Regular.ttf": "2f9a3eed04975aefc79a636a023aa4f7923251e3289ad2e861ea3fa26e0cda47",
+        "BalooDa2-Bold.ttf": "0d7fd3408d6161088736403bc9407c36765081e2520ea5aa43d29825c2bb01b1",
+    }
+    if all(
+        (DIRECTORY / name).exists()
+        and digest((DIRECTORY / name).read_bytes()) == expected
+        for name, expected in files.items()
+    ):
+        return
+    url = "https://github.com/EkType/Baloo2/releases/download/1.640/Baloo2_1.640.zip"
+    with urllib.request.urlopen(url, timeout=60) as response:
+        data = response.read()
+    if (
+        digest(data)
+        != "1f810c51d46a826294d2b9974db0a981a20b06bb629af4aab2f9687e15fd77c1"
+    ):
+        raise SystemExit("Baloo release checksum mismatch.")
+    with zipfile.ZipFile(io.BytesIO(data)) as archive:
+        for name, expected in files.items():
+            data = archive.read("Bangla/" + name)
+            if digest(data) != expected:
+                raise SystemExit(f"Font checksum mismatch: {name}")
+            (DIRECTORY / name).write_bytes(data)
+
+
+def prepare_kohinoor(source):
+    """Use a local licensed copy when available; never fetch this system font."""
+    target = DIRECTORY / "KohinoorBangla.ttc"
+    if source.is_file() and source.resolve() != target.resolve():
+        shutil.copyfile(source, target)
+
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--archive", type=Path, help="use an already downloaded Noto .deb")
+    parser.add_argument(
+        "--archive", type=Path, help="use an already downloaded Noto .deb"
+    )
+    parser.add_argument(
+        "--kohinoor-font",
+        type=Path,
+        default=Path("/System/Library/Fonts/KohinoorBangla.ttc"),
+        help="optional local Kohinoor Bangla collection for testing",
+    )
     args = parser.parse_args()
     prepare_noto(args.archive)
     prepare_omicronlab()
-    prepare_google_font(ANEK_BASE_URL, ANEK_FILES)
-    prepare_google_font(TIRO_BASE_URL, TIRO_FILES)
-    prepare_google_font(GALADA_BASE_URL, GALADA_FILES)
-    print("Pinned Google Fonts and license notices verified.")
+    prepare_pinned_files(ANEK_BASE_URL, ANEK_FILES)
+    prepare_pinned_files(TIRO_BASE_URL, TIRO_FILES)
+    prepare_pinned_files(GALADA_BASE_URL, GALADA_FILES)
+    prepare_pinned_files("", ADDITIONAL_FILES)
+    prepare_baloo()
+    prepare_kohinoor(args.kohinoor_font)
+    print("Pinned font files verified; local Kohinoor included when available.")
 
 
 if __name__ == "__main__":
