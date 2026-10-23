@@ -84,16 +84,32 @@ def inspect(name):
     if name == "memoir":
         document[8].get_pixmap(matrix=fitz.Matrix(1.5, 1.5)).save(directory / "page-9.png")
     if name in {"readme-example", "readme-font-families"}:
-        # Crop the example to its text, leaving the page footer out of the
-        # README illustration. Keep the generated preview in build/ for review
-        # before copying it to the versioned image.
+        # Keep footnotes, but omit the centered page number. Remove large
+        # blank bands between body and footnotes for the README preview;
+        # every retained region is copied from the actual compiled page.
         page = document[0]
-        content = [block for block in page.get_text("blocks") if block[3] < page.rect.height * 0.8]
-        bounds = fitz.Rect(content[0][:4])
-        for block in content[1:]:
-            bounds |= fitz.Rect(block[:4])
-        bounds += (-14, -14, 14, 14)
-        page.get_pixmap(matrix=fitz.Matrix(2, 2), clip=bounds).save(directory / "preview.png")
+        content = sorted((fitz.Rect(block[:4]) for block in page.get_text("blocks")
+                          if not (block[4].strip().isdigit()
+                                  and block[1] > page.rect.height * .8
+                                  and abs((block[0] + block[2]) / 2 - page.rect.width / 2) < 25)),
+                         key=lambda rect: rect.y0)
+        bands = [content[0]]
+        for rect in content[1:]:
+            if rect.y0 - bands[-1].y1 > 72:
+                bands.append(rect)
+            else:
+                bands[-1] |= rect
+        left = min(rect.x0 for rect in content) - 14
+        right = max(rect.x1 for rect in content) + 14
+        clips = [fitz.Rect(left, band.y0 - 14, right, band.y1 + 14) for band in bands]
+        with fitz.open() as preview:
+            target = preview.new_page(width=right - left, height=sum(clip.height for clip in clips))
+            top = 0
+            for clip in clips:
+                target.show_pdf_page(fitz.Rect(0, top, clip.width, top + clip.height),
+                                     document, 0, clip=clip)
+                top += clip.height
+            target.get_pixmap(matrix=fitz.Matrix(2, 2)).save(directory / "preview.png")
     return info
 
 
@@ -1039,6 +1055,14 @@ with fitz.open(BUILD / "manual/main.pdf") as document:
         "Manual includes the repository logo and bundles the identical source image",
     )
     manual_aux = (BUILD / "manual/main.aux").read_text(encoding="utf-8")
+    check(
+        r"\newlabel{tab:font-defaults}{{1}" in manual_aux
+        and r"\newlabel{bn:tab:font-defaults}{{১}" in manual_aux
+        and "Table1:Defaultsettings" in re.sub(r"\s+", "", text("manual"))
+        and all(destination in PDFS["manual"]["targets"]
+                for destination in ("table.1", "table.bangla.1")),
+        "Manual tables use English labels in English and separate Bangla labels and links in translation",
+    )
     check(
         r"\newlabel{ex:custom}{{১২}" in manual_aux
         and r"\newlabel{eq:speed}{{১}" in manual_aux

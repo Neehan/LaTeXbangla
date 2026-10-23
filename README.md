@@ -31,7 +31,7 @@ Use your chosen font name or filename in `\setbanglamainfont`.
 \begin{document}
 \section{পিথাগোরাসের উপপাদ্য}
 সমকোণী ত্রিভুজের দুই লম্ব বাহুর দৈর্ঘ্য $a$ ও $b$,
-এবং অতিভুজের দৈর্ঘ্য $c$ হলে, \textit{Pythagorean theorem} অনুযায়ী,
+এবং অতিভুজের দৈর্ঘ্য $c$ হলে, \textit{Pythagorean theorem} অনুযায়ী,\footnote{সমকোণের বিপরীত বাহুটিই অতিভুজ বা hypotenuse।}
 \[a^2+b^2=c^2.\]
 
 A diagonal is the shortest route across a rectangular garden—
@@ -66,21 +66,21 @@ commands such as `\textsf` and `\texttt`; each script keeps its chosen font:
 \setmonofont{TeX Gyre Cursor}
 
 \begin{document}
-বাংলা ও English।\\
-\textbf{গাঢ় ও bold।}\\
-\textit{তির্যক ও italic।}
+বাংলা ও English একই অনুচ্ছেদে নিজের ফন্ট রাখে।
+\textbf{গুরুত্বপূর্ণ কথাটি bold করে লিখুন।}
+\textit{বইয়ের নাম বা বিশেষ শব্দে italic ব্যবহার করুন।}
 
-\textsf{বাংলা ও English।}\\
-\textsf{\textbf{গাঢ় ও bold।}}\\
-\textsf{\textit{তির্যক ও italic।}}
+\textsf{একটি ছোট নোটেও বাংলা ও English পাশাপাশি থাকে।
+\textbf{মূল বক্তব্যটি bold করে তুলে ধরুন।}
+\textit{অতিরিক্ত ব্যাখ্যাটি italic করে লিখুন।}}
 
-\texttt{বাংলা ও English।}\\
-\texttt{\textbf{গাঢ় ও bold।}}\\
-\texttt{\textit{তির্যক ও italic।}}
+\texttt{ফাইলটি খুলুন: Open the English notes in notes.txt.
+\textbf{সতর্কতা: bold লেখাটি আগে পড়ুন।}
+\textit{পরামর্শ: italic লেখাটিও খেয়াল করুন।}}
 \end{document}
 ```
 
-<img src="img/font-families.png" alt="The example typeset with separate main, sans and mono Bangla/English fonts, including bold and italic" width="280">
+<img src="img/font-families.png" alt="The example typeset with separate main, sans and mono Bangla/English fonts, including bold and italic" width="650">
 
 [Report a bug](https://github.com/Neehan/LaTeXbangla/issues) ·
 [latexbangla@googlegroups.com](https://groups.google.com/g/latexbangla) ·
