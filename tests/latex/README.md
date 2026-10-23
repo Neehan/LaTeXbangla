@@ -66,7 +66,7 @@ to regression tests and records remaining gaps.
 Cleveref names and connecting words use its own customization commands;
 LaTeXbangla preserves Bengali label display while adapting numeric sorting.
 
-Successful tests require all compilation passes, a PDF, and no missing glyphs
+Successful tests require all compilation passes, a PDF, and no unexpected missing glyphs
 or final package/font/reference warnings. Expected-error tests must produce the
 intended diagnostic. PDF checks inspect actual fonts, strokes, text, and links.
 The English, Bangla and Assamese manual runs its code/output examples during
@@ -93,6 +93,11 @@ Older distributions and hosted Overleaf builds are not covered.
 Hind Siliguri and Lohit Bengali come from pinned Google Fonts revisions;
 Nikosh comes from the Bangladesh Navy's font download. Mukti 3.4.3 and the
 static Baloo Da 2 1.640 faces come from their authors' releases.
+Jamrul 0.1 and Likhan 0.6 come from the [Free Bangla Fonts Project](https://www.nongnu.org/freebangfont/downloads.html);
+Shimanto 1.0 comes from the [BanglaCode archive](https://banglacode.com/bangla-font-download.htm).
+The tested Jamrul and Likhan releases lack U+09CE (standalone khanda ta).
+Shimanto 1.0 lacks ZWJ/ZWNJ entries; its two joiner tests check the exact XeTeX
+diagnostics, including a fontspec-only reproduction. Other missing glyphs still fail.
 Kohinoor Bangla tests run when a local copy is available. On macOS the fetcher
 uses the installed collection; elsewhere, pass `--kohinoor-font /path/to/KohinoorBangla.ttc`
 to `fetch-fonts.py`. The collection remains in the ignored font directory.

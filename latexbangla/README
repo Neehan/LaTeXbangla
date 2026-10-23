@@ -23,8 +23,9 @@ fonts, then use its name below:
 
 Tested fonts for both languages: Kalpurush, SolaimanLipi, Siyam Rupali,
 Noto Serif Bengali, Noto Sans Bengali, Anek Bangla, Tiro Bangla, Galada,
-Hind Siliguri, Nikosh, Kohinoor Bangla, Mukti, Baloo Da 2, Lohit Bengali
-and FreeSerif. Other Bangla fonts may work too, but have not been tested.
+Hind Siliguri, Nikosh, Kohinoor Bangla, Mukti, Baloo Da 2, Lohit Bengali,
+Jamrul, Likhan, Shimanto and FreeSerif. Jamrul 0.1 and Likhan 0.6 lack
+ৎ (U+09CE). Other Bangla fonts may work too, but have not been tested.
 Fonts are not included. If Anek fails to load by name, save its TTF
 as AnekBangla-VF.ttf beside your document and use
 \setbanglamainfont{AnekBangla-VF.ttf}.

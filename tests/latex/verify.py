@@ -132,8 +132,23 @@ for name, case in cases().items():
         and (BUILD / name / "main.pdf").exists(),
         f"{name}: every compilation pass completed and PDF exists",
     )
-    check(result["missing_glyph_count"] == 0, f"{name}: no missing glyphs")
-    check(not result["warnings"], f"{name}: no final package/font/reference warnings")
+    # Shimanto 1.0 lacks ZWNJ/ZWJ cmap entries. XeTeX reports them even with
+    # fontspec alone; keep the regression visible and allow only these exact
+    # diagnostics. LuaHBTeX handles the controls without missing-glyph reports.
+    shimanto_joiner_counts = {"font-transitions-shimanto": (3, 1),
+                             "shimanto-joiners-fontspec": (1, 1)}
+    if ENGINE == "xelatex" and name in shimanto_joiner_counts:
+        joiner_counts = shimanto_joiner_counts[name]
+        check(result["missing_glyph_count"] == sum(joiner_counts)
+              and len(result["warnings"]) == sum(joiner_counts)
+              and all(sum("Missing character:" in warning
+                          and f"(U+{codepoint}) in font Shimanto/" in warning
+                          for warning in result["warnings"]) == count
+                      for codepoint, count in zip(("200C", "200D"), joiner_counts)),
+              f"{name}: only the documented Shimanto joiner diagnostics")
+    else:
+        check(result["missing_glyph_count"] == 0, f"{name}: no missing glyphs")
+        check(not result["warnings"], f"{name}: no final package/font/reference warnings")
     if (BUILD / name / "main.pdf").exists():
         PDFS[name] = inspect(name)
         check(
@@ -700,6 +715,9 @@ font_spacing_defaults = {
     "mukti": (0.9, 1.33),
     "baloo-da-2": (0.9, 1.86),
     "lohit-bengali": (0.9, 1.33),
+    "jamrul": (1, 0.43),
+    "likhan": (0.9, 0.97),
+    "shimanto": (1, 1.11),
 }
 for suffix in BENGALI_FONTS:
     for adjusted in (False, True):
@@ -987,6 +1005,16 @@ if ENGINE == "lualatex":
         "Anek Width selects distinct condensed and expanded designs",
     )
 
+# Filename aliases must retain the same size, slant and shaped advances as
+# installed-family loads, including the adjusted spacing in each sample row.
+for suffix in ("jamrul", "likhan", "shimanto"):
+    metrics = []
+    for ending in ("", "-file"):
+        log = (BUILD / ("font-faces-" + suffix + ending) / "main.log").read_text(encoding="utf-8")
+        metrics.append(re.findall(r"FACE-METRICS: .*", log))
+    check(len(metrics[0]) == 12 and metrics[0] == metrics[1],
+          f"{suffix}: filename and family-name loads have identical font geometry")
+
 # The public guide changes fonts page by page. Check the rendered selections,
 # not just the labels, so an accidentally shared family cannot mislead readers.
 # FakeBold stroke ratios include the TeX-point/PDF-point conversion; allow
@@ -1007,6 +1035,9 @@ guide_fonts = (
     ("Mukti", "Mukti", None),
     ("Baloo Da 2", "BalooDa2", None),
     ("Lohit Bengali", "Lohit-Bengali", 4.5),
+    ("Jamrul", "JamrulNormal", 2.5),
+    ("Likhan", "LikhanNormal", 3.5),
+    ("Shimanto", "Shimanto", 3.5),
     ("FreeSerif", "FreeSerif", 3.5),
 )
 with fitz.open(BUILD / "supported-fonts/main.pdf") as document:
@@ -1045,6 +1076,12 @@ for suffix, family, strength, scale in (
     ("galada-file", "Galada", 3.5, 0.9),
     ("nikosh", "Nikosh", 3.5, 1),
     ("lohit-bengali", "Lohit-Bengali", 4.5, 0.9),
+    ("jamrul", "JamrulNormal", 2.5, 1),
+    ("likhan", "LikhanNormal", 3.5, 0.9),
+    ("shimanto", "Shimanto", 3.5, 1),
+    ("jamrul-file", "JamrulNormal", 2.5, 1),
+    ("likhan-file", "LikhanNormal", 3.5, 0.9),
+    ("shimanto-file", "Shimanto", 3.5, 1),
 ):
     with fitz.open(BUILD / ("font-faces-" + suffix) / "main.pdf") as document:
         strokes = [

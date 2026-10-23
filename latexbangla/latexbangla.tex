@@ -277,6 +277,9 @@ Other fonts may work too, but have not been tested.
 \texttt{Mukti} & Real face & Real face & 0.9 & 1.33 \\
 \texttt{Baloo Da 2} & Real face & Synthetic 0.2 & 0.9 & 1.86 \\
 \texttt{Lohit Bengali} & Synthetic 4.5 & Synthetic 0.2 & 0.9 & 1.33 \\
+\texttt{Jamrul} & Synthetic 2.5 & Synthetic 0.2 & 1 & 0.43 \\
+\texttt{Likhan} & Synthetic 3.5 & Synthetic 0.2 & 0.9 & 0.97 \\
+\texttt{Shimanto} & Synthetic 3.5 & Synthetic 0.2 & 1 & 1.11 \\
 \texttt{FreeSerif} & Synthetic 3.5 & Real face & 1 & 1.33 \\
 \bottomrule
 \end{tabularx}
@@ -286,6 +289,8 @@ Other fonts may work too, but have not been tested.
 If Anek Bangla fails to load by name, save its TTF as \texttt{AnekBangla-VF.ttf}
 beside your document and use \verb|\setbanglamainfont{AnekBangla-VF.ttf}|. For Mukti, use version 3;
 for Baloo Da 2, install the static font files.
+Jamrul 0.1 and Likhan 0.6 lack the standalone letter ৎ (U+09CE).
+With Shimanto 1.0, \hologo{XeLaTeX} reports missing glyphs for explicit ZWJ/ZWNJ controls.
 \end{tcolorbox}
 
 \subsection{Writing Assamese}
@@ -947,6 +952,9 @@ English keeps its own typeface.
 \texttt{Mukti} & নিজস্ব রূপ & নিজস্ব রূপ & ০.৯ & ১.৩৩ \\
 \texttt{Baloo Da 2} & নিজস্ব রূপ & কৃত্রিম ০.২ & ০.৯ & ১.৮৬ \\
 \texttt{Lohit Bengali} & কৃত্রিম ৪.৫ & কৃত্রিম ০.২ & ০.৯ & ১.৩৩ \\
+\texttt{Jamrul} & কৃত্রিম ২.৫ & কৃত্রিম ০.২ & ১ & ০.৪৩ \\
+\texttt{Likhan} & কৃত্রিম ৩.৫ & কৃত্রিম ০.২ & ০.৯ & ০.৯৭ \\
+\texttt{Shimanto} & কৃত্রিম ৩.৫ & কৃত্রিম ০.২ & ১ & ১.১১ \\
 \texttt{FreeSerif} & কৃত্রিম ৩.৫ & নিজস্ব রূপ & ১ & ১.৩৩ \\
 \bottomrule
 \end{tabularx}
@@ -956,6 +964,8 @@ English keeps its own typeface.
 Anek Bangla নাম দিয়ে লোড না হলে TTF ফাইলটি \texttt{AnekBangla-VF.ttf} নামে
 ডকুমেন্টের পাশে রেখে \verb|\setbanglamainfont{AnekBangla-VF.ttf}| লিখুন।
 Mukti-এর ৩ সংস্করণ এবং Baloo Da 2-এর static ফন্ট ফাইল ব্যবহার করুন।
+Jamrul ০.১ ও Likhan ০.৬-এ স্বতন্ত্র ৎ (U+09CE) অক্ষরটি নেই।
+Shimanto ১.০-এ সরাসরি ZWJ/ZWNJ ব্যবহার করলে \hologo{XeLaTeX} গ্লিফ না থাকার বার্তা দেয়।
 \end{tcolorbox}
 
 \subsection{অসমীয়া লেখা}
@@ -1619,6 +1629,9 @@ English keeps its own typeface.
 \texttt{Mukti} & নিজস্ব ৰূপ & নিজস্ব ৰূপ & ০.৯ & ১.৩৩ \\
 \texttt{Baloo Da 2} & নিজস্ব ৰূপ & কৃত্ৰিম ০.২ & ০.৯ & ১.৮৬ \\
 \texttt{Lohit Bengali} & কৃত্ৰিম ৪.৫ & কৃত্ৰিম ০.২ & ০.৯ & ১.৩৩ \\
+\texttt{Jamrul} & কৃত্ৰিম ২.৫ & কৃত্ৰিম ০.২ & ১ & ০.৪৩ \\
+\texttt{Likhan} & কৃত্ৰিম ৩.৫ & কৃত্ৰিম ০.২ & ০.৯ & ০.৯৭ \\
+\texttt{Shimanto} & কৃত্ৰিম ৩.৫ & কৃত্ৰিম ০.২ & ১ & ১.১১ \\
 \texttt{FreeSerif} & কৃত্ৰিম ৩.৫ & নিজস্ব ৰূপ & ১ & ১.৩৩ \\
 \bottomrule
 \end{tabularx}
@@ -1628,6 +1641,8 @@ English keeps its own typeface.
 Anek Bangla নামৰ দ্বাৰা লোড নহ'লে TTF ফাইলটো \texttt{AnekBangla-VF.ttf} নামেৰে
 নথিৰ কাষত ৰাখি \verb|\setbanglamainfont{AnekBangla-VF.ttf}| লিখক।
 Mukti-ৰ সংস্কৰণ ৩ আৰু Baloo Da 2-ৰ static ফণ্ট ফাইল ব্যৱহাৰ কৰক।
+Jamrul ০.১ আৰু Likhan ০.৬-ত স্বতন্ত্ৰ ৎ (U+09CE) আখৰটো নাই।
+Shimanto ১.০-ত পোনপটীয়াকৈ ZWJ/ZWNJ ব্যৱহাৰ কৰিলে \hologo{XeLaTeX}-এ গ্লিফ নথকাৰ বাৰ্তা দিয়ে।
 \end{tcolorbox}
 
 \subsection{অসমীয়া ভাষা বাছনি}

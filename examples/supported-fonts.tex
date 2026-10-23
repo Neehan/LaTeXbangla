@@ -42,6 +42,12 @@
 \NewCommandCopy\baloofont\bengalifont
 \setbanglamainfont{Lohit Bengali}
 \NewCommandCopy\lohitfont\bengalifont
+\setbanglamainfont{Jamrul}
+\NewCommandCopy\jamrulfont\bengalifont
+\setbanglamainfont{Likhan}
+\NewCommandCopy\likhanfont\bengalifont
+\setbanglamainfont{Shimanto}
+\NewCommandCopy\shimantofont\bengalifont
 \setbanglamainfont{FreeSerif}
 \NewCommandCopy\freeseriffont\bengalifont
 
@@ -123,6 +129,15 @@
   {Real bold face. Scale: 0.9; word-space factor: 1.86.}
 \fontsample{\lohitfont}{Lohit Bengali}
   {Synthetic bold: 4.5. Scale: 0.9; word-space factor: 1.33.}
+\fontsample{\jamrulfont}{Jamrul}
+  {Synthetic bold: 2.5; slant: 0.2. Native size; word-space factor: 0.43.\newline
+   Version 0.1 lacks the standalone khanda ta (U+09CE).}
+\fontsample{\likhanfont}{Likhan}
+  {Synthetic bold: 3.5; slant: 0.2. Scale: 0.9; word-space factor: 0.97.\newline
+   Version 0.6 lacks the standalone khanda ta (U+09CE).}
+\fontsample{\shimantofont}{Shimanto}
+  {Synthetic bold: 3.5; slant: 0.2. Native size; word-space factor: 1.11.\newline
+   XeLaTeX reports missing glyphs for explicit ZWJ/ZWNJ controls in version 1.0.}
 \fontsample{\freeseriffont}{FreeSerif}
   {Synthetic bold: 3.5; real italic face. Native size; word-space factor: 1.33.}
 \end{document}

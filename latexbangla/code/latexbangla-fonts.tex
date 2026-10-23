@@ -35,7 +35,7 @@
 % scale/spacing and synthetic weight 2.5. Recognize family names and standard
 % filenames, including Path= loads; renamed files use the generic defaults.
 % Reviewed weights: Kalpurush, SolaimanLipi and Anek Bangla 4;
-% FreeSerif, Tiro Bangla, Galada and Nikosh 3.5; Siyam Rupali and Lohit Bengali 4.5.
+% FreeSerif, Tiro Bangla, Galada, Nikosh, Likhan and Shimanto 3.5; Siyam Rupali and Lohit Bengali 4.5.
 % Real bold faces never receive this synthetic-weight setting.
 % Word-space presets were measured against default Latin Modern Roman and
 % checked in mixed paragraphs with Pagella and Termes. They bring narrow spaces
@@ -52,6 +52,8 @@
     % Resolve the filenames used by supported font downloads to their families.
     \str_case:Vn \l__latexbangla_font_profile_name_tl
       {
+        {jamrulnormal}{\tl_set:Nn \l__latexbangla_font_profile_name_tl {jamrul}}
+        {likhannormal}{\tl_set:Nn \l__latexbangla_font_profile_name_tl {likhan}}
         {fontkalpurush}{\tl_set:Nn \l__latexbangla_font_profile_name_tl {kalpurush}}
         {solaimanlipi_20-04-07}{\tl_set:Nn \l__latexbangla_font_profile_name_tl {solaimanlipi}}
         {notoserifbengali-regular}{\tl_set:Nn \l__latexbangla_font_profile_name_tl {notoserifbengali}}
@@ -74,6 +76,17 @@
         {freeserif}
           {\tl_set:Nn \l__latexbangla_synthetic_bold_tl {3.5}
            \tl_set:Nn \l__latexbangla_font_defaults_tl {WordSpace=1.33,}}
+        % Jamrul uses the shared synthetic weight; the other single-face fonts
+        % below have individually reviewed weights.
+        % Jamrul's native space is over twice Latin Modern's; reduce it rather
+        % than reducing the glyph size. Likhan and Shimanto need smaller changes.
+        {jamrul}{\tl_set:Nn \l__latexbangla_font_defaults_tl {WordSpace=0.43,}}
+        {likhan}
+          {\tl_set:Nn \l__latexbangla_synthetic_bold_tl {3.5}
+           \tl_set:Nn \l__latexbangla_font_defaults_tl {Scale=0.9,WordSpace=0.97,}}
+        {shimanto}
+          {\tl_set:Nn \l__latexbangla_synthetic_bold_tl {3.5}
+           \tl_set:Nn \l__latexbangla_font_defaults_tl {WordSpace=1.11,}}
         {kalpurush}{\tl_set:Nn \l__latexbangla_synthetic_bold_tl {4}}
         {solaimanlipi}
           {\tl_set:Nn \l__latexbangla_synthetic_bold_tl {4}

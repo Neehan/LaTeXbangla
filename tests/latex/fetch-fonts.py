@@ -2,7 +2,7 @@
 """Fetch checksum-pinned Bengali fonts for the acceptance tests.
 
 Noto comes from Ubuntu 22.04; SolaimanLipi and Siyam Rupali from OmicronLab.
-Google Fonts and the font authors supply the other downloadable families.
+Other families come from Google Fonts, author releases and font archives.
 Kohinoor Bangla is tested only with a locally supplied copy.
 Overleaf documents this Ubuntu release as its Noto font source. Keep the test
 assets reproducible without installing fonts on the host or redistributing them
@@ -82,6 +82,18 @@ GALADA_FILES = {
 
 # Additional upstream assets; downloaded only into the ignored test directory.
 ADDITIONAL_FILES = {
+    "JamrulNormal.ttf": (
+        "https://www.nongnu.org/freebangfont/dl/JamrulNormal.ttf",
+        "0d98610301a7f508e8d9bb9b2b2920afcafc690e17705bff272ae3bf20914fdd",
+    ),
+    "LikhanNormal.ttf": (
+        "https://www.nongnu.org/freebangfont/dl/LikhanNormal.ttf",
+        "2eea5b6d374c96249839c7df96acd3c34a0f6b57af18bf8ae281f55a72b55971",
+    ),
+    "Shimanto.ttf": (
+        "https://banglacode.com/fonts/Shimanto.ttf",
+        "5d39f704b82649b62ae64f4c636f744ab85f23a56f4c065caec0b2a5a22ae040",
+    ),
     "BalooDa2-OFL.txt": (
         "https://raw.githubusercontent.com/EkType/Baloo2/1.640/OFL.txt",
         "71553532f1a32adcd610d11a79535fae28c56df4e3e877c5ae3b585633e36efc",

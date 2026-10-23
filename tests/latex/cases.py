@@ -57,6 +57,9 @@ BENGALI_FONTS = {
     "mukti": "Mukti",
     "baloo-da-2": "Baloo Da 2",
     "lohit-bengali": "Lohit Bengali",
+    "jamrul": "Jamrul",
+    "likhan": "Likhan",
+    "shimanto": "Shimanto",
 }
 # Kohinoor is supplied by the tester, never downloaded or distributed here.
 if (ROOT / "fonts/KohinoorBangla.ttc").exists():
@@ -111,6 +114,20 @@ OutsideEnglish বাংলা।
         FONT_FACE_BODY + r"\bengalifont\typeout{GALADA-FILE-SPACE: \the\fontdimen2\font}",
         passes=1,
     )
+    for suffix, filename in (
+        ("jamrul", "JamrulNormal.ttf"), ("likhan", "LikhanNormal.ttf"),
+        ("shimanto", "Shimanto.ttf"),
+    ):
+        add("font-faces-" + suffix + "-file",
+            r"\usepackage{latexbangla}" + FONTS
+            + r"\setbanglamainfont[Path=/work/tests/latex/fonts/]{" + filename + "}"
+            + r"\usepackage[a4paper,margin=20mm]{geometry}",
+            FONT_FACE_BODY, passes=1)
+    # Isolate Shimanto's missing joiner glyphs from automatic font switching.
+    add("shimanto-joiners-fontspec", r"\usepackage{fontspec}\pagestyle{empty}"
+        + r"\ifdefined\directlua\defaultfontfeatures{Renderer=HarfBuzz}\fi"
+        + r"\setmainfont[Script=Bengali]{Shimanto}",
+        r"ক্^^^^200cষ ক্^^^^200dষ।", passes=1)
     add(
         "font-faces-tiro-overrides",
         r"\usepackage{latexbangla}" + FONTS
