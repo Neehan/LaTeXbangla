@@ -3,7 +3,7 @@
 ## 1.1
 
 - Add LuaLaTeX support.
-- Add Anek Bangla to the tested fonts and font guide.
+- Add Anek Bangla, Tiro Bangla and Galada to the tested fonts and font guide.
 - Refine boldness, size and word spacing across supported fonts.
 - Keep font styles and sizing consistent across engines, including bold italic
   and Siyam Rupali's heading spacing.

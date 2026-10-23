@@ -18,7 +18,7 @@
 % which LuaTeX renders with a nonzero PDF stroke.
 \tl_new:N \l__latexbangla_bold_face_file_tl
 \tl_new:N \l__latexbangla_bold_face_directory_tl
-\tl_new:N \l__latexbangla_bold_face_weight_tl
+\tl_new:N \l__latexbangla_bold_face_weight_features_tl
 \cs_new_eq:NN \__latexbangla_synthetic_bold_italic_fallback:
   \__latexbangla_supply_bold_italic_fallback:
 \cs_set_protected:Npn \__latexbangla_supply_bold_italic_fallback:
@@ -37,7 +37,7 @@
               token.set_macro("l__latexbangla_bold_face_file_tl",~basename);
               token.set_macro("l__latexbangla_bold_face_directory_tl",~directory);
               local~weight~=~selected.specification.features.normal.embolden;
-              token.set_macro("l__latexbangla_bold_face_weight_tl",
+              token.set_macro("l__latexbangla_bold_face_weight_features_tl",
                 ~weight~and~("FakeBold="~..~weight~..~",")~or~"");
             }
           \use:e
@@ -46,7 +46,7 @@
               \tl_put_right:Nn \exp_not:N \l__latexbangla_fallback_features_tl
                 {BoldItalicFont={\exp_not:V \l__latexbangla_bold_face_file_tl},
                  BoldItalicFeatures={Path={\exp_not:V \l__latexbangla_bold_face_directory_tl},
-                   \exp_not:V \l__latexbangla_bold_face_weight_tl FakeSlant=0.2},}
+                   \exp_not:V \l__latexbangla_bold_face_weight_features_tl FakeSlant=0.2},}
             }
       }
       {\__latexbangla_synthetic_bold_italic_fallback:}

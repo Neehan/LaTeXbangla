@@ -2,7 +2,7 @@
 """Fetch checksum-pinned Bengali fonts for the acceptance tests.
 
 Noto comes from Ubuntu 22.04; SolaimanLipi and Siyam Rupali from OmicronLab.
-Anek Bangla comes from Google Fonts.
+Anek Bangla, Tiro Bangla and Galada come from Google Fonts.
 Overleaf documents this Ubuntu release as its Noto font source. Keep the test
 assets reproducible without installing fonts on the host or redistributing them
 as part of the LaTeX package. Existing files are reused only after hash checks.
@@ -41,6 +41,38 @@ ANEK_FILES = {
     "AnekBangla-OFL.txt": (
         "OFL.txt",
         "de62be758bba267e653a5f457dfebb4680957e2c343eb3e7de15aff4746bed05",
+    ),
+}
+TIRO_BASE_URL = (
+    "https://raw.githubusercontent.com/google/fonts/"
+    "8b0a1d0f5983c89bc2b93f1b5fb55f9e252744b5/ofl/tirobangla/"
+)
+TIRO_FILES = {
+    "TiroBangla-Regular.ttf": (
+        "TiroBangla-Regular.ttf",
+        "a763523dc3f90a71962cb8d9400b8f0a86b40b2cb01676f165101a2967127ae4",
+    ),
+    "TiroBangla-Italic.ttf": (
+        "TiroBangla-Italic.ttf",
+        "deb8330a56697cfabef8ff393c6d36af60531229b138bf9a3ffe834330cb03e1",
+    ),
+    "TiroBangla-OFL.txt": (
+        "OFL.txt",
+        "2ed6051706542c5d6d96480318152b17900bb6d4dbadb11d7d5d6464d8b3e0dd",
+    ),
+}
+GALADA_BASE_URL = (
+    "https://raw.githubusercontent.com/google/fonts/"
+    "8d688a5ee4b997b5e31a9242eb7a670890d506fa/ofl/galada/"
+)
+GALADA_FILES = {
+    "Galada-Regular.ttf": (
+        "Galada-Regular.ttf",
+        "acc22b41ee470dc542e15b5f8907c7fbebef1b9c01eb20e4127bdbf052b006ee",
+    ),
+    "Galada-OFL.txt": (
+        "OFL.txt",
+        "6a809aeba8af2115ca4b4c3597b1fbeb836a45f0489070f330f9c2dff870da8d",
     ),
 }
 
@@ -102,18 +134,18 @@ def prepare_omicronlab():
     print("Pinned SolaimanLipi and Siyam Rupali test fonts verified.")
 
 
-def prepare_anek():
+def prepare_google_font(base_url, files):
     DIRECTORY.mkdir(exist_ok=True)
-    for name, (remote_name, expected) in ANEK_FILES.items():
+    for name, (remote_name, expected) in files.items():
         path = DIRECTORY / name
         if path.exists() and digest(path.read_bytes()) == expected:
             continue
-        with urllib.request.urlopen(ANEK_BASE_URL + remote_name, timeout=60) as response:
+        with urllib.request.urlopen(base_url + remote_name, timeout=60) as response:
             data = response.read()
         if digest(data) != expected:
             raise SystemExit(f"Font checksum mismatch: {name}")
         path.write_bytes(data)
-    print("Pinned Anek Bangla variable font and license verified.")
+
 
 
 def main():
@@ -122,7 +154,10 @@ def main():
     args = parser.parse_args()
     prepare_noto(args.archive)
     prepare_omicronlab()
-    prepare_anek()
+    prepare_google_font(ANEK_BASE_URL, ANEK_FILES)
+    prepare_google_font(TIRO_BASE_URL, TIRO_FILES)
+    prepare_google_font(GALADA_BASE_URL, GALADA_FILES)
+    print("Pinned Google Fonts and license notices verified.")
 
 
 if __name__ == "__main__":

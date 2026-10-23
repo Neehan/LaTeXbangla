@@ -30,7 +30,7 @@
 % scale/spacing and synthetic weight 2.5. Recognize family names and standard
 % filenames, including Path= loads; renamed files use the generic defaults.
 % Reviewed weights: Kalpurush, SolaimanLipi and Anek Bangla 4;
-% FreeSerif 3.5; Siyam Rupali 4.5.
+% FreeSerif, Tiro Bangla and Galada 3.5; Siyam Rupali 4.5.
 % Real bold faces never receive this synthetic-weight setting.
 % Word-space presets were measured against default Latin Modern Roman and
 % checked in mixed paragraphs with Pagella and Termes. They bring narrow spaces
@@ -53,6 +53,9 @@
         {notoserifbengali-bold}{\tl_set:Nn \l__latexbangla_font_profile_name_tl {notoserifbengali}}
         {notosansbengali-regular}{\tl_set:Nn \l__latexbangla_font_profile_name_tl {notosansbengali}}
         {notosansbengali-bold}{\tl_set:Nn \l__latexbangla_font_profile_name_tl {notosansbengali}}
+        {galada-regular}{\tl_set:Nn \l__latexbangla_font_profile_name_tl {galada}}
+        {tirobangla-regular}{\tl_set:Nn \l__latexbangla_font_profile_name_tl {tirobangla}}
+        {tirobangla-italic}{\tl_set:Nn \l__latexbangla_font_profile_name_tl {tirobangla}}
         {anekbangla-vf}{\tl_set:Nn \l__latexbangla_font_profile_name_tl {anekbangla}}
         {anekbangla[wdth,wght]}{\tl_set:Nn \l__latexbangla_font_profile_name_tl {anekbangla}}
       }
@@ -68,6 +71,25 @@
              {WordSpace=1.2,\exp_not:V \g__latexbangla_proportional_spacing_features_tl}}
         {notoserifbengali}{\tl_set:Nn \l__latexbangla_font_defaults_tl {WordSpace=1.3,}}
         {notosansbengali}{\tl_set:Nn \l__latexbangla_font_defaults_tl {WordSpace=1.2,}}
+        {galada}
+          {\tl_set:Nn \l__latexbangla_synthetic_bold_tl {3.5}
+           \tl_set:Nn \l__latexbangla_font_defaults_tl {Scale=0.9,WordSpace=1.67,}}
+        {tirobangla}
+          {
+            \tl_set:Nn \l__latexbangla_synthetic_bold_tl {3.5}
+            \tl_set:Nn \l__latexbangla_font_defaults_tl {WordSpace=1.25,}
+            % Tiro has a real italic but no bold italic. Name that companion
+            % explicitly for installed-family loads: engine substitutions differ.
+            % A regular-only installation keeps the ordinary synthetic fallbacks.
+            % File loads use fontspec's explicit face options, as with Noto.
+            \str_if_eq:eeT {\str_lowercase:f {#1}} {tiro~bangla}
+              {
+                \fontspec_font_if_exist:nT {Tiro~Bangla~Italic}
+                  {\tl_put_right:Ne \l__latexbangla_font_defaults_tl
+                    {BoldItalicFont={Tiro~Bangla~Italic},
+                     BoldItalicFeatures={FakeBold=\l__latexbangla_synthetic_bold_tl},}}
+              }
+          }
         {anekbangla}
           {\tl_set:Nn \l__latexbangla_synthetic_bold_tl {4}
            \tl_set:Nn \l__latexbangla_font_defaults_tl {Scale=0.9,WordSpace=2.1,}}
@@ -288,7 +310,7 @@
 % fonts without Latin accents. Resolve the encoded letter without testing font
 % coverage; microtype's normal width check then skips glyphs the font lacks.
 % Only the standard TU form is decoded; other definitions stay upstream.
-\cs_new_protected:Npn \__latexbangla_microtype_composite:w \font #1~#2\q_stop
+\cs_new_protected:Npn \__latexbangla_extract_microtype_composite:w \font #1~#2\q_stop
   {\cs_set:Npn \MT@char {#2}}
 \AddToHook{package/microtype/after}[latexbangla/character-slots]
   {
@@ -303,7 +325,7 @@
           }
           {
             \tl_if_in:nnTF {#2} {~}
-              {\__latexbangla_microtype_composite:w #2\q_stop}
+              {\__latexbangla_extract_microtype_composite:w #2\q_stop}
               {\__latexbangla_original_microtype_composite:
                 #1\iffontchar#2\else#3\fi\relax}
           }

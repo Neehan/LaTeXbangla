@@ -559,6 +559,8 @@ font_spacing_defaults = {
     "noto-sans": (1, 1.2),
     "freeserif": (1, 1.33),
     "anek-bangla": (0.9, 2.1),
+    "tiro-bangla": (1, 1.25),
+    "galada": (0.9, 1.67),
 }
 for suffix in BENGALI_FONTS:
     for adjusted in (False, True):
@@ -736,6 +738,32 @@ with fitz.open(BUILD / "example/main.pdf") as document:
         "Public example uses Kalpurush's tested default synthetic bold strength of 4",
     )
 
+# Tiro supplies a real italic but no bold. Both italic rows must retain that
+# outline, with a synthetic stroke only on the bold-italic row at each size.
+for name in ("font-faces-tiro-bangla", "tiro-file-faces"):
+    check(
+        face_sample_sizes <= rendered_slant_sizes(name, "TiroBangla-Italic", 0),
+        f"{name}: real italic outlines receive no extra synthetic slant",
+    )
+    with fitz.open(BUILD / name / "main.pdf") as document:
+        traces = [t for t in document[0].get_texttrace() if t["font"] == "TiroBangla-Italic"]
+        for size in (8, 11, 16):
+            at_size = [t for t in traces if math.isclose(t["size"], size * 72 / 72.27, abs_tol=0.01)]
+            fills = {round(t["chars"][0][2][1], 2) for t in at_size if t["type"] == 0}
+            strokes = [t for t in at_size if t["type"] == 1]
+            check(
+                len(fills) == 2 and bool(strokes)
+                and {round(t["chars"][0][2][1], 2) for t in strokes} == {max(fills)}
+                and all(math.isclose(t["linewidth"] / t["size"], 0.035, abs_tol=0.0002) for t in strokes),
+                f"{name}: real italic retained and only bold italic emboldened at {size} pt",
+            )
+
+check(
+    {round(size * 0.95 * 72 / 72.27, 2) for size in (8, 11, 16)}
+    <= rendered_slant_sizes("font-faces-tiro-overrides", "TiroBangla-Regular", 0.1),
+    "Explicit synthetic styles override Tiro's real-italic default",
+)
+
 # Legacy font-name resolution must not interfere with English face discovery.
 check(
     all(
@@ -775,6 +803,8 @@ guide_fonts = (
     ("Noto Serif Bengali", "NotoSerifBengali", None),
     ("Noto Sans Bengali", "NotoSansBengali", None),
     ("Anek Bangla", "AnekBangla", 4),
+    ("Tiro Bangla", "TiroBangla", 3.5),
+    ("Galada", "Galada", 3.5),
     ("FreeSerif", "FreeSerif", 3.5),
 )
 with fitz.open(BUILD / "supported-fonts/main.pdf") as document:
@@ -807,6 +837,10 @@ for suffix, family, strength, scale in (
     ("solaimanlipi", "SolaimanLipiNormal", 4, 1),
     ("siyam-rupali", "SiyamRupali", 4.5, 0.8),
     ("anek-bangla", "AnekBangla", 4, 0.9),
+    ("tiro-bangla", "TiroBangla", 3.5, 1),
+    ("tiro-overrides", "TiroBangla", 4, 0.95),
+    ("galada", "Galada", 3.5, 0.9),
+    ("galada-file", "Galada", 3.5, 0.9),
 ):
     with fitz.open(BUILD / ("font-faces-" + suffix) / "main.pdf") as document:
         strokes = [
@@ -824,10 +858,28 @@ for suffix, family, strength, scale in (
             f"{suffix}: synthetic faces use the visually reviewed weight",
         )
         check(
+            all(
+                len({round(t["chars"][0][2][1], 2) for t in strokes
+                     if math.isclose(t["size"], size * scale * 72 / 72.27, abs_tol=0.01)}) == 2
+                for size in (8, 11, 16)
+            ),
+            f"{suffix}: both bold and bold italic receive weight at each sample size",
+        )
+        check(
             {round(s * scale * 72 / 72.27, 2) for s in (8, 11, 16)}
             <= {round(t["size"], 2) for t in strokes},
             f"{suffix}: default scale applies at footnote, body and heading sizes",
         )
+
+galada_file_space = re.search(
+    r"GALADA-FILE-SPACE: ([\d.]+)pt",
+    (BUILD / "font-faces-galada-file/main.log").read_text(encoding="utf-8"),
+)
+check(
+    galada_file_space is not None
+    and math.isclose(float(galada_file_space[1]), 12 * 0.217 * 0.9 * 1.67, abs_tol=0.0001),
+    "Galada filename alias applies the same scale and word spacing as its family name",
+)
 
 for name, expected_space in (
     ("font-profile-overrides", 4.35938),

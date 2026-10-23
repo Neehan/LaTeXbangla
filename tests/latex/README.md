@@ -39,7 +39,7 @@ only the selected tests. Run one runner per engine at a time: each engine has it
 
 ## Coverage
 
-- Mixed Bangla/English text, seven font families, styles, spacing, and font overrides.
+- Mixed Bangla/English text, supported font families, styles, spacing, and font overrides.
 - Decimal and alphabetic counters, nested lists, footnotes, and appendices.
 - Bangla math text and digits, conventional math fonts, and unicode-math.
 - Article, report, book, memoir, AMS environments, tables, references, and citations.
@@ -56,7 +56,7 @@ Common-package tests cover these combinations:
 | Citations | Standard LaTeX, `natbib`, `biblatex`; numeric and author–year styles |
 | Lists and boxes | `enumitem`, `tcolorbox`; custom labels and numbered theorem boxes |
 | Extended labels | `alphalph`; both load orders, the 36-letter Bangla alphabet, multi-letter labels and links |
-| Typography | `microtype`; seven Bangla fonts, both load orders and nonzero English protrusion matching fontspec |
+| Typography | `microtype`; supported Bangla fonts, both load orders and nonzero English protrusion matching fontspec |
 
 These tests exercise the listed features, not every option of each package.
 Cleveref names and connecting words use its own customization commands;
@@ -82,6 +82,8 @@ Older distributions and hosted Overleaf builds are not covered.
 | Noto Serif Bengali, Noto Sans Bengali 2.001 | Ubuntu 22.04 `fonts-noto-core` archive |
 | SolaimanLipi 1.6.1, Siyam Rupali 1.070 | [OmicronLab](https://www.omicronlab.com/bangla-fonts.html) |
 | Anek Bangla variable font | [Google Fonts](https://github.com/google/fonts/tree/main/ofl/anekbangla), pinned revision |
+| Tiro Bangla 1.52, regular and italic | [Google Fonts](https://github.com/google/fonts/tree/main/ofl/tirobangla), pinned revision |
+| Galada 1.261 | [Google Fonts](https://github.com/google/fonts/tree/main/ofl/galada), pinned revision |
 
 [fetch-fonts.py](fetch-fonts.py) verifies SHA-256 hashes. Downloaded fonts and the
 license notices stay in the ignored `fonts/` directory; fonts are not
@@ -118,7 +120,7 @@ After compiling both suites, run:
 python3 tests/latex/compare-engines.py
 ```
 
-Open `build/engine-comparison/index.html` for all seven fonts in regular, bold,
+Open `build/engine-comparison/index.html` for all supported fonts in regular, bold,
 italic and bold italic at 8, 11 and 16 pt. The report includes full pages,
 aligned text rows, color overlays and difference images. Rows are translated
 to the same origin and baseline without scaling or shearing. Magenta marks

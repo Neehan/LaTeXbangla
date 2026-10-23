@@ -44,6 +44,8 @@ BENGALI_FONTS = {
     # a named instance that xdvipdfmx cannot embed. A bracket-free filename
     # avoids XeTeX's interpretation of brackets in a font loading request.
     "anek-bangla": "AnekBangla-VF.ttf",
+    "tiro-bangla": "Tiro Bangla",
+    "galada": "Galada",
 }
 
 
@@ -80,6 +82,25 @@ OutsideEnglish বাংলা।
         "noto-file-faces",
         r"\usepackage{latexbangla}" + FONTS
         + r"\setbanglamainfont[Path=/work/tests/latex/fonts/,BoldFont=NotoSerifBengali-Bold.ttf,BoldItalicFont=NotoSerifBengali-Bold.ttf,BoldItalicFeatures={FakeSlant=0.2}]{NotoSerifBengali-Regular.ttf}",
+        FONT_FACE_BODY, passes=1,
+    )
+    add(
+        "tiro-file-faces",
+        r"\usepackage{latexbangla}" + FONTS
+        + r"\setbanglamainfont[Path=/work/tests/latex/fonts/,ItalicFont=TiroBangla-Italic.ttf,BoldItalicFont=TiroBangla-Italic.ttf,BoldItalicFeatures={FakeBold=3.5}]{TiroBangla-Regular.ttf}",
+        FONT_FACE_BODY, passes=1,
+    )
+    add(
+        "font-faces-galada-file",
+        r"\usepackage{latexbangla}" + FONTS
+        + r"\setbanglamainfont[Path=/work/tests/latex/fonts/]{Galada-Regular.ttf}",
+        FONT_FACE_BODY + r"\bengalifont\typeout{GALADA-FILE-SPACE: \the\fontdimen2\font}",
+        passes=1,
+    )
+    add(
+        "font-faces-tiro-overrides",
+        r"\usepackage{latexbangla}" + FONTS
+        + r"\setbanglamainfont[Scale=0.95,AutoFakeBold=4,AutoFakeSlant=0.1]{Tiro Bangla}",
         FONT_FACE_BODY, passes=1,
     )
     add(
