@@ -48,6 +48,39 @@ A diagonal is the shortest route across a rectangular garden—
 
 <img src="img/example.png" alt="A short Bangla lesson on the Pythagorean theorem, typeset in Kalpurush with TeX Gyre Termes for English" width="650">
 
+## Choose separate font families
+
+For more control, give main, sans and mono text their own Bangla/English font pairs.
+Install Noto Sans Bengali and Siyam Rupali alongside Kalpurush, then use ordinary
+commands such as `\textsf` and `\texttt`; each script keeps its chosen font:
+
+```latex
+\documentclass{article}
+\usepackage{latexbangla}
+\setbanglamainfont{Kalpurush}
+\setmainfont{TeX Gyre Pagella}
+\setbanglasansfont{Noto Sans Bengali}
+\setsansfont{TeX Gyre Heros}
+\setbanglamonofont{Siyam Rupali}
+\setmonofont{TeX Gyre Cursor}
+
+\begin{document}
+বাংলা ও English।\\
+\textbf{গাঢ় ও bold।}\\
+\textit{তির্যক ও italic।}
+
+\textsf{বাংলা ও English।}\\
+\textsf{\textbf{গাঢ় ও bold।}}\\
+\textsf{\textit{তির্যক ও italic।}}
+
+\texttt{বাংলা ও English।}\\
+\texttt{\textbf{গাঢ় ও bold।}}\\
+\texttt{\textit{তির্যক ও italic।}}
+\end{document}
+```
+
+<img src="img/font-families.png" alt="The example typeset with separate main, sans and mono Bangla/English fonts, including bold and italic" width="280">
+
 [Report a bug](https://github.com/Neehan/LaTeXbangla/issues) ·
 [latexbangla@googlegroups.com](https://groups.google.com/g/latexbangla) ·
 [Contributing](CONTRIBUTING.md)

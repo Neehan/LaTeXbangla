@@ -83,8 +83,8 @@ def inspect(name):
         document[0].get_pixmap(matrix=fitz.Matrix(1.5, 1.5)).save(directory / "page-1.png")
     if name == "memoir":
         document[8].get_pixmap(matrix=fitz.Matrix(1.5, 1.5)).save(directory / "page-9.png")
-    if name == "readme-example":
-        # Crop the short lesson to its text, leaving the page footer out of the
+    if name in {"readme-example", "readme-font-families"}:
+        # Crop the example to its text, leaving the page footer out of the
         # README illustration. Keep the generated preview in build/ for review
         # before copying it to the versioned image.
         page = document[0]
@@ -805,6 +805,21 @@ with fitz.open(BUILD / "font-profile-overrides/main.pdf") as document:
         "Explicit synthetic face weight overrides a known-font profile",
     )
 
+# The README illustrates actual font choices, not just successful compilation.
+for bangla_face, english_family in (
+    ("Kalpurush", "TeXGyrePagella"),
+    ("NotoSansBengali", "TeXGyreHeros"),
+    ("SiyamRupali", "TeXGyreCursor"),
+):
+    readme_spans = spans("readme-font-families")
+    check(
+        any(span["font"].startswith(bangla_face) for span in readme_spans)
+        and all(any(word in span["text"] and span["font"] == f"{english_family}-{style}"
+                    for span in readme_spans)
+                for word, style in (("English", "Regular"), ("bold", "Bold"), ("italic", "Italic"))),
+        f"README demonstrates {bangla_face}/{english_family} in regular, bold and italic",
+    )
+
 # Both opening listings compile independently, including the comparison that
 # deliberately does not load LaTeXbangla. Check the actual English font faces.
 for name in ("manual-english-font", "manual-fontspec-comparison"):
@@ -890,6 +905,29 @@ with fitz.open(BUILD / "manual/main.pdf") as document:
         check(any(span["font"] == "TeXGyreAdventor-Regular" for span in preview_spans)
               and not any(span["font"] == "TeXGyrePagella-Regular" for span in preview_spans),
               f"Manual {title} preview preserves its local Adventor font")
+
+    # Inspect the rendered output itself, not the setup or source listing. Each
+    # family must show its Bangla font and all three requested English styles.
+    for title, result_title in (("Choose fonts and text styles", "Result"),
+                                ("ফন্ট ও লেখার ধরন বেছে নেওয়া", "ফলাফল")):
+        for command, bangla_face, english_family in (
+            (r"\textrm", "Kalpurush", "TeXGyrePagella"),
+            (r"\textsf", "NotoSansBengali", "TeXGyreHeros"),
+            (r"\texttt", "SiyamRupali", "TeXGyreCursor"),
+        ):
+            sample_spans = [
+                span for page, panel in manual_result_panels(title, result_title)
+                for block in page.get_text("dict", clip=panel)["blocks"]
+                for line in block.get("lines", []) for span in line["spans"]
+            ]
+            check(
+                any(span["font"].startswith(bangla_face) for span in sample_spans)
+                and all(any(word in span["text"]
+                            and span["font"] == f"{english_family}-{style}"
+                            for span in sample_spans)
+                        for word, style in (("English", "Regular"), ("bold", "Bold"), ("italic", "Italic"))),
+                f"Manual {title}: {command} demonstrates its Bangla/English font pair and styles",
+            )
 
     check(
         (REPO / "latexbangla/logo.png").read_bytes() == (REPO / "img/logo.png").read_bytes()

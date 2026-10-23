@@ -826,8 +826,12 @@ English code 12; বাংলা ১২
         expect_error=None,
     )
     # Compile the exact README snippet; verify.py renders its preview for refreshing the README.
-    readme_example = (REPO / "README.md").read_text(encoding="utf-8").split("```latex\n", 1)[1].split("```", 1)[0]
-    data["readme-example"] = dict(tex=readme_example, passes=1, backend=None, expect_error=None)
+    readme_source = (REPO / "README.md").read_text(encoding="utf-8")
+    readme_examples = re.findall(r"```latex\n(.*?)\n```", readme_source, re.S)
+    data["readme-example"] = dict(tex=readme_examples[0], passes=1, backend=None, expect_error=None)
+    data["readme-font-families"] = dict(
+        tex=readme_examples[1], passes=1, backend=None, expect_error=None,
+    )
     # graphicx loads epstopdf on LuaTeX. Use TeX Live's normal restricted shell
     # policy for these graphics examples, as for the minted manual.
     for name in ("common-math", "common-layout", "common-boxes"):
