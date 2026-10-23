@@ -1,7 +1,8 @@
 # Changelog
 
-## 1.1
+## 2.0
 
+- Add Assamese language support with `language=assamese`, translated examples and a complete Assamese manual.
 - Add LuaLaTeX support.
 - Expand the supported Bangla fonts and the font comparison guide.
 - Refine boldness, size and word spacing across supported fonts.

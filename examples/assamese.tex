@@ -1,0 +1,75 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=25mm]{geometry}
+\usepackage[language=assamese]{latexbangla}
+\setbanglamainfont{Kalpurush}
+\setmainfont{TeX Gyre Termes} % Optional: change the English font.
+\usepackage{amsmath,amsthm}
+\usepackage[hidelinks]{hyperref}
+\listfiles
+
+% Document-specific environments belong in the document or its class.
+\newtheorem{theorem}{উপপাদ্য}[section]
+
+\begin{document}
+\section{পাইথাগোৰাছৰ উপপাদ্য}
+এখন আয়তাকাৰ বাগিচাৰ দৈৰ্ঘ্য ৪ মিটাৰ আৰু প্ৰস্থ ৩ মিটাৰ। বাগিচাখনৰ এটা কোণৰ
+পৰা বিপৰীত কোণলৈ পোনে পোনে যাবলৈ কিমান দূৰ খোজ কাঢ়িব লাগিব?\footnote{ইয়াত বাগিচাখন
+সমতল বুলি ধৰা হৈছে আৰু সকলো দৈৰ্ঘ্য একে এককত জোখা হৈছে।}
+উত্তৰ পাবলৈ আমি \textit{Pythagorean theorem} ব্যৱহাৰ কৰিব পাৰোঁ।
+
+The shortest route across the garden is its diagonal—অসমীয়াত যাক কৰ্ণ বুলি কওঁ।
+Imagine drawing that route on a plan: the two sides of the garden and the
+diagonal form a right triangle. With sides of 3 and 4 metres, walking around
+the edge takes 7 metres. But can we cross the garden in just 5 metres?
+\textbf{A sketch suggests the answer; নিশ্চিত হ'বলৈ এটা প্ৰমাণ লাগে।}
+
+\begin{theorem}
+সমকোণী ত্ৰিভুজৰ লম্ব বাহু দুটাৰ দৈৰ্ঘ্য $a$ আৰু $b$ আৰু অতিভুজৰ দৈৰ্ঘ্য $c$ হ'লে,
+\begin{equation}\label{eq:pythagoras}
+  a^2+b^2=c^2.
+\end{equation}
+\end{theorem}
+এই উপপাদ্যৰ এটা জ্যামিতিক প্ৰমাণ ইউক্লিডৰ \textit{Elements}-ত পোৱা যায়~\cite{euclid}।
+
+\subsection{বাগিচাৰ কৰ্ণ আৰু ক্ষেত্ৰফল}
+\eqref{eq:pythagoras}ৰ পৰা বাগিচাখনৰ কৰ্ণৰ দৈৰ্ঘ্য পাওঁ,
+\begin{align*}
+  c &= \sqrt{৩^{২}+৪^{২}}=\sqrt{২৫}=৫\text{ মিটাৰ},\\
+  \text{বাগিচাৰ ক্ষেত্ৰফল} &= \text{দৈৰ্ঘ্য}\times\text{প্ৰস্থ}
+    =৪\times৩=১২\text{ বৰ্গমিটাৰ।}
+\end{align*}
+\textbf{মনত ৰাখোঁ: উপপাদ্যটো কেৱল সমকোণী ত্ৰিভুজৰ ক্ষেত্ৰতহে প্ৰযোজ্য।}
+বাগিচাখনৰ কাষেৰে ঘূৰি খোজ কঢ়াৰ সলনি কৰ্ণৰ ওপৰেৰে গ'লে সেয়ে ২ মিটাৰ পথ কমি যায়।
+\textit{A shorter route, the same destination—একে গন্তব্যলৈ কম পথ।}
+
+\autoref{tab:triples}ত এনে আৰু কেইটামান বাহুৰ দৈৰ্ঘ্য দিয়া হ'ল।
+\begin{table}[ht]
+  \centering
+  \caption{সমকোণী ত্ৰিভুজৰ পূৰ্ণসংখ্যক বাহুৰ দৈৰ্ঘ্য}\label{tab:triples}
+  \begin{tabular}{ccc}
+    \hline
+    প্ৰথম লম্ব বাহু & দ্বিতীয় লম্ব বাহু & অতিভুজ \\
+    \hline
+    ৩ & ৪ & ৫ \\
+    ৫ & ১২ & ১৩ \\
+    ৮ & ১৫ & ১৭ \\
+    \hline
+  \end{tabular}
+\end{table}
+
+\subsection{নিজে কৰোঁ}
+\begin{enumerate}
+  \item লম্ব বাহু দুটাৰ দৈৰ্ঘ্য ৬ আৰু ৮ একক হ'লে অতিভুজৰ দৈৰ্ঘ্য নিৰ্ণয় কৰা।
+  \item এখন আয়তক্ষেত্ৰৰ দৈৰ্ঘ্য ১২ আৰু প্ৰস্থ ৫ একক।
+    \begin{enumerate}
+      \item আয়তক্ষেত্ৰখনৰ কৰ্ণৰ দৈৰ্ঘ্য কিমান?
+      \item কৰ্ণৰ ওপৰেৰে কাটিলে প্ৰতিটো ত্ৰিভুজৰ ক্ষেত্ৰফল কিমান?
+    \end{enumerate}
+\end{enumerate}
+
+\begin{thebibliography}{9}
+  \bibitem{euclid} Euclid. \textit{Elements}, Book I,
+  \href{https://mathcs.clarku.edu/~djoyce/elements/bookI/propI47.html}{Proposition 47}.
+  Online edition by David E. Joyce.
+\end{thebibliography}
+\end{document}

@@ -1,12 +1,6 @@
 % Counter presentation; arithmetic and reset relationships stay upstream.
 % Part of latexbangla, LPPL 1.3c or later; copyright 2026 Adib Hasan.
 
-% Use a written inventory, not Unicode arithmetic: the conventional order is
-% not a contiguous Unicode range. Bengali has no uppercase/lowercase distinction.
-\clist_const:Nn \c__latexbangla_alphabet_clist
-  {ক,খ,গ,ঘ,ঙ,চ,ছ,জ,ঝ,ঞ,ট,ঠ,ড,ঢ,ণ,ত,থ,দ,ধ,ন,
-   প,ফ,ব,ভ,ম,য,র,ল,শ,ষ,স,হ,ড়,ঢ়,য়,ৎ}
-
 % Keep this formatter expandable: labels are written to .aux/.toc files and
 % expanded in PDF strings. Match LaTeX's empty value for zero and its error for
 % values beyond the alphabet instead of silently inventing multiple letters.
@@ -32,11 +26,11 @@
 % can change footnote formatting in a later hook or switch languages afterward.
 % These two hooks are the isolated dependency on Polyglossia's implementation.
 % Save immediately before activation and undo only its known footnote rewrite.
-\AddToHook{cmd/bengali@globalnumbers/before}[latexbangla/footnotes]
+\exp_args:Ne \AddToHook{cmd/\g__latexbangla_language_tl @globalnumbers/before}[latexbangla/footnotes]
   {\cs_set_eq:NN \__latexbangla_original_footnote: \thefootnote}
 \cs_new_nopar:Npn \__latexbangla_upstream_footnote: {\localnumeral*{footnote}}
 
-\AddToHook{cmd/bengali@globalnumbers/after}[latexbangla/numbering]
+\exp_args:Ne \AddToHook{cmd/\g__latexbangla_language_tl @globalnumbers/after}[latexbangla/numbering]
   {
     \bool_if:NT \g__latexbangla_convert_counters_bool
       {
@@ -45,7 +39,7 @@
         % The tested upstream formatter accepts digits, not a leading minus.
         % Reuse the signed wrapper around its converter, only if the upstream
         % formatter is still installed. Explicit author formatters take priority.
-        \cs_if_eq:NNT \@arabic \bengalinumber
+        \exp_args:NNc \cs_if_eq:NNT \@arabic {\g__latexbangla_language_tl number}
           {\cs_set_eq:NN \@arabic \__latexbangla_format_integer:n}
       }
   }

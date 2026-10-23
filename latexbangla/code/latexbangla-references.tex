@@ -4,7 +4,7 @@
 % Replace only hyperref's unchanged English defaults. Its public name commands
 % may already have been customized when hyperref precedes latexbangla. Compare
 % definitions without expanding them, so author macros are preserved as well.
-% Arguments: public name command, upstream default, Bengali replacement.
+% Arguments: public name command, upstream default, localized replacement.
 \cs_new_protected:Npn \__latexbangla_translate_autoref:Nnn #1#2#3
   {
     \cs_set_nopar:Npn \__latexbangla_default_autoref: {#2}
@@ -23,14 +23,22 @@
     \__latexbangla_translate_autoref:Nnn \tableautorefname {Table}{\tablename}
     \__latexbangla_translate_autoref:Nnn \partautorefname {Part}{\partname}
     \__latexbangla_translate_autoref:Nnn \pageautorefname {page}{\pagename}
-    \__latexbangla_translate_autoref:Nnn \sectionautorefname {section}{পরিচ্ছেদ}
-    \__latexbangla_translate_autoref:Nnn \subsectionautorefname {subsection}{উপপরিচ্ছেদ}
-    \__latexbangla_translate_autoref:Nnn \subsubsectionautorefname {subsubsection}{উপউপপরিচ্ছেদ}
-    \__latexbangla_translate_autoref:Nnn \paragraphautorefname {paragraph}{অনুচ্ছেদ}
-    \__latexbangla_translate_autoref:Nnn \subparagraphautorefname {subparagraph}{উপানুচ্ছেদ}
-    \__latexbangla_translate_autoref:Nnn \equationautorefname {Equation}{সমীকরণ}
-    \__latexbangla_translate_autoref:Nnn \footnoteautorefname {footnote}{পাদটীকা}
-    \__latexbangla_translate_autoref:Nnn \itemautorefname {item}{পদ}
+    \__latexbangla_translate_autoref:Nnn \sectionautorefname
+      {section}{\prop_item:Nn \g__latexbangla_autoref_names_prop {section}}
+    \__latexbangla_translate_autoref:Nnn \subsectionautorefname
+      {subsection}{\prop_item:Nn \g__latexbangla_autoref_names_prop {subsection}}
+    \__latexbangla_translate_autoref:Nnn \subsubsectionautorefname
+      {subsubsection}{\prop_item:Nn \g__latexbangla_autoref_names_prop {subsubsection}}
+    \__latexbangla_translate_autoref:Nnn \paragraphautorefname
+      {paragraph}{\prop_item:Nn \g__latexbangla_autoref_names_prop {paragraph}}
+    \__latexbangla_translate_autoref:Nnn \subparagraphautorefname
+      {subparagraph}{\prop_item:Nn \g__latexbangla_autoref_names_prop {subparagraph}}
+    \__latexbangla_translate_autoref:Nnn \equationautorefname
+      {Equation}{\prop_item:Nn \g__latexbangla_autoref_names_prop {equation}}
+    \__latexbangla_translate_autoref:Nnn \footnoteautorefname
+      {footnote}{\prop_item:Nn \g__latexbangla_autoref_names_prop {footnote}}
+    \__latexbangla_translate_autoref:Nnn \itemautorefname
+      {item}{\prop_item:Nn \g__latexbangla_autoref_names_prop {item}}
   }
 
 % cleveref stores \arabic-based sort keys alongside the visible reference.
@@ -161,11 +169,12 @@
     % string would then refer back to itself. This snapshot avoids both that
     % recursion and maintaining a duplicate set of caption translations.
     \group_begin:
-      \captionsbengali
+      \use:c {captions\g__latexbangla_language_tl}
       \cs_gset_eq:NN \__latexbangla_bibliography_name: \bibname
       \cs_gset_eq:NN \__latexbangla_references_name: \refname
     \group_end:
-    \DeclareLanguageMapping{bengali}{latexbangla-bengali}
+    \use:e {\exp_not:N \DeclareLanguageMapping
+      {\g__latexbangla_language_tl}{latexbangla-\g__latexbangla_language_tl}}
   }
 
 \AddToHook{begindocument/end}[latexbangla/citation-formats]

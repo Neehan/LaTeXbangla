@@ -9,6 +9,12 @@ FIXTURES = ROOT / "fixtures"
 FONTS = (FIXTURES / "english-fonts.tex").read_text(encoding="utf-8")
 FONT_BODY = (FIXTURES / "fonts.tex").read_text(encoding="utf-8")
 FONT_FACE_BODY = (FIXTURES / "font-faces.tex").read_text(encoding="utf-8")
+ASSAMESE_FONT_FACE_BODY = (
+    FONT_FACE_BODY.replace(r"\bengalifont", r"\assamesefont")
+    .replace("শিক্ষার্থী, দৃষ্টি, স্বচ্ছ, স্বাধীনতা, পূর্ণসংখ্যা, ক্ষুদ্র, জ্ঞান।",
+             "অসমীয়া, প্ৰশ্ন, ৰাষ্ট্ৰ, শ্ৰদ্ধা, স্বৰ, ৰু, ৰূ, ৱা।")
+    .replace("বাংলা", "অসমীয়া").replace("এবং", "আৰু")
+)
 MATH_BODY = (FIXTURES / "math.tex").read_text(encoding="utf-8")
 STRUCT_BODY = (FIXTURES / "structures.tex").read_text(encoding="utf-8")
 BOOK_BODY = (FIXTURES / "book.tex").read_text(encoding="utf-8")
@@ -127,6 +133,37 @@ OutsideEnglish বাংলা।
                 + BENGALI_FONTS[suffix] + "}",
                 FONT_FACE_BODY, passes=1,
             )
+
+    add("assamese-basic", setup("language=assamese", "Noto Serif Bengali")
+        + r"\setbanglasansfont{Noto Sans Bengali}\setbanglamonofont{Mukti}"
+        + r"\usepackage{amsthm,hyperref}\setotherlanguage{english}", r"""
+\year=2026\month=10\day=23
+\typeout{ASSAMESE-LANGUAGE: \languagename/\BCPdata{language}}
+\typeout{ASSAMESE-TABLE: \tablename}
+\typeout{ASSAMESE-TABLE-LIST: \listtablename}
+\typeout{ASSAMESE-EQUATION: \equationautorefname}
+\section{অসমীয়া ভাষা}\label{sec:assamese}
+অসমীয়া আৰু English একেলগে লিখিব পাৰি। ৰ ৱ ৰ্ক ৰু ৰূ ৱা প্ৰ শ্ৰ ক্ষ।
+\textbf{অসমীয়া আৰু BoldEnglish}\textit{অসমীয়া আৰু ItalicEnglish}
+\textsf{অসমীয়া ৰ ৱ SansEnglish}\texttt{অসমীয়া ৰ ৱ MonoEnglish}
+\footnote{প্ৰথম পাদটীকা।}
+\begin{enumerate}\item প্ৰথম।\begin{enumerate}\item ভিতৰৰ পদ।\end{enumerate}\end{enumerate}
+\newcounter{review}\setcounter{review}{27}
+AlphabetRa: \alph{review}.\setcounter{review}{29} AlphabetWa: \Alph{review}.
+\setcounter{review}{37}\typeout{ASSAMESE-LAST-LETTER: \alph{review}}
+\begin{equation}x^২ + ৩ = 12\quad\text{প্ৰস্থ}=৩\quad\text{দুৱাৰ}=৪\label{eq:assamese}\end{equation}
+\autoref{sec:assamese}; \autoref{eq:assamese}.
+\begin{proof}প্ৰমাণৰ উদাহৰণ।\end{proof}
+\today.\quad\localnumeral{123}.
+\textenglish{English passage.} অসমীয়া আকৌ।
+\typeout{ASSAMESE-RETURN: \languagename/\BCPdata{language}}
+\begin{thebibliography}{9}\bibitem{sample}অসমীয়া পুথি।\end{thebibliography}
+""")
+    add("assamese-off", setup("language=assamese,changecounternumbering=false", "Noto Serif Bengali"),
+        r"\section{অসমীয়া}১২ আৰু 12।\begin{enumerate}\item পদ।\begin{enumerate}\item পদ।\end{enumerate}\end{enumerate}")
+    add("assamese-mukti", setup("language=assamese", "Mukti"),
+        r"অসমীয়া ৰ ৱ প্ৰ ৰু ৰূ।\textbf{অসমীয়া}\textit{অসমীয়া}\textbf{\textit{অসমীয়া}}", passes=1)
+
     add("one-font", setup(), FONT_BODY)
     add(
         "switching-contexts", setup() + r"\setotherlanguage{english}",
@@ -465,55 +502,62 @@ Decimal: \arabic{sample}. Literal: 12 ১২.
         passes=1,
     )
     # alphalph's built-in commands remain Latin. A custom formatter delegates
-    # each digit to the active Bengali alphabet, with an explicit radix of 36.
-    for order in ("before", "after"):
+    # each digit to the selected alphabet, using its length as the radix.
+    for language, order, radix in (
+        ("bangla", "before", 35), ("bangla", "after", 35),
+        ("assamese", "before", 37),
+    ):
+        language_setup = setup("language=" + language)
         pre = (
-            r"\usepackage{alphalph}" + setup()
+            r"\usepackage{alphalph}" + language_setup
             if order == "before"
-            else setup() + r"\usepackage{alphalph}"
+            else language_setup + r"\usepackage{alphalph}"
         )
         add(
-            "alphalph-" + order,
+            ("assamese-" if language == "assamese" else "") + "alphalph-" + order,
             pre + r"""
 \usepackage{hyperref}
 \makeatletter
-\newalphalph{\extendedBangla}{\@alph}{36}
+\newalphalph{\extendedBangla}{\@alph}{RADIX}
 \makeatother
 \newcounter{example}
 \renewcommand\theexample{\extendedBangla{\value{example}}}
-""",
+""".replace("RADIX", str(radix)),
             r"Latin: \alphalph{27}, \AlphAlph{27}.\par"
             + "\n".join(
                 r"\typeout{EXTENDED-" + str(value) + r"=[\extendedBangla{"
                 + str(value) + r"}]}\extendedBangla{" + str(value) + r"}\quad"
-                for value in (1, 36, 37, 38, 72, 73, 1332, 1333)
+                for value in (1, radix, radix + 1, radix + 2, 2 * radix,
+                              2 * radix + 1, radix * (radix + 1), radix * (radix + 1) + 1)
             )
             + r"""
-\par\setcounter{example}{36}\refstepcounter{example}\label{extended-example}
+\par\setcounter{example}{RADIX}\refstepcounter{example}\label{extended-example}
 Example \theexample. Reference: \ref{extended-example}.
-""",
+""".replace("RADIX", str(radix)),
         )
     alph = r"\newcounter{test}\setcounter{test}"
-    add(
-        "alphabet",
-        setup(),
-        alph
-        + r"{0}Zero=[\alph{test}].\par"
-        + "\n".join(
-            r"\setcounter{test}{"
-            + str(i)
-            + r"}\alph{test}/\Alph{test}\quad"
-            + r"\typeout{ALPHABET-"
-            + str(i)
-            + r"=[\alph{test}/\Alph{test}]}"
-            for i in range(1, 37)
-        ),
-    )
+    # Check every position, including multi-code-point Assamese entries.
+    for language, size in (("bangla", 35), ("assamese", 37)):
+        add(
+            "alphabet" if language == "bangla" else "assamese-alphabet",
+            setup("language=" + language),
+            alph
+            + r"{0}Zero=[\alph{test}].\par"
+            + "\n".join(
+                r"\setcounter{test}{"
+                + str(i)
+                + r"}\alph{test}/\Alph{test}\quad"
+                + r"\typeout{ALPHABET-"
+                + str(i)
+                + r"=[\alph{test}/\Alph{test}]}"
+                for i in range(1, size + 1)
+            ),
+        )
     for command in ("alph", "Alph"):
         add(
             f"overflow-{command}",
             setup(),
-            alph + "{37}\\" + command + "{test}",
+            alph + "{36}\\" + command + "{test}",
             error="Counter too large",
         )
     add("negative-alphabet", setup(), alph + r"{-1}\alph{test}", error="Counter too large")
@@ -874,14 +918,54 @@ English code 12; বাংলা ১২
         passes=1, backend=None, expect_error=None,
     )
     data["manual"] = dict(
-        tex=manual_source,
+        tex=manual_source.replace(
+            r"\phantomsection\label{manual:assamese}",
+            r"""\ExplSyntaxOn
+\int_step_inline:nn {37}
+  {\iow_term:x {MANUAL-AS-ALPHABET-#1=[\use:c {@alph}{#1}/\use:c {@Alph}{#1}]}}
+\ExplSyntaxOff
+\phantomsection\label{manual:assamese}""",
+        ),
         passes=3,
         backend=None,
         expect_error=None,
         restricted_shell_escape=True,
     )
-    data["example"] = dict(
-        tex=(REPO / "examples/example.tex").read_text(encoding="utf-8"), passes=3, backend=None, expect_error=None
+    # Exercise the translated examples under the actual package option, without
+    # the combined manual's local language/font/numbering setup.
+    assamese_guide = manual_source.split(r"\label{manual:assamese}", 1)[1]
+    assamese_examples = re.findall(
+        r"\\begin\{examplepair\}(.*?)\\end\{examplepair\}", assamese_guide, re.S
+    )
+    assamese_documents = [
+        block for block in re.findall(
+            r"\\begin\{code\}(.*?)\\end\{code\}", assamese_guide, re.S
+        ) if r"\documentclass" in block
+    ]
+    data["manual-assamese-opening"] = dict(
+        tex=assamese_documents[0].split(r"\begin{document}", 1)[0]
+        + "\\begin{document}\n" + assamese_examples[0] + "\n\\end{document}\n",
+        passes=1, backend=None, expect_error=None,
+    )
+    data["manual-assamese-fontspec"] = dict(
+        tex=assamese_documents[1], passes=1, backend=None, expect_error=None,
+    )
+    add(
+        "manual-assamese-examples",
+        setup("language=assamese") + r"""
+\setbanglasansfont{Noto Sans Bengali}
+\setbanglamonofont{Siyam Rupali}
+\usepackage{amsmath,amsthm,hyperref,alphalph}
+\newtheorem{assamesetheorem}{উপপাদ্য}
+\providecommand{\assamesetheoremautorefname}{উপপাদ্য}
+\makeatletter
+\newalphalph{\extendedAssamese}{\@alph}{37}
+\makeatother
+""",
+        "\n\\par\n".join("\\begingroup\n" + body + "\n\\endgroup" for body in assamese_examples),
+    )
+    data["bangla-example"] = dict(
+        tex=(REPO / "examples/bangla.tex").read_text(encoding="utf-8"), passes=3, backend=None, expect_error=None
     )
     data["supported-fonts"] = dict(
         tex=(REPO / "examples/supported-fonts.tex").read_text(encoding="utf-8"),
@@ -900,4 +984,45 @@ English code 12; বাংলা ১২
     # policy for these graphics examples, as for the minted manual.
     for name in ("common-math", "common-layout", "common-boxes"):
         data[name]["restricted_shell_escape"] = True
+
+    # Exercise shared integrations with the other document language without
+    # maintaining a second copy of their test documents.
+    for source in (
+        "signed-counters", "footnotes-symbol", "footnotes-roman",
+        "common-cleveref", "common-cleveref-off", "common-cleveref-first",
+        "common-tables", "common-layout", "common-boxes", "math",
+        "unicode-math-pagella", "hyperref-first",
+        "citations-standard", "citations-natbib", "citations-biblatex",
+        "citations-biblatex-off", "biblatex-preloaded",
+    ):
+        case = dict(data[source])
+        case["tex"] = re.sub(
+            r"\\usepackage(?:\[([^\]]*)\])?\{latexbangla\}",
+            lambda match: r"\usepackage[language=assamese,"
+            + (match[1] or "") + r"]{latexbangla}", case["tex"], count=1,
+        )
+        data["assamese-" + source] = case
+    for suffix, font in BENGALI_FONTS.items():
+        add("assamese-font-" + suffix, setup("language=assamese", font),
+            ASSAMESE_FONT_FACE_BODY
+            + r"\par অসমীয়া ৰ ৱ প্ৰ শ্ৰ ৰ্ক ৰু ৰূ ৱা। $১২+x^২$",
+            passes=1)
+    add("assamese-direct-font",
+        r"\usepackage{polyglossia}\newfontfamily\assamesefont[Script=Bengali]{Noto Serif Bengali}"
+        r"\usepackage[language=assamese]{latexbangla}", r"অসমীয়া ৰ ৱ।", passes=1)
+    add("assamese-font-overrides", setup("language=assamese", "Noto Serif Bengali")
+        + r"\setbanglamainfont[Scale=0.95,AutoFakeBold=4,AutoFakeSlant=0.1]{Mukti}",
+        ASSAMESE_FONT_FACE_BODY, passes=1)
+    add("assamese-missing-font", r"\usepackage[language=assamese]{latexbangla}",
+        "অসমীয়া", error="No Bangla main font")
+    add("assamese-wrong-font", setup("language=assamese", "TeX Gyre Pagella"),
+        "অসমীয়া", error="required Assamese letters")
+    add("invalid-language", r"\usepackage[language=unknown]{latexbangla}",
+        "Test", error="accepts only a fixed set of choices")
+    add("assamese-overflow", setup("language=assamese", "Noto Serif Bengali"),
+        r"\newcounter{large}\setcounter{large}{38}\alph{large}", error="Counter too large")
+    data["assamese-example"] = dict(
+        tex=(REPO / "examples/assamese.tex").read_text(encoding="utf-8"),
+        passes=3, backend=None, expect_error=None,
+    )
     return data

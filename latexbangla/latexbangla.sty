@@ -1,14 +1,14 @@
 % ----------------------------------------------------------------
-% LaTeXbangla package - Writing Bangla with ordinary LaTeX
+% LaTeXbangla package - Writing Bangla & Assamese with ordinary LaTeX
 % E-mail: latexbangla@googlegroups.com
 % Released under the LaTeX Project Public License v1.3c or later
 % See https://www.latex-project.org/lppl.txt
 % ----------------------------------------------------------------
-% This package simplifies writing Bangla documents in LaTeX. It provides
-% automatic font switching between Bangla and Latin text, localized document
-% labels and numbering, and integration with supported LaTeX packages.
-% Authors can use ordinary LaTeX commands to write mixed Bangla and English
-% text. See the manual for configuration, examples, and supported features.
+% This package simplifies writing Bangla or Assamese documents in LaTeX.
+% It provides automatic font switching between the selected language and Latin
+% text, localized labels and numbering, and integration with supported packages.
+% Authors can use ordinary LaTeX commands with either language alongside English.
+% See the manual for configuration, examples, and supported features.
 % ------------------------------------------------------------------
 % Copyright (C) 2016, 2026 by Adib Hasan <latexbangla@googlegroups.com>
 
@@ -22,8 +22,8 @@
 % This work has the LPPL maintenance status "maintained".
 % The current maintainer is Adib Hasan.
 
-% This work consists of latexbangla.sty, code/latexbangla-*.tex, code/latexbangla-*.lua,
-% latexbangla-bengali.lbx, the manual source latexbangla.tex, its PDF and logo.png.
+% This work consists of latexbangla.sty, the TeX and Lua files under code/,
+% latexbangla-*.lbx, the manual source latexbangla.tex, its PDF and logo.png.
 % ------------------------------------------------------------------
 
 % The tested development baseline is TeX Live 2026. Version requirements are
@@ -31,8 +31,8 @@
 \NeedsTeXFormat{LaTeX2e}[2026-06-01]
 \RequirePackage{iftex}
 \RequireTUTeX
-\ProvidesExplPackage{latexbangla}{2026-10-23}{1.1}
-  {Bangla language support for XeLaTeX and LuaLaTeX}
+\ProvidesExplPackage{latexbangla}{2026-10-23}{2.0}
+  {Bangla and Assamese support for XeLaTeX and LuaLaTeX}
 
 % Polyglossia owns language data and decimal numbering; fontspec owns fonts.
 % amstext is the small, style-aware text-in-math component, not the AMS suite.
@@ -42,6 +42,8 @@
 
 \bool_new:N \g__latexbangla_convert_counters_bool
 \bool_gset_true:N \g__latexbangla_convert_counters_bool
+\tl_new:N \g__latexbangla_language_tl
+\tl_gset:Nn \g__latexbangla_language_tl {bengali}
 \tl_new:N \g__latexbangla_legacy_main_font_tl
 \tl_new:N \g__latexbangla_legacy_mono_font_tl
 
@@ -57,6 +59,9 @@
 \msg_new:nnn {latexbangla} {non-bengali-font}
   {The~font~'#1'~does~not~provide~the~tested~Bengali~glyph.\iow_newline:
    Choose~a~font~with~Bengali~coverage~for~the~Bangla~font~setter.}
+\msg_new:nnn {latexbangla} {incomplete-assamese-font}
+  {The~font~'#1'~does~not~provide~the~required~Assamese~letters~ka,~ra~and~wa.\iow_newline:
+   Choose~a~font~with~Assamese~coverage~for~this~font~setter.}
 \msg_new:nnn {latexbangla} {preamble-only}
   {Bangla~font~setters~must~be~used~before~\token_to_str:N\begin{document}.}
 
@@ -64,6 +69,12 @@
 % option; accept 0/1 as aliases because published documents used those values.
 \keys_define:nn {latexbangla}
   {
+    language .choice:,
+    language / bangla .code:n =
+      \tl_gset:Nn \g__latexbangla_language_tl {bengali},
+    language / assamese .code:n =
+      \tl_gset:Nn \g__latexbangla_language_tl {assamese},
+    language .value_required:n = true,
     banglamainfont .code:n =
       {\tl_if_blank:nTF {#1}
         {\msg_error:nn {latexbangla} {empty-font}}
@@ -86,18 +97,15 @@
   }
 \ProcessKeyOptions[latexbangla]
 
-% Explicitly select Bengali numerals: upstream's Bengali language module also
-% supports other numeral systems, and its default is not necessarily Bengali.
-\bool_if:NTF \g__latexbangla_convert_counters_bool
-  {\setmainlanguage[numerals=bengali,changecounternumbering=true]{bengali}}
-  {\setmainlanguage[numerals=bengali,changecounternumbering=false]{bengali}}
+% Select the document language before configuring fonts and integrations.
+\file_input:n {code/languages/latexbangla-language.tex}
 
 % Each file has one responsibility. They share the latexbangla namespace and
 % deliberately keep upstream compatibility details in their respective module.
 \file_input:n {code/latexbangla-fonts.tex}
 \sys_if_engine_xetex:TF
-  {\file_input:n {code/latexbangla-engine-xetex.tex}}
-  {\file_input:n {code/latexbangla-engine-luatex.tex}}
+  {\file_input:n {code/engines/latexbangla-engine-xetex.tex}}
+  {\file_input:n {code/engines/latexbangla-engine-luatex.tex}}
 \file_input:n {code/latexbangla-numbering.tex}
 \file_input:n {code/latexbangla-math-digits.tex}
 \file_input:n {code/latexbangla-references.tex}

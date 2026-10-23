@@ -40,6 +40,7 @@ only the selected tests. Run one runner per engine at a time: each engine has it
 ## Coverage
 
 - Mixed Bangla/English text, supported font families, styles, spacing, and font overrides.
+- Assamese captions, dates, alphabetic labels, font coverage, and shared integrations.
 - Decimal and alphabetic counters, nested lists, footnotes, and appendices.
 - Bangla math text and digits, conventional math fonts, and unicode-math.
 - Article, report, book, memoir, AMS environments, tables, references, and citations.
@@ -55,7 +56,7 @@ Common-package tests cover these combinations:
 | References | `hyperref`, `cleveref`; sorting, ranges, page references, footnotes and appendices |
 | Citations | Standard LaTeX, `natbib`, `biblatex`; numeric and author–year styles |
 | Lists and boxes | `enumitem`, `tcolorbox`; custom labels and numbered theorem boxes |
-| Extended labels | `alphalph`; both load orders, the 36-letter Bangla alphabet, multi-letter labels and links |
+| Extended labels | `alphalph`; both load orders, the 35-letter Bangla and 37-entry Assamese alphabets, multi-letter labels and links |
 | Typography | `microtype`; supported Bangla fonts, both load orders and nonzero English protrusion matching fontspec |
 
 These tests exercise the listed features, not every option of each package.
@@ -65,8 +66,9 @@ LaTeXbangla preserves Bengali label display while adapting numeric sorting.
 Successful tests require all compilation passes, a PDF, and no missing glyphs
 or final package/font/reference warnings. Expected-error tests must produce the
 intended diagnostic. PDF checks inspect actual fonts, strokes, text, and links.
-The bilingual manual runs its code/output examples during compilation; checks
-also inspect their rendered counters, citations, boldness, and reference links.
+The English, Bangla and Assamese manual runs its code/output examples during
+compilation; checks inspect their rendered counters, citations, boldness and
+reference links. Assamese examples also compile as standalone documents.
 
 ## Test environment and fonts
 

@@ -1,0 +1,12 @@
+% Assamese strings for the shared numeric bibliography integration.
+% Part of latexbangla, LPPL 1.3c or later; copyright 2026 Adib Hasan.
+\ProvidesFile{latexbangla-assamese.lbx}[2026/10/23 Assamese numeric bibliography support]
+\InheritBibliographyExtras{english}
+% Heading strings use the selected language's captured Polyglossia captions.
+% Reuse that implementation and replace only the language-specific conjunctions.
+\InheritBibliographyStrings{latexbangla-bengali}
+\DeclareBibliographyStrings{
+  and       = {{আৰু}{আৰু}},
+  andothers = {{আৰু অন্যান্য}{আৰু অন্যান্য}},
+}
+\endinput

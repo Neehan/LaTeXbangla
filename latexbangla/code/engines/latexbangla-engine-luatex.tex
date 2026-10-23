@@ -23,7 +23,7 @@
   \__latexbangla_supply_bold_italic_fallback:
 \cs_set_protected:Npn \__latexbangla_supply_bold_italic_fallback:
   {
-    \__latexbangla_face_has_bengali:nnTF {b}{n}
+    \__latexbangla_face_has_language_glyphs:nnTF {b}{n}
       {
         \group_begin:
           \fontencoding{TU}\fontfamily{\l__latexbangla_font_family_tl}
@@ -69,7 +69,7 @@
   {
     \mode_if_math:F
       {
-        \cs_if_exist:NT \bengalifont
+        \cs_if_exist:cT {\g__latexbangla_language_tl font}
           {
             \bool_if:NF \l__latexbangla_selecting_latin_font_bool
               {
@@ -96,7 +96,7 @@
 
 \lua_now:e
   {
-    local~install~=~dofile(kpse.find_file("code/latexbangla-switching-luatex.lua",~"tex"));
+    local~install~=~dofile(kpse.find_file("code/engines/latexbangla-switching-luatex.lua",~"tex"));
     install(\int_use:N \c__latexbangla_latin_font_attribute_int);
   }
 \endinput

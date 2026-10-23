@@ -2,22 +2,28 @@
   <img src="img/logo.png" alt="LaTeXbangla" width="650">
 </p>
 
-Write Bangla in LaTeX with one font and familiar commands: automatic Bangla/English
-font switching, bold and italic, Bangla lists and numbering, references, citations,
-and Bangla text and digits in math. Choose your own English and math fonts.
+<p align="center">Writing Bangla &amp; Assamese with ordinary LaTeX</p>
+
+Write Bangla or Assamese with the LaTeX commands you already
+know. Mix English into the same paragraph: LaTeXbangla switches fonts automatically,
+handles bold and italic, and preserves your chosen English and math fonts.
+
+You also get native numbering, lists with ১, ২, ৩ and ক, খ, গ, translated reference
+names, numeric citations, and Bangla or Assamese text and digits inside equations.
+Tested with **XeLaTeX and LuaLaTeX** and **15 font families in both languages**.
 
 LaTeXbangla is free to use. If you use it to publish a book, please consider acknowledging
 the package and its author, Adib Hasan. :))
 
-[Manual (English ও বাংলা)](latexbangla/latexbangla.pdf) · [Example PDF](examples/example.pdf) · [Example source](examples/example.tex)
+Manual: [English](latexbangla/latexbangla.pdf#nameddest=guide-english) · [বাংলা](latexbangla/latexbangla.pdf#nameddest=guide-bangla) · [অসমীয়া](latexbangla/latexbangla.pdf#nameddest=guide-assamese) · [Bangla example PDF](examples/bangla.pdf) · [Source](examples/bangla.tex)
 
 ## Get started
 
-Copy `latexbangla.sty`, `latexbangla-bengali.lbx`, and the `code/` folder from
+Copy `latexbangla.sty`, the `latexbangla-*.lbx` files, and the complete `code/` folder from
 [`latexbangla/`](latexbangla/) beside your document. Install one Bangla font and
 compile with **XeLaTeX or LuaLaTeX**. Tested on TeX Live 2026.
 
-**Tested Bangla fonts:** Kalpurush, SolaimanLipi, Siyam Rupali, Noto Serif Bengali,
+**Tested fonts for both languages:** Kalpurush, SolaimanLipi, Siyam Rupali, Noto Serif Bengali,
 Noto Sans Bengali, Anek Bangla, Tiro Bangla, Galada, Hind Siliguri, Nikosh,
 Kohinoor Bangla, Mukti, Baloo Da 2, Lohit Bengali, and FreeSerif.
 [Compare the fonts](examples/supported-fonts.pdf). Other Bangla fonts may work too, but have not been tested.
@@ -49,6 +55,10 @@ A diagonal is the shortest route across a rectangular garden—
 ```
 
 <img src="img/example.png" alt="A short Bangla lesson on the Pythagorean theorem, typeset in Kalpurush with TeX Gyre Termes for English" width="650">
+
+For Assamese documents, load `\usepackage[language=assamese]{latexbangla}`.
+Keep using the same font commands; Bangla is the default language.
+[Assamese example](examples/assamese.pdf) · [Source](examples/assamese.tex)
 
 ## Choose separate font families
 

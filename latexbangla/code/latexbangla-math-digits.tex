@@ -14,7 +14,7 @@
         {
           % Match ordinary math digits: surrounding \textbf does not make
           % mathematics bold. Only the selected math version controls weight.
-          \bengalifont\mdseries\upshape
+          \use:c {\g__latexbangla_language_tl font}\mdseries\upshape
           \str_if_eq:eeT {\math@version} {bold} {\bfseries}
           \char_generate:nn {#1} {12}
         }

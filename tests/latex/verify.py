@@ -11,6 +11,7 @@ import math
 from pathlib import Path
 import re
 from typing import cast
+from unicodedata import normalize
 
 import fitz
 from pypdf import PdfReader
@@ -246,29 +247,40 @@ for token, family in (
         f"English-first and nested families: {token} uses {family}",
     )
 check("*" in text("custom-labels"), "Custom item marker survives")
-check("Zero=[]." in text("alphabet"), "Alphabetic zero matches LaTeX's empty label")
-alphabet_log = (BUILD / "alphabet/main.log").read_text(encoding="utf-8")
-for number, letter in enumerate("কখগঘঙচছজঝঞটঠডঢণতথদধনপফবভমযরলশষসহড়ঢ়য়ৎ", 1):
-    check(letter in text("alphabet"), f"Alphabet inventory renders {letter}")
-    check(
-        f"ALPHABET-{number}=[{letter}/{letter}]" in alphabet_log,
-        f"Alphabet position {number} expands to {letter} for both formatters",
-    )
-for name in ("alphalph-before", "alphalph-after"):
+for name, letters in (
+    ("alphabet", "ক খ গ ঘ ঙ চ ছ জ ঝ ঞ ট ঠ ড ঢ ণ ত থ দ ধ ন প ফ ব ভ ম য র ল শ ষ স হ ড় ঢ় য়"),
+    ("assamese-alphabet", "ক খ গ ঘ ঙ চ ছ জ ঝ ঞ ট ঠ ড ঢ ণ ত থ দ ধ ন প ফ ব ভ ম য ৰ ল ৱ শ ষ স হ ক্ষ ড় ঢ় য়"),
+):
+    check("Zero=[]." in text(name), f"{name}: zero matches LaTeX's empty label")
+    alphabet_log = (BUILD / name / "main.log").read_text(encoding="utf-8")
+    for number, letter in enumerate(letters.split(), 1):
+        check(normalize("NFC", letter) in normalize("NFC", text(name)),
+              f"{name}: inventory renders {letter}")
+        check(
+            f"ALPHABET-{number}=[{letter}/{letter}]" in alphabet_log,
+            f"{name}: position {number} expands to {letter} for both formatters",
+        )
+for name, radix, last_letter in (
+    ("alphalph-before", 35, "য়"), ("alphalph-after", 35, "য়"),
+    ("assamese-alphalph-before", 37, "য়"),
+):
     log = (BUILD / name / "main.log").read_text(encoding="utf-8")
     check("Latin: aa, AA." in text(name), f"{name}: built-in Latin formatters are preserved")
     for value, label in (
-        (1, "ক"), (36, "ৎ"), (37, "কক"), (38, "কখ"),
-        (72, "কৎ"), (73, "খক"), (1332, "ৎৎ"), (1333, "ককক"),
+        (1, "ক"), (radix, last_letter), (radix + 1, "কক"), (radix + 2, "কখ"),
+        (2 * radix, "ক" + last_letter), (2 * radix + 1, "খক"),
+        (radix * (radix + 1), last_letter * 2), (radix * (radix + 1) + 1, "ককক"),
     ):
         check(f"EXTENDED-{value}=[{label}]" in log, f"{name}: {value} expands to {label}")
-        check(label in text(name), f"{name}: {label} is rendered")
+        check(normalize("NFC", label) in normalize("NFC", text(name)),
+              f"{name}: {label} is rendered")
     check(
         r"\newlabel{extended-example}{{কক}" in aux(name),
         f"{name}: custom counter reference retains the extended label",
     )
-    check("example.37" in PDFS[name]["targets"], f"{name}: reference links to the custom counter")
-for name in ("common-cleveref", "common-cleveref-first", "common-cleveref-no-hyperref", "common-cleveref-off"):
+    check(f"example.{radix + 1}" in PDFS[name]["targets"], f"{name}: reference links to the custom counter")
+for name in ("common-cleveref", "common-cleveref-first", "common-cleveref-no-hyperref", "common-cleveref-off",
+             "assamese-common-cleveref", "assamese-common-cleveref-first", "assamese-common-cleveref-off"):
     log = (BUILD / name / "main.log").read_text(encoding="utf-8")
     check("CREF-SORT-KEY: 11" in log, f"{name}: sorting receives Western integer values")
     check("CREF-PAGE-KEY: 2" in log, f"{name}: page sorting receives Western integer values")
@@ -387,19 +399,22 @@ for name in (
     }
     check(len(sizes) >= 3, f"{name}: Bengali digits use text/script/scriptscript sizes")
     check("12" in text(name) and "১২" in text(name), f"{name}: authored digit scripts both survive")
-for name in ("citations-standard", "citations-no-hyperref"):
+for name in ("citations-standard", "citations-no-hyperref", "assamese-citations-standard"):
     check(
         "[৩, ১, ২]" in text(name) and "[১]" in text(name),
         f"{name}: citation and bibliography labels agree",
     )
-for name in ("citations-natbib", "natbib-first", "citations-biblatex", "biblatex-preloaded"):
+for name in ("citations-natbib", "natbib-first", "citations-biblatex", "biblatex-preloaded",
+             "assamese-citations-natbib", "assamese-citations-biblatex", "assamese-biblatex-preloaded"):
     check("[১–৩]" in text(name), f"{name}: numeric range compression remains correct")
-for name in ("citations-standard-off", "citations-natbib-off", "citations-biblatex-off"):
+for name in ("citations-standard-off", "citations-natbib-off", "citations-biblatex-off",
+             "assamese-citations-biblatex-off"):
     check(
         "[1]" in text(name) and "[১]" not in text(name),
         f"{name}: disabled conversion includes citation labels",
     )
-for name in ("citations-standard", "citations-natbib", "citations-biblatex"):
+for name in ("citations-standard", "citations-natbib", "citations-biblatex",
+             "assamese-citations-standard", "assamese-citations-natbib", "assamese-citations-biblatex"):
     check(
         "2020" in text(name) and "12–14" in text(name),
         f"{name}: authored years and citation notes stay Western",
@@ -507,8 +522,8 @@ check(
     "X12" in text("author-numbering-off") and "Y12" in text("author-numbering-off"),
     "Disabling conversion preserves author-defined decimal and alphabetic formatters",
 )
-for enabled in (True, False):
-    name = "signed-counters" + ("" if enabled else "-off")
+for name, enabled in (("signed-counters", True), ("signed-counters-off", False),
+                      ("assamese-signed-counters", True)):
     log = (BUILD / name / "main.log").read_text(encoding="utf-8")
     for value in (-2147483647, -12, 0, 12, 2147483647):
         expected = str(value)
@@ -706,10 +721,11 @@ with fitz.open(BUILD / "font-faces-mukti/main.pdf") as document:
           and all(t["type"] == 0 for t in mukti_traces),
           "Mukti uses four genuine faces without synthetic thickening")
 
-for suffix, family in (("mukti", "Mukti"), ("kohinoor-bangla", "KohinoorBangla-Regular")):
-    if suffix not in BENGALI_FONTS:
+for suffix, family in (("mukti", "Mukti"), ("kohinoor-bangla", "KohinoorBangla-Regular"),
+                       ("assamese", "Mukti")):
+    if suffix != "assamese" and suffix not in BENGALI_FONTS:
         continue
-    name = "font-faces-" + suffix + "-overrides"
+    name = "assamese-font-overrides" if suffix == "assamese" else "font-faces-" + suffix + "-overrides"
     with fitz.open(BUILD / name / "main.pdf") as document:
         traces = [t for page in document for t in page.get_texttrace()
                   if t["font"].startswith(family)]
@@ -1086,7 +1102,8 @@ with fitz.open(BUILD / "manual/main.pdf") as document:
                     for page, panel in manual_result_panels(title, result_title)]
         return re.sub(r"\s+", "", "".join(rendered))
 
-    for title, result_title in (("Quickstart", "Result"), ("দ্রুত আরম্ভ", "ফলাফল")):
+    for title, result_title in (("Quickstart", "Result"), ("দ্রুত আরম্ভ", "ফলাফল"),
+                                ("সোনকালে আৰম্ভ কৰক", "ফলাফল")):
         preview_spans = [
             span for page, panel in manual_result_panels(title, result_title)
             for block in page.get_text("dict", clip=panel)["blocks"]
@@ -1100,7 +1117,8 @@ with fitz.open(BUILD / "manual/main.pdf") as document:
     # Inspect the rendered output itself, not the setup or source listing. Each
     # family must show its Bangla font and all three requested English styles.
     for title, result_title in (("Choose fonts and text styles", "Result"),
-                                ("ফন্ট ও লেখার ধরন বেছে নেওয়া", "ফলাফল")):
+                                ("ফন্ট ও লেখার ধরন বেছে নেওয়া", "ফলাফল"),
+                                ("ফণ্ট আৰু লেখাৰ ৰূপ বাছক", "ফলাফল")):
         for command, bangla_face, english_family in (
             (r"\textrm", "Kalpurush", "TeXGyrePagella"),
             (r"\textsf", "NotoSansBengali", "TeXGyreHeros"),
@@ -1154,14 +1172,16 @@ with fitz.open(BUILD / "manual/main.pdf") as document:
     for title, result_title in (
         ("Extended alphabetic labels", "Result"),
         ("একাধিক বর্ণের নম্বর", "ফলাফল"),
+        ("একাধিক বৰ্ণৰ লেবেল", "ফলাফল"),
     ):
         check(
-            "ৎ,কক,কখ" in manual_result_text(title, result_title),
+            normalize("NFC", "য়,কক,কখ") in normalize("NFC", manual_result_text(title, result_title)),
             f"Manual extended alphabet example executes correctly: {title}",
         )
     for title, result_title, prefix in (
         ("Keep selected counters in English", "Result", ""),
         ("নির্দিষ্ট কাউন্টারের নম্বর ইংরেজিতে রাখা", "ফলাফল", "bn:"),
+        ("নিৰ্দিষ্ট কাউণ্টাৰৰ নম্বৰ ইংৰাজীত ৰাখক", "ফলাফল", "as:"),
     ):
         output = manual_result_text(title, result_title)
         check(
@@ -1193,13 +1213,14 @@ with fitz.open(BUILD / "manual/main.pdf") as document:
         "Manual has no overflowing text or boxes",
     )
     bangla_start = section_pages["বাংলা ব্যবহার নির্দেশিকা"]
+    assamese_start = section_pages["অসমীয়া ব্যৱহাৰ নিৰ্দেশিকা"]
     bangla_digits = str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯")
     check(
         r"\newlabel{bn:sec:numbering}{{৪}" in manual_aux
         and all(
             document[index].get_textpage().extractText().strip().splitlines()[-1]
             == str(index + 1).translate(bangla_digits)
-            for index in range(bangla_start + 1, len(document))
+            for index in range(bangla_start + 1, assamese_start)
         ),
         "Bangla manual uses Bengali section and continuous page numbers",
     )
@@ -1228,6 +1249,121 @@ with fitz.open(BUILD / "manual/main.pdf") as document:
         and all(page >= bangla_start for page in reference_targets),
         "Bangla references link to the translated examples, not the English counters",
     )
+    check(
+        r"\newlabel{as:sec:numbering}{{৪}" in manual_aux
+        and r"\newlabel{as:tab:font-defaults}{{১}" in manual_aux
+        and r"\newlabel{as:eq:speed}{{১}" in manual_aux
+        and r"\newlabel{as:ex:custom}{{১২}" in manual_aux
+        and all(
+            document[index].get_text().strip().splitlines()[-1]
+            == str(index + 1).translate(bangla_digits)
+            for index in range(assamese_start + 1, len(document))
+        ),
+        "Assamese guide uses native counters and continuous page numbers",
+    )
+    assamese_reference_text = normalize(
+        "NFC", manual_result_text("লেবেল, প্ৰসংগ আৰু উদ্ধৃতি", "ফলাফল")
+    )
+    check(
+        all(token in assamese_reference_text
+            for token in ("সমীকৰণ", "[১]", "(১)", "১২"))
+        # Kalpurush can extract a conjunct's components in visual order.
+        and any(token in assamese_reference_text for token in ("উপপাদ্য", "উপপাদয্"))
+        and any(token in assamese_reference_text for token in ("প্ৰসংগ", "পৰ্সংগ")),
+        "Assamese output shows translated reference and bibliography names with native numbers",
+    )
+    assamese_targets = {
+        link["page"]
+        for page, region in manual_section_regions("লেবেল, প্ৰসংগ আৰু উদ্ধৃতি")
+        for link in page.get_links()
+        if link.get("kind") in (fitz.LINK_GOTO, fitz.LINK_NAMED)
+        and "page" in link and region.contains(link["from"])
+    }
+    check(bool(assamese_targets) and all(page >= assamese_start for page in assamese_targets),
+          "Assamese references link to Assamese examples, not earlier translations")
+    # Inspect rendered navigation: both translated guides can be reached from
+    # the English introduction, and the Assamese guide links back to page one.
+    check(
+        {bangla_start, assamese_start}.issubset(
+            {link.get("page") for link in document[0].get_links()}
+        )
+        and 0 in {link.get("page") for link in document[assamese_start].get_links()}
+        and all("guide-" + language in manual_reader.named_destinations
+                for language in ("english", "bangla", "assamese")),
+        "Introduction links reach both translations and the Assamese return link reaches English",
+    )
+
+manual_log = (BUILD / "manual/main.log").read_text(encoding="utf-8")
+alphabet_log = (BUILD / "assamese-alphabet/main.log").read_text(encoding="utf-8")
+manual_alphabet = dict(re.findall(r"MANUAL-AS-ALPHABET-(\d+)=\[(.*?)\]", manual_log))
+package_alphabet = dict(re.findall(r"ALPHABET-(\d+)=\[(.*?)\]", alphabet_log))
+check(
+    len(manual_alphabet) == 37 and manual_alphabet == package_alphabet,
+    "Combined manual's 37-letter alphabet matches actual Assamese mode",
+)
+standalone_as = text("manual-assamese-examples")
+standalone_as_aux = (BUILD / "manual-assamese-examples/main.aux").read_text(encoding="utf-8")
+standalone_as_text = normalize("NFC", re.sub(r"\s+", "", standalone_as))
+check(
+    all(token in standalone_as_text
+        for token in ("সমীকৰণ", "০০১২", normalize("NFC", "য়,কক,কখ")))
+    and any(token in standalone_as_text for token in ("প্ৰমাণ", "পৰ্মাণ"))
+    and any(token in standalone_as_text for token in ("প্ৰসংগ", "পৰ্সংগ"))
+    and r"\newlabel{as:ex:western}{{3}" in standalone_as_aux
+    and r"\newlabel{as:item:latin}{{a}" in standalone_as_aux,
+    "Translated examples work independently with language=assamese",
+)
+for name in ("manual-assamese-opening", "manual-assamese-fontspec"):
+    check(any(span["font"] == "TeXGyreAdventor-Regular" and "English" in span["text"]
+              for span in PDFS[name]["spans"])
+          and any(span["font"] == "Kalpurush" for span in PDFS[name]["spans"]),
+          f"{name} retains the displayed Assamese/English font pair")
+
+# Assamese-specific language data complements the shared integration checks.
+assamese_log = (BUILD / "assamese-basic/main.log").read_text(encoding="utf-8")
+for marker, value in (
+    ("LANGUAGE", "assamese/as"), ("RETURN", "assamese/as"),
+    ("TABLE", "সাৰণী"), ("TABLE-LIST", "সাৰণীসূচী"),
+    ("EQUATION", "সমীকৰণ"), ("LAST-LETTER", "য়"),
+):
+    check(f"ASSAMESE-{marker}: {value}" in assamese_log,
+          f"Assamese language data: {marker} = {value}")
+for label in ("sec:assamese", "eq:assamese"):
+    check(r"\newlabel{" + label + "}{{১}" in aux("assamese-basic"),
+          f"Assamese {label}: reference records the native numeral")
+for token in ("ৰ", "ৱ", "১২৩", "২০২৬", "12"):
+    check(token in text("assamese-basic"), f"Assamese text and numbers render {token}")
+check("1" in text("assamese-off") and "(a)" in text("assamese-off")
+      and "১২" in text("assamese-off") and "12" in text("assamese-off"),
+      "Assamese conversion off preserves Western counters and both literal digit scripts")
+for token, family in (
+    ("BoldEnglish", "TeXGyrePagella-Bold"),
+    ("ItalicEnglish", "TeXGyrePagella-Italic"),
+    ("SansEnglish", "TeXGyreHeros-Regular"),
+    ("MonoEnglish", "TeXGyreCursor-Regular"),
+):
+    check(any(token in span["text"] and span["font"] == family
+              for span in spans("assamese-basic")),
+          f"Assamese switching preserves {token}'s English font")
+for family in ("NotoSerifBengali", "NotoSansBengali", "Mukti"):
+    check(any(span["font"].startswith(family) and "ৰ" in span["text"]
+              for span in spans("assamese-basic")),
+          f"Assamese main, sans and mono roles retain their selected family: {family}")
+for suffix, supports_assamese in (("mukti", True), ("noto-serif", False)):
+    log = (BUILD / ("assamese-font-" + suffix) / "main.log").read_text(encoding="utf-8")
+    check(("language=ASM" in log) == supports_assamese,
+          f"Assamese shaping is requested only when advertised by {suffix}")
+for style, definition in (("symbol", r"\fnsymbol {footnote}"), ("roman", r"\roman {footnote}")):
+    log = (BUILD / ("assamese-footnotes-" + style) / "main.log").read_text(encoding="utf-8")
+    check("FOOTNOTE-FORMAT: macro:->" + definition in log,
+          f"Assamese activation preserves {style} footnotes")
+check(PDFS["assamese-example"]["pages"] == PDFS["bangla-example"]["pages"] == 1,
+      "Bangla and Assamese examples each fit on one page")
+for label in ("eq:pythagoras", "tab:triples"):
+    check(r"\newlabel{" + label + "}{{১}" in aux("assamese-example"),
+          f"Assamese public example: {label} has a native number")
+check("Overfull" not in (BUILD / "assamese-example/main.log").read_text(encoding="utf-8"),
+      "Assamese example has no overflowing text or tables")
 
 (BUILD / "checks.json").write_text(json.dumps(CHECKS, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 failures = [item for item in CHECKS if not item["passed"]]

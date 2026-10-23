@@ -1,0 +1,76 @@
+% Assamese language definitions for Polyglossia 2.13.
+% Part of latexbangla, LPPL 1.3c or later; copyright 2026 Adib Hasan.
+% Captions and Gregorian month spellings are based on Babel's Assamese locale
+% (babel-as.ini, contributor Navanath Saharia), with table/reference terminology
+% adapted for this package.
+% This module supplies language data; font selection, activation and scoped
+% language changes are handled by Polyglossia, not reimplemented here.
+
+\RequirePackage{bengalidigits}
+\PolyglossiaSetup{assamese}
+  {bcp47=as,bcp47-language=as,bcp47-script=Beng,
+   script=Bengali,scripttag=beng,langtag=ASM,
+   hyphennames={assamese,nohyphenation},hyphenmins={2,2},
+   localnumeral=assamesenumerals,Localnumeral=assamesenumerals}
+\setlanguagealias*{assamese}{as}
+
+\bool_new:N \l__latexbangla_assamese_native_numerals_bool
+\bool_new:N \l__latexbangla_assamese_global_numbers_bool
+\DeclareKeys[polyglossia/gloss/assamese]
+  {
+    numerals.choice:,
+    numerals/bengali.code = \bool_set_true:N \l__latexbangla_assamese_native_numerals_bool,
+    numerals/western.code = \bool_set_false:N \l__latexbangla_assamese_native_numerals_bool,
+    numerals.default:n = bengali,
+    changecounternumbering.bool_set:N = \l__latexbangla_assamese_global_numbers_bool,
+    changecounternumbering.default:n = true
+  }
+\InitializeGlossOptions{assamese}{numerals=bengali,changecounternumbering=false}
+
+\cs_new:Npn \assamesenumber #1
+  {
+    \bool_if:NTF \l__latexbangla_assamese_native_numerals_bool
+      {\bengalidigits{\number#1}} {\number#1}
+  }
+\cs_new:Npn \assamesenumerals #1#2 {\assamesenumber{#2}}
+\cs_new_eq:NN \__latexbangla_assamese_original_arabic:n \@arabic
+\cs_new_protected:cpn {assamese@globalnumbers}
+  {
+    \bool_if:NT \l__latexbangla_assamese_global_numbers_bool
+      {\cs_set_eq:NN \@arabic \assamesenumber}
+  }
+\cs_new_protected:cpn {noassamese@globalnumbers}
+  {\cs_set_eq:NN \@arabic \__latexbangla_assamese_original_arabic:n}
+
+\cs_new_protected:Npn \captionsassamese
+  {
+    \def\prefacename{পাতনি}
+    \def\refname{প্ৰসংগ}
+    \def\abstractname{মূলভাৱ}
+    \def\bibname{তথ্যসূত্ৰ}
+    \def\chaptername{অধ্যায়}
+    \def\appendixname{পৰিশিষ্ট}
+    \def\contentsname{সমল}
+    \def\listfigurename{চিত্ৰসূচী}
+    \def\listtablename{সাৰণীসূচী}
+    \def\indexname{বিষয়সূচী}
+    \def\figurename{চিত্ৰ}
+    \def\tablename{সাৰণী}
+    \def\partname{অংশ}
+    \def\pagename{পৃষ্ঠা}
+    \def\seename{চাওক}
+    \def\alsoname{আৰু~চাওক}
+    \def\enclname{সংযোজিত}
+    \def\ccname{প্ৰতিলিপি}
+    \def\headtoname{প্ৰতি}
+    \def\proofname{প্ৰমাণ}
+    \def\glossaryname{অৰ্থকোষ}
+  }
+\cs_new_protected:Npn \dateassamese
+  {
+    \def\today{\assamesenumber\day\space
+      \ifcase\month\or জানুৱাৰী\or ফেব্ৰুৱাৰী\or মাৰ্চ\or এপ্ৰিল\or
+      মে’\or জুন\or জুলাই\or আগষ্ট\or ছেপ্তেম্বৰ\or অক্টোবৰ\or
+      নৱেম্বৰ\or ডিচেম্বৰ\fi,~\assamesenumber\year}
+  }
+\endinput

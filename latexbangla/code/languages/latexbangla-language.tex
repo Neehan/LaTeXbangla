@@ -1,0 +1,54 @@
+% Document-language selection and the data used by shared integrations.
+% Part of latexbangla, LPPL 1.3c or later; copyright 2026 Adib Hasan.
+
+% Use written inventories: alphabetic order is not a contiguous Unicode range.
+% Both languages end at ya; neither has separate uppercase labels.
+\prop_new:N \g__latexbangla_autoref_names_prop
+\str_if_eq:VnTF \g__latexbangla_language_tl {assamese}
+  {
+    % Keep our fallback under a package-specific filename so it cannot shadow
+    % a future upstream gloss-assamese.ldf in the TeX search path.
+    \file_if_exist:nF {gloss-assamese.ldf}
+      {
+        % The normal gloss loader passes these options to initialization.
+        % They must be active before Polyglossia selects background numbering.
+        \tl_set:Ne \xpg__tmp_default_options_tl
+          {numerals=bengali,changecounternumbering=
+            \bool_if:NTF \g__latexbangla_convert_counters_bool {true}{false}}
+        \file_input:n {code/languages/latexbangla-assamese.tex}
+        % Polyglossia 2.13 has no public registration API for an external
+        % gloss filename. These two calls register the definitions with its
+        % normal loader; options and language activation remain upstream.
+        \xpg_define_language_commands:n {assamese}
+        \seq_gput_right:Nn \g__xpg_langs_loaded_seq {assamese}
+      }
+    % Written consonant sequence: include Assamese ra/wa and the traditional
+    % ksha entry. Combining signs are not standalone alphabetic labels.
+    \clist_const:Nn \c__latexbangla_alphabet_clist
+      {ক,খ,গ,ঘ,ঙ,চ,ছ,জ,ঝ,ঞ,ট,ঠ,ড,ঢ,ণ,ত,থ,দ,ধ,ন,
+       প,ফ,ব,ভ,ম,য,ৰ,ল,ৱ,শ,ষ,স,হ,ক্ষ,ড়,ঢ়,য়}
+    \prop_gset_from_keyval:Nn \g__latexbangla_autoref_names_prop
+      {section=পৰিচ্ছেদ,subsection=উপপৰিচ্ছেদ,subsubsection=উপউপপৰিচ্ছেদ,
+       paragraph=অনুচ্ছেদ,subparagraph=উপঅনুচ্ছেদ,equation=সমীকৰণ,
+       footnote=পাদটীকা,item=পদ}
+  }
+  {
+    \clist_const:Nn \c__latexbangla_alphabet_clist
+      {ক,খ,গ,ঘ,ঙ,চ,ছ,জ,ঝ,ঞ,ট,ঠ,ড,ঢ,ণ,ত,থ,দ,ধ,ন,
+       প,ফ,ব,ভ,ম,য,র,ল,শ,ষ,স,হ,ড়,ঢ়,য়}
+    \prop_gset_from_keyval:Nn \g__latexbangla_autoref_names_prop
+      {section=পরিচ্ছেদ,subsection=উপপরিচ্ছেদ,subsubsection=উপউপপরিচ্ছেদ,
+       paragraph=অনুচ্ছেদ,subparagraph=উপানুচ্ছেদ,equation=সমীকরণ,
+       footnote=পাদটীকা,item=পদ}
+  }
+
+% Both languages use the same Unicode digits. Select them explicitly because
+% the upstream Bengali module's default numeral system is Devanagari.
+\use:e
+  {
+    \exp_not:N \setmainlanguage
+      [numerals=bengali,changecounternumbering=
+        \bool_if:NTF \g__latexbangla_convert_counters_bool {true}{false}]
+      {\g__latexbangla_language_tl}
+  }
+\endinput
