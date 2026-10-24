@@ -41,6 +41,7 @@ only the selected tests. Run one runner per engine at a time: each engine has it
 
 - Mixed Bangla/English text, supported font families, styles, spacing, and font overrides.
 - Local fontspec families, nested font changes, features, styles and restoration.
+- Composed, decomposed and TeX-accent Latin input, including Biber bibliographies.
 - Assamese captions, dates, alphabetic labels, font coverage, and shared integrations.
 - Decimal and alphabetic counters, nested lists, footnotes, and appendices.
 - Bangla math text and digits, conventional math fonts, and unicode-math.

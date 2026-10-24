@@ -89,6 +89,15 @@ def cases():
             (FIXTURES / "latin-accents.tex").read_text(encoding="utf-8"),
             passes=1,
         )
+        add(
+            "latin-accents-biblatex-" + language,
+            r"\usepackage[language=" + language + r"]{latexbangla}"
+            r"\setbanglamainfont{Kalpurush}\tracinglostchars=3"
+            r"\usepackage[backend=biber,style=numeric]{biblatex}"
+            + (FIXTURES / "latin-accent-bibliography.tex").read_text(encoding="utf-8")
+            + r"\addbibresource{accent-references.bib}",
+            r"\nocite{*}\printbibliography", backend="biber",
+        )
 
     add(
         "preamble-font-box",

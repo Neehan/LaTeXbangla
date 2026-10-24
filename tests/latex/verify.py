@@ -182,13 +182,29 @@ def aux(name):
 
 for language in ("bangla", "assamese"):
     name = "latin-accents-" + language
-    check(normalize("NFC", text(name)).count("Erdős") == 9,
+    check(normalize("NFC", text(name)).count("Erdős") == 16,
           f"{name}: accent commands and Unicode retain the double acute")
     accent_spans = [span for span in spans(name)
                     if "ő" in normalize("NFC", span["text"])]
     check(bool(accent_spans) and all("Kalpurush" not in span["font"]
                                    for span in accent_spans),
           f"{name}: accented Latin letters use the English companion")
+    for word in ("Soberón", "naïve", "Birkhäuser", "ḍ", "ā", "ů"):
+        check(normalize("NFC", text(name)).count(word) >= 3,
+              f"{name}: composed, decomposed and TeX input preserve {word}")
+    # Inspect combining marks separately: checking only precomposed letters
+    # would miss an accent left behind in the surrounding Bangla font.
+    check(all("Kalpurush" not in span["font"] for span in spans(name)
+              if any(0x0300 <= ord(char) <= 0x036F for char in span["text"])),
+          f"{name}: combining Latin marks never use the Bangla font")
+    name = "latin-accents-biblatex-" + language
+    for word in ("Erdős", "Soberón", "Birkhäuser"):
+        check(normalize("NFC", text(name)).count(word) == 3,
+              f"{name}: bibliography preserves all three input forms of {word}")
+        matching = [span for span in spans(name)
+                    if word in normalize("NFC", span["text"])]
+        check(bool(matching) and all(span["font"].startswith("LMRoman") for span in matching),
+              f"{name}: bibliography uses Latin fonts for {word}")
 
 
 for token, family in [

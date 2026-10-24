@@ -10,3 +10,19 @@ Other accents: caf\'{e}, na\"{i}ve, \={a}. বাংলা।\par
   Erd{\H{o}}s & বাংলা\\
 \end{tabular}
 Text\footnote{Erd{\H{o}}s বাংলা।}
+
+% Equivalent precomposed, decomposed and TeX-accent input must stay Latin.
+\par
+\begin{tabular}{lll}
+  Soberón & Soberón & Sober\'{o}n\\
+  naïve & naïve & na\"{i}ve\\
+  Birkhäuser & Birkhäuser & Birkh\"{a}user\\
+  ḍ & ḍ & \d{d}\\
+  ā & ā & \={a}\\
+  ů & ů & \r{u}
+\end{tabular}
+\par
+% Touching script boundaries and scoped styles exercise restoration too.
+বাংলা\textsf{Erdős Erdős Erd{\H{o}}s}বাংলা\par
+বাংলা\texttt{Erdős Erdős Erd{\H{o}}s}বাংলা\par
+\textbf{\textit{বাংলা Erd{\H{o}}s বাংলা}}\par

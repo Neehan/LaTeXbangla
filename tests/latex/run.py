@@ -60,11 +60,11 @@ def compile_case(
     name: str, case, environment: dict[str, str], engine: str, build: Path
 ) -> CompilationResult:
     directory = build / name
-    directory.mkdir(exist_ok=True)
-    # Only generated files inside this named specimen directory are removed.
-    for path in directory.iterdir():
-        if path.is_file():
-            path.unlink()
+    # Each specimen owns its output directory, including generated subfolders
+    # such as minted's cache. Never let an earlier build supply missing output.
+    if directory.exists():
+        shutil.rmtree(directory)
+    directory.mkdir()
     (directory / "main.tex").write_text(case["tex"], encoding="utf-8")
     shutil.copyfile(FIXTURES / "references.bib", directory / "references.bib")
     timings: list[float] = []
