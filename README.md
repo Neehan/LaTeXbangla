@@ -15,7 +15,7 @@ Tested with **XeLaTeX and LuaLaTeX** and **18 font families in both languages**.
 LaTeXbangla is free to use. If you use it to publish a book, please consider acknowledging
 the package and its author, Adib Hasan. :))
 
-Manual: [English](latexbangla/latexbangla.pdf#nameddest=guide-english) · [বাংলা](latexbangla/latexbangla.pdf#nameddest=guide-bangla) · [অসমীয়া](latexbangla/latexbangla.pdf#nameddest=guide-assamese) · [Bangla example PDF](examples/bangla.pdf) · [Source](examples/bangla.tex)
+Manual: [English](latexbangla/latexbangla.pdf#nameddest=guide-english) · [বাংলা](latexbangla/latexbangla.pdf#nameddest=guide-bangla) · [অসমীয়া](latexbangla/latexbangla.pdf#nameddest=guide-assamese) · [Bangla example](examples/bangla.pdf) · [Assamese example](examples/assamese.pdf)
 
 ## Get started
 
