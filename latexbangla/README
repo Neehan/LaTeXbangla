@@ -6,7 +6,7 @@ numbering, references, citations, and text and digits in mathematics.
 
 Getting started
 
-Compile with XeLaTeX or LuaLaTeX. Tested on TeX Live 2026.
+Compile with XeLaTeX or LuaLaTeX on an updated TeX Live 2024 or later.
 For a local installation, copy latexbangla.sty, the latexbangla-*.lbx files and
 the complete code/ folder beside your document. Install one of the supported Bangla
 fonts, then use its name below:

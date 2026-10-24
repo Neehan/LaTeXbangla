@@ -16,7 +16,7 @@
           {numerals=bengali,changecounternumbering=
             \bool_if:NTF \g__latexbangla_convert_counters_bool {true}{false}}
         \file_input:n {code/languages/latexbangla-assamese.tex}
-        % Polyglossia 2.13 has no public registration API for an external
+        % Polyglossia has no public registration API for an external
         % gloss filename. These two calls register the definitions with its
         % normal loader; options and language activation remain upstream.
         \xpg_define_language_commands:n {assamese}

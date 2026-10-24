@@ -1,5 +1,6 @@
-# Local planning documents (not part of the public repository or CTAN upload).
+# Local notes and Overleaf demo checkout.
 /CONTRACT.md
+/demo/
 
 # Test output, downloaded test fonts, and generated upload bundles.
 /tests/latex/build/

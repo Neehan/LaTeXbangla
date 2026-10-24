@@ -12,6 +12,7 @@ import base64
 from html import escape
 import io
 import json
+from pathlib import Path
 import re
 
 import fitz
@@ -135,10 +136,12 @@ def image_tag(image, path, title):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--dpi", type=int, default=192)
+    parser.add_argument("--build-dir", type=Path, default=ROOT / "build")
     args = parser.parse_args()
     if not 72 <= args.dpi <= 600:
         parser.error("--dpi must be between 72 and 600")
-    output = ROOT / "build" / "engine-comparison"
+    build = args.build_dir.resolve()
+    output = build / "engine-comparison"
     output.mkdir(parents=True, exist_ok=True)
     report = [f"""<!doctype html><html lang="en"><meta charset="utf-8">
 <title>LaTeXbangla: XeLaTeX and LuaLaTeX</title>
@@ -164,11 +167,11 @@ Actual PDF font sizes and stroke widths use bp (72 per inch, versus 72.27 pt).
 All numeric deltas are LuaLaTeX minus XeLaTeX.</p>"""]
     report.append("<details><summary>Engine versions</summary><pre>")
     for engine in ENGINES:
-        report.append(escape((ROOT / "build" / engine / "engine.txt").read_text(encoding="utf-8")))
+        report.append(escape((build / engine / "engine.txt").read_text(encoding="utf-8")))
     report.append("</pre></details>")
     results = {}
     for suffix, font_name in BENGALI_FONTS.items():
-        directories = [ROOT / "build" / engine / ("font-faces-" + suffix) for engine in ENGINES]
+        directories = [build / engine / ("font-faces-" + suffix) for engine in ENGINES]
         if (directories[0] / "main.tex").read_bytes() != (directories[1] / "main.tex").read_bytes():
             raise SystemExit(f"Source differs for font-faces-{suffix}; recompile both engines first.")
         measurements = [font_measurements(directory) for directory in directories]

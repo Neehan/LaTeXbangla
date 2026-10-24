@@ -75,11 +75,26 @@ reference links. Assamese examples also compile as standalone documents.
 
 ## Test environment and fonts
 
-[run.sh](run.sh) pins the TeX Live 2026 Docker image by digest. The baseline uses
-XeTeX 0.999998, LaTeX 2026-06-01, Polyglossia 2.13, fontspec 2.9h, and
-ucharclasses 2.6.0. Test logs record loaded package versions.
-The LuaLaTeX baseline uses LuaHBTeX 1.24.0 with HarfBuzz shaping for Bangla.
-Older distributions and hosted Overleaf builds are not covered.
+Both engines are tested with these distributions. Test logs record loaded package versions.
+
+| TeX Live | LaTeX | Polyglossia | fontspec | XeTeX | LuaHBTeX |
+| --- | --- | --- | --- | --- | --- |
+| 2024, final archived update | 2024-11-01 | 2.4 | 2.9e | 0.999996 | 1.18.0 |
+| 2026 | 2026-06-01 | 2.13 | 2.9h | 0.999998 | 1.24.0 |
+
+[run.sh](run.sh) defaults to the pinned 2026 image. To test the 2024 baseline:
+
+```sh
+docker build --platform linux/amd64 -f tests/latex/Dockerfile.2024 -t latexbangla-test:2024 .
+TEXLIVE_IMAGE=latexbangla-test:2024 sh tests/latex/run.sh --build-dir tests/latex/build/texlive2024
+python3 tests/latex/verify.py --build-dir tests/latex/build/texlive2024
+```
+
+Repeat the last two commands with `--engine lualatex`. The Dockerfile pins the
+archived TeX distribution and Python 3.12: its minted executable is incompatible
+with Python 3.14. No TeX packages are upgraded. The 2024 baseline includes updates
+through March 2025; the original 2024 installer and hosted Overleaf builds are
+not part of this matrix.
 
 | Fonts | Source |
 | --- | --- |
@@ -137,7 +152,8 @@ After compiling both suites, run:
 python3 tests/latex/compare-engines.py
 ```
 
-Open `build/engine-comparison/index.html` for all supported fonts in regular, bold,
+Use `--build-dir tests/latex/build/texlive2024` to compare the archived baseline.
+Open `engine-comparison/index.html` under the selected build root for all supported fonts in regular, bold,
 italic and bold italic at 8, 11 and 16 pt. The report includes full pages,
 aligned text rows, color overlays and difference images. Rows are translated
 to the same origin and baseline without scaling or shearing. Magenta marks

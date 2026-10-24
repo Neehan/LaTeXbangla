@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="img/logo.png" alt="LaTeXbangla" width="650">
+  <img src="latexbangla/logo.png" alt="LaTeXbangla" width="650">
 </p>
 
 <p align="center">Writing Bangla &amp; Assamese with ordinary LaTeX</p>
@@ -23,7 +23,7 @@ Manual: [English](latexbangla/latexbangla.pdf#nameddest=guide-english) · [ব�
 
 Copy `latexbangla.sty`, the `latexbangla-*.lbx` files, and the complete `code/` folder from
 [`latexbangla/`](latexbangla/) beside your document. Install one Bangla font and
-compile with **XeLaTeX or LuaLaTeX**. Tested on TeX Live 2026.
+compile with **XeLaTeX or LuaLaTeX** on an updated TeX Live 2024 or later.
 
 **Tested fonts for both languages:** Kalpurush, SolaimanLipi, Siyam Rupali, Noto Serif Bengali,
 Noto Sans Bengali, Anek Bangla, Tiro Bangla, Galada, Hind Siliguri, Nikosh,

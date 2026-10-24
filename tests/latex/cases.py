@@ -428,7 +428,7 @@ Decimal: \arabic{sample}. Literal: 12 ১২.
         "font-file",
         r"\usepackage{latexbangla}"
         + FONTS
-        + r"\setbanglamainfont[Path=/usr/local/texlive/2026/texmf-dist/fonts/truetype/public/bangla/]{fontkalpurush.ttf}",
+        + r"\setbanglamainfont{fontkalpurush.ttf}",
         FONT_BODY,
     )
     add(

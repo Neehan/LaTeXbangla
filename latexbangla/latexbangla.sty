@@ -26,9 +26,8 @@
 % latexbangla-*.lbx, the manual source latexbangla.tex, its PDF and logo.png.
 % ------------------------------------------------------------------
 
-% The tested development baseline is TeX Live 2026. Version requirements are
-% intentionally conservative until an older-distribution test matrix exists.
-\NeedsTeXFormat{LaTeX2e}[2026-06-01]
+% Minimum versions follow the final updated TeX Live 2024 distribution.
+\NeedsTeXFormat{LaTeX2e}[2024-11-01]
 \RequirePackage{iftex}
 \RequireTUTeX
 \ProvidesExplPackage{latexbangla}{2026-10-24}{2.0.1}
@@ -36,8 +35,8 @@
 
 % Polyglossia owns language data and decimal numbering; fontspec owns fonts.
 % amstext is the small, style-aware text-in-math component, not the AMS suite.
-\RequirePackage{fontspec}[2026/08/11]
-\RequirePackage{polyglossia}[2026/09/11]
+\RequirePackage{fontspec}[2024/05/11]
+\RequirePackage{polyglossia}[2025/01/31]
 \RequirePackage{amstext}
 
 \bool_new:N \g__latexbangla_convert_counters_bool

@@ -1,0 +1,6 @@
+# The archived minted executable predates Python 3.14's argparse changes.
+FROM python:3.12-slim@sha256:a0f57064cbdcd6285fa45f51237ab0b35ea8ebaed06a1f5973e89e19dfb86704 AS python
+FROM texlive/texlive@sha256:fb0fed9b911b4836314f8041d27d7ff75dd1544d12ee359a2a91f765609c072d
+COPY --from=python /usr/local /opt/python3.12
+ENV PATH="/opt/python3.12/bin:${PATH}"
+ENV LD_LIBRARY_PATH="/opt/python3.12/lib"

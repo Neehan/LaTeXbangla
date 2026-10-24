@@ -115,8 +115,10 @@ def main():
     parser.add_argument("names", nargs="*", help="specimen names; omit to run the complete suite")
     parser.add_argument("--list", action="store_true", help="list available specimens")
     parser.add_argument("--engine", choices=("xelatex", "lualatex"), default="xelatex")
+    parser.add_argument("--build-dir", type=Path, default=ROOT / "build",
+                        help="Build root; each engine uses its own subdirectory")
     args = parser.parse_args()
-    build = ROOT / "build" / args.engine
+    build = args.build_dir.resolve() / args.engine
     specimens = cases()
     if args.list:
         print("\n".join(specimens))

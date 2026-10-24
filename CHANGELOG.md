@@ -2,6 +2,7 @@
 
 ## 2.0.1
 
+- Support updated TeX Live 2024 and later.
 - Keep combining Latin accents in the English font, fixing names such as Erdős with Kalpurush.
 
 ## 2.0
