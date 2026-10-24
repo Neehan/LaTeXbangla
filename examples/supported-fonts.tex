@@ -9,10 +9,10 @@
 
 % An ordinary document needs just one of these setters. This comparison saves
 % each configured family so that every page uses the settings shown there.
-% Rename the downloaded Anek variable font to AnekBangla-VF.ttf.
-% Install the other fonts and place that file beside this
+% Rename the downloaded variable fonts to AnekBangla-VF.ttf and Alkatra-VF.ttf.
+% Install the other fonts and place those files beside this
 % document to compile the complete specimen. Use Mukti 3 and the static Baloo
-% Da 2 faces. Kohinoor Bangla is shown only if installed on your system.
+% Da 2 faces. Kohinoor Bangla and Shonar Bangla appear only when installed.
 \setbanglamainfont{Kalpurush}
 \NewCommandCopy\kalpurushfont\bengalifont
 \setbanglamainfont{SolaimanLipi}
@@ -49,6 +49,22 @@
 \NewCommandCopy\likhanfont\bengalifont
 \setbanglamainfont{Shimanto}
 \NewCommandCopy\shimantofont\bengalifont
+\setbanglamainfont{Mina}
+\NewCommandCopy\minafont\bengalifont
+\setbanglamainfont{AdorshoLipi}
+\NewCommandCopy\adorsholipifont\bengalifont
+\setbanglamainfont{BenSen}
+\NewCommandCopy\bensenfont\bengalifont
+\setbanglamainfont{BenSenHandwriting}
+\NewCommandCopy\bensenhandwritingfont\bengalifont
+\setbanglamainfont{Atma}
+\NewCommandCopy\atmafont\bengalifont
+\setbanglamainfont{Alkatra-VF.ttf}
+\NewCommandCopy\alkatrafont\bengalifont
+\IfFontExistsTF{Shonar Bangla}{%
+\setbanglamainfont{Shonar Bangla}
+\NewCommandCopy\shonarbanglafont\bengalifont
+}{}
 \setbanglamainfont{FreeSerif}
 \NewCommandCopy\freeseriffont\bengalifont
 
@@ -72,8 +88,8 @@
   \begingroup
   \let\bengalifont#2%
   \bengalifont
-  \pdfbookmark[0]{#3}{#3}
   \section*{#3}
+  \addcontentsline{toc}{section}{#3}
   \noindent\texttt{\textbackslash setbanglamainfont\{\IfBlankTF{#1}{#3}{#1}\}}\par
   \smallskip
   \noindent#4\par
@@ -97,6 +113,8 @@
 }
 
 \begin{document}
+\renewcommand{\contentsname}{Contents}
+\tableofcontents
 \fontsample{\kalpurushfont}{Kalpurush}
   {Synthetic bold: 4. Native size and word spacing.}
 \fontsample{\solaimanlipifont}{SolaimanLipi}
@@ -129,9 +147,9 @@
 \fontsample{\baloofont}{Baloo Da 2}
   {Real bold face. Scale: 0.9; word-space factor: 1.86.}
 \fontsample{\lohitfont}{Lohit Bengali}
-  {Synthetic bold: 4.5. Scale: 0.9; word-space factor: 1.33.}
+  {Synthetic bold: 5.5. Scale: 0.9; word-space factor: 1.33.}
 \fontsample{\jamrulfont}{Jamrul}
-  {Synthetic bold: 2.5; slant: 0.2. Native size; word-space factor: 0.43.\newline
+  {Synthetic bold: 2.5; slant: 0.2. Scale: 0.9; word-space factor: 0.43.\newline
    Version 0.1 lacks the standalone khanda ta (U+09CE).}
 \fontsample{\likhanfont}{Likhan}
   {Synthetic bold: 3.5; slant: 0.2. Scale: 0.9; word-space factor: 0.97.\newline
@@ -139,6 +157,23 @@
 \fontsample{\shimantofont}{Shimanto}
   {Synthetic bold: 3.5; slant: 0.2. Native size; word-space factor: 1.11.\newline
    XeLaTeX reports missing glyphs for explicit ZWJ/ZWNJ controls in version 1.0.}
+\fontsample{\minafont}{Mina}
+  {Real bold face. Scale: 0.9; word-space factor: 1.03.}
+\fontsample{\adorsholipifont}{AdorshoLipi}
+  {Synthetic bold: 4; slant: 0.2. Scale: 0.8; word-space factor: 1.17.}
+\fontsample{\bensenfont}{BenSen}
+  {Synthetic bold: 4; slant: 0.2. Scale: 1.1; word-space factor: 1.32.}
+\fontsample{\bensenhandwritingfont}{BenSenHandwriting}
+  {Synthetic bold: 3.5; slant: 0.2. Scale: 1; word-space factor: 1.32.}
+\fontsample{\atmafont}{Atma}
+  {Real bold face. Scale: 1; word-space factor: 1.79.}
+\fontsample[Alkatra-VF.ttf]{\alkatrafont}{Alkatra}
+  {Synthetic bold: 4.5; slant: 0.2. Scale: 0.9; word-space factor: 1.36.\newline
+   Save the variable TTF as \texttt{Alkatra-VF.ttf} and use the command above.}
+\ifdefined\shonarbanglafont
+\fontsample{\shonarbanglafont}{Shonar Bangla}
+  {Real bold face. Scale: 1.1; word-space factor: 1.47.}
+\fi
 \fontsample{\freeseriffont}{FreeSerif}
   {Synthetic bold: 3.5; real italic face. Native size; word-space factor: 1.33.}
 \end{document}

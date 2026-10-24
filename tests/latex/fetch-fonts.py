@@ -82,6 +82,63 @@ GALADA_FILES = {
 
 # Additional upstream assets; downloaded only into the ignored test directory.
 ADDITIONAL_FILES = {
+    "Mina-Bold.ttf": (
+        "https://raw.githubusercontent.com/google/fonts/8b0a1d0f5983c89bc2b93f1b5fb55f9e252744b5/ofl/mina/Mina-Bold.ttf",
+        "eb125869e00d5e2fa33baa03344923141f31a5f10e1ae3fa65143cb2739fc318",
+    ),
+    "Mina-Regular.ttf": (
+        "https://raw.githubusercontent.com/google/fonts/8b0a1d0f5983c89bc2b93f1b5fb55f9e252744b5/ofl/mina/Mina-Regular.ttf",
+        "1ca8f5fb637e21fd6ce7cd4cc230b7284a90524ce93a696b838bbe3edd25ab7c",
+    ),
+    "Mina-OFL.txt": (
+        "https://raw.githubusercontent.com/google/fonts/8b0a1d0f5983c89bc2b93f1b5fb55f9e252744b5/ofl/mina/OFL.txt",
+        "d2875ded3e44e9ae53ea2b35e825dafffa19e82c5d14addb9f1150fcd7a3463d",
+    ),
+    "Atma-Bold.ttf": (
+        "https://raw.githubusercontent.com/google/fonts/fa3e737fde14b025c4b2b6aaf47de0d4a8697a40/ofl/atma/Atma-Bold.ttf",
+        "d55399f5bcdb78f60da7dbd6c5abfdc92510154361586ad1b07bca7ee739dba6",
+    ),
+    "Atma-Light.ttf": (
+        "https://raw.githubusercontent.com/google/fonts/fa3e737fde14b025c4b2b6aaf47de0d4a8697a40/ofl/atma/Atma-Light.ttf",
+        "44d29f1887173928289709a47ef6b6b5259209ac2349a8622922316a697f497c",
+    ),
+    "Atma-Medium.ttf": (
+        "https://raw.githubusercontent.com/google/fonts/fa3e737fde14b025c4b2b6aaf47de0d4a8697a40/ofl/atma/Atma-Medium.ttf",
+        "369d9788c926ea6f3650999617beb348238f370d65b3d5d180d638c82ea3d82a",
+    ),
+    "Atma-Regular.ttf": (
+        "https://raw.githubusercontent.com/google/fonts/fa3e737fde14b025c4b2b6aaf47de0d4a8697a40/ofl/atma/Atma-Regular.ttf",
+        "3ddd9e02b4b6077b25c07f5d1f4411c9071e5030a4124d77dcd5a04fa292b921",
+    ),
+    "Atma-SemiBold.ttf": (
+        "https://raw.githubusercontent.com/google/fonts/fa3e737fde14b025c4b2b6aaf47de0d4a8697a40/ofl/atma/Atma-SemiBold.ttf",
+        "15b935a57290a675391c6ca6bac4bd7fc746ead44e35495d6dc2562b2265a28f",
+    ),
+    "Atma-OFL.txt": (
+        "https://raw.githubusercontent.com/google/fonts/fa3e737fde14b025c4b2b6aaf47de0d4a8697a40/ofl/atma/OFL.txt",
+        "b33974ab59e6a711a6e88ceea258abb628146064a1302ab35b87a60689637e17",
+    ),
+    "Alkatra-VF.ttf": (
+        "https://raw.githubusercontent.com/google/fonts/fffdadf0f0c9cc1ec8b407063424a8bfbee05611/ofl/alkatra/Alkatra%5Bwght%5D.ttf",
+        "af6d39e8085eda5db66b19100571709bd41c41938400f2c365dadde86dd28466",
+    ),
+    "Alkatra-OFL.txt": (
+        "https://raw.githubusercontent.com/google/fonts/fffdadf0f0c9cc1ec8b407063424a8bfbee05611/ofl/alkatra/OFL.txt",
+        "5985658cc7672eb25b95427a485ce922402908c90d9feaca2a88930cd98e54d9",
+    ),
+    "AdorshoLipi_20-07-2007.ttf": (
+        "https://www.omicronlab.com/download/fonts/AdorshoLipi_20-07-2007.ttf",
+        "2dd6fcf810b9c4414d68c939bce035b5977d8d3dafa483afc82442743f5696fd",
+    ),
+    "BenSen.ttf": (
+        "https://www.omicronlab.com/download/fonts/BenSen.ttf",
+        "a366eeb443b4c80b369665098bb9500382a1aa10ece11e503c93faab7f5e4d82",
+    ),
+    "BenSenHandwriting.ttf": (
+        "https://www.omicronlab.com/download/fonts/BenSenHandwriting.ttf",
+        "5ece19ccd529d8f2dff12b8a082ab7439f38488f0ef740f7f9826c72cbf89e27",
+    ),
+
     "JamrulNormal.ttf": (
         "https://www.nongnu.org/freebangfont/dl/JamrulNormal.ttf",
         "0d98610301a7f508e8d9bb9b2b2920afcafc690e17705bff272ae3bf20914fdd",

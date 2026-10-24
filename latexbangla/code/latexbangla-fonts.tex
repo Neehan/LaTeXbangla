@@ -34,8 +34,6 @@
 % Known-font adjustments are deliberately small. Unlisted fonts retain native
 % scale/spacing and synthetic weight 2.5. Recognize family names and standard
 % filenames, including Path= loads; renamed files use the generic defaults.
-% Reviewed weights: Kalpurush, SolaimanLipi and Anek Bangla 4;
-% FreeSerif, Tiro Bangla, Galada, Nikosh, Likhan and Shimanto 3.5; Siyam Rupali and Lohit Bengali 4.5.
 % Real bold faces never receive this synthetic-weight setting.
 % Word-space presets were measured against default Latin Modern Roman and
 % checked in mixed paragraphs with Pagella and Termes. They bring narrow spaces
@@ -52,6 +50,15 @@
     % Resolve the filenames used by supported font downloads to their families.
     \str_case:Vn \l__latexbangla_font_profile_name_tl
       {
+        {mina-regular}{\tl_set:Nn \l__latexbangla_font_profile_name_tl {mina}}
+        {mina-bold}{\tl_set:Nn \l__latexbangla_font_profile_name_tl {mina}}
+        {adorsholipi_20-07-2007}{\tl_set:Nn \l__latexbangla_font_profile_name_tl {adorsholipi}}
+        {atma-regular}{\tl_set:Nn \l__latexbangla_font_profile_name_tl {atma}}
+        {atma-bold}{\tl_set:Nn \l__latexbangla_font_profile_name_tl {atma}}
+        {alkatra-vf}{\tl_set:Nn \l__latexbangla_font_profile_name_tl {alkatra}}
+        {alkatra[wght]}{\tl_set:Nn \l__latexbangla_font_profile_name_tl {alkatra}}
+        {shonar}{\tl_set:Nn \l__latexbangla_font_profile_name_tl {shonarbangla}}
+        {shonarb}{\tl_set:Nn \l__latexbangla_font_profile_name_tl {shonarbangla}}
         {jamrulnormal}{\tl_set:Nn \l__latexbangla_font_profile_name_tl {jamrul}}
         {likhannormal}{\tl_set:Nn \l__latexbangla_font_profile_name_tl {likhan}}
         {fontkalpurush}{\tl_set:Nn \l__latexbangla_font_profile_name_tl {kalpurush}}
@@ -71,8 +78,53 @@
         {anekbangla-vf}{\tl_set:Nn \l__latexbangla_font_profile_name_tl {anekbangla}}
         {anekbangla[wdth,wght]}{\tl_set:Nn \l__latexbangla_font_profile_name_tl {anekbangla}}
       }
+    % These older fonts have conflicting Unicode cmap tables. XeTeX can
+    % render them but write incorrect searchable text; emit the source text
+    % through its native ActualText support instead. This does not alter glyphs.
+    \sys_if_engine_xetex:T
+      {
+        \str_case:Vn \l__latexbangla_font_profile_name_tl
+          {
+            {adorsholipi}{\XeTeXgenerateactualtext=1\scan_stop:}
+            {bensen}{\XeTeXgenerateactualtext=1\scan_stop:}
+            {bensenhandwriting}{\XeTeXgenerateactualtext=1\scan_stop:}
+          }
+      }
     \str_case:Vn \l__latexbangla_font_profile_name_tl
       {
+        {mina}
+          {\tl_set:Nn \l__latexbangla_font_defaults_tl {Scale=0.9,WordSpace=1.03,}}
+        {adorsholipi}
+          {\tl_set:Nn \l__latexbangla_synthetic_bold_tl {4}
+           \tl_set:Ne \l__latexbangla_font_defaults_tl
+             {Scale=0.8,WordSpace=1.17,\exp_not:V \g__latexbangla_proportional_spacing_features_tl}}
+        % Both BenSen files incorrectly advertise SolaimanLipi as their
+        % typographic family. Disable companion discovery for these single-face
+        % fonts so LuaTeX cannot borrow another family's regular face as bold.
+        {bensen}
+          {\tl_set:Nn \l__latexbangla_synthetic_bold_tl {4}
+           \tl_set:Nn \l__latexbangla_font_defaults_tl {Scale=1.1,WordSpace=1.32,
+             BoldFont={},ItalicFont={},BoldItalicFont={},}}
+        {bensenhandwriting}
+          {\tl_set:Nn \l__latexbangla_synthetic_bold_tl {3.5}
+           \tl_set:Nn \l__latexbangla_font_defaults_tl {WordSpace=1.32,
+             BoldFont={},ItalicFont={},BoldItalicFont={},}}
+        {atma}
+          {\tl_set:Nn \l__latexbangla_font_defaults_tl {WordSpace=1.79,}
+           % Atma's family lookup can choose semibold for bold. Request the
+           % actual bold companion, retaining the ordinary italic fallback.
+           \str_if_eq:eeT {\str_lowercase:f {#1}} {atma}
+             {
+               \fontspec_font_if_exist:nT {Atma~Bold}
+                 {\tl_put_right:Nn \l__latexbangla_font_defaults_tl
+                   {BoldFont={Atma~Bold},BoldItalicFont={Atma~Bold},}}
+             }
+          }
+        {alkatra}
+          {\tl_set:Nn \l__latexbangla_synthetic_bold_tl {4.5}
+           \tl_set:Nn \l__latexbangla_font_defaults_tl {Scale=0.9,WordSpace=1.36,}}
+        {shonarbangla}
+          {\tl_set:Nn \l__latexbangla_font_defaults_tl {Scale=1.1,WordSpace=1.47,}}
         {freeserif}
           {\tl_set:Nn \l__latexbangla_synthetic_bold_tl {3.5}
            \tl_set:Nn \l__latexbangla_font_defaults_tl {WordSpace=1.33,}}
@@ -80,7 +132,7 @@
         % below have individually reviewed weights.
         % Jamrul's native space is over twice Latin Modern's; reduce it rather
         % than reducing the glyph size. Likhan and Shimanto need smaller changes.
-        {jamrul}{\tl_set:Nn \l__latexbangla_font_defaults_tl {WordSpace=0.43,}}
+        {jamrul}{\tl_set:Nn \l__latexbangla_font_defaults_tl {Scale=0.9,WordSpace=0.43,}}
         {likhan}
           {\tl_set:Nn \l__latexbangla_synthetic_bold_tl {3.5}
            \tl_set:Nn \l__latexbangla_font_defaults_tl {Scale=0.9,WordSpace=0.97,}}
@@ -91,7 +143,8 @@
         {solaimanlipi}
           {\tl_set:Nn \l__latexbangla_synthetic_bold_tl {4}
            \tl_set:Ne \l__latexbangla_font_defaults_tl
-             {Scale=0.9,WordSpace=1.33,\exp_not:V \g__latexbangla_proportional_spacing_features_tl}}
+             {Scale=0.9,WordSpace=1.33,BoldFont={},ItalicFont={},BoldItalicFont={},
+              \exp_not:V \g__latexbangla_proportional_spacing_features_tl}}
         {notoserifbengali}{\tl_set:Nn \l__latexbangla_font_defaults_tl {WordSpace=1.3,}}
         {notosansbengali}{\tl_set:Nn \l__latexbangla_font_defaults_tl {WordSpace=1.2,}}
         {hindsiliguri}{\tl_set:Nn \l__latexbangla_font_defaults_tl {Scale=0.9,WordSpace=1.64,}}
@@ -132,7 +185,7 @@
           }
         {balooda2}{\tl_set:Nn \l__latexbangla_font_defaults_tl {Scale=0.9,WordSpace=1.86,}}
         {lohitbengali}
-          {\tl_set:Nn \l__latexbangla_synthetic_bold_tl {4.5}
+          {\tl_set:Nn \l__latexbangla_synthetic_bold_tl {5.5}
            \tl_set:Nn \l__latexbangla_font_defaults_tl {Scale=0.9,WordSpace=1.33,}}
         {galada}
           {\tl_set:Nn \l__latexbangla_synthetic_bold_tl {3.5}
@@ -242,6 +295,18 @@
     \tl_set:Nn \l__latexbangla_font_name_tl {#2}
     \str_if_eq:nnT {#2} {SiyamRupali}
       {\tl_set:Nn \l__latexbangla_font_name_tl {Siyam~Rupali}}
+    % BenSen's incorrect typographic-family names confuse LuaTeX's name
+    % resolver even for upright text. Its font database can resolve the original
+    % filenames reliably; explicit filename/Path requests remain unchanged.
+    \sys_if_engine_luatex:T
+      {
+        \str_case:en {\str_lowercase:f {#2}}
+          {
+            {bensen}{\tl_set:Nn \l__latexbangla_font_name_tl {BenSen.ttf}}
+            {bensenhandwriting}
+              {\tl_set:Nn \l__latexbangla_font_name_tl {BenSenHandwriting.ttf}}
+          }
+      }
     % WordSpace multiplies the font's existing space dimensions globally.
     % Neutralize it while discovering faces, then apply the requested value
     % only in the final declaration below. Otherwise a fallback rebuild turns

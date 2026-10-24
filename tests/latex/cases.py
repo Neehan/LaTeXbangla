@@ -60,10 +60,19 @@ BENGALI_FONTS = {
     "jamrul": "Jamrul",
     "likhan": "Likhan",
     "shimanto": "Shimanto",
+    "mina": "Mina",
+    "adorsholipi": "AdorshoLipi",
+    "bensen": "BenSen",
+    "bensen-handwriting": "BenSenHandwriting",
+    "atma": "Atma",
+    "alkatra": "Alkatra-VF.ttf",
 }
 # Kohinoor is supplied by the tester, never downloaded or distributed here.
 if (ROOT / "fonts/KohinoorBangla.ttc").exists():
     BENGALI_FONTS["kohinoor-bangla"] = "Kohinoor Bangla"
+
+if all((ROOT / "fonts" / name).exists() for name in ("Shonar.ttf", "Shonarb.ttf")):
+    BENGALI_FONTS["shonar-bangla"] = "Shonar Bangla"
 
 
 def setup(options="", font="Kalpurush"):
@@ -133,13 +142,25 @@ OutsideEnglish বাংলা।
         FONT_FACE_BODY + r"\bengalifont\typeout{GALADA-FILE-SPACE: \the\fontdimen2\font}",
         passes=1,
     )
-    for suffix, filename in (
-        ("jamrul", "JamrulNormal.ttf"), ("likhan", "LikhanNormal.ttf"),
-        ("shimanto", "Shimanto.ttf"),
+    for suffix, filename, bold_filename in (
+        ("jamrul", "JamrulNormal.ttf", None),
+        ("likhan", "LikhanNormal.ttf", None),
+        ("shimanto", "Shimanto.ttf", None),
+        ("mina", "Mina-Regular.ttf", "Mina-Bold.ttf"),
+        ("adorsholipi", "AdorshoLipi_20-07-2007.ttf", None),
+        ("bensen", "BenSen.ttf", None),
+        ("bensen-handwriting", "BenSenHandwriting.ttf", None),
+        ("atma", "Atma-Regular.ttf", "Atma-Bold.ttf"),
+        ("shonar-bangla", "Shonar.ttf", "Shonarb.ttf"),
     ):
+        if suffix not in BENGALI_FONTS:
+            continue
+        features = "Path=/work/tests/latex/fonts/"
+        if bold_filename:
+            features += ",BoldFont=" + bold_filename + ",BoldItalicFont=" + bold_filename
         add("font-faces-" + suffix + "-file",
             r"\usepackage{latexbangla}" + FONTS
-            + r"\setbanglamainfont[Path=/work/tests/latex/fonts/]{" + filename + "}"
+            + r"\setbanglamainfont[" + features + "]{" + filename + "}"
             + r"\usepackage[a4paper,margin=20mm]{geometry}",
             FONT_FACE_BODY, passes=1)
     # Isolate Shimanto's missing joiner glyphs from automatic font switching.
@@ -160,7 +181,7 @@ OutsideEnglish বাংলা।
         r"বাংলা\par\textbf{বাংলা}\par\textbf{\textit{বাংলা}}", passes=1,
     )
     # Family-specific face hints must remain defaults, not override user choices.
-    for suffix in ("mukti", "kohinoor-bangla"):
+    for suffix in ("mukti", "kohinoor-bangla", "atma", "bensen"):
         if suffix in BENGALI_FONTS:
             add(
                 "font-faces-" + suffix + "-overrides",

@@ -1,4 +1,4 @@
-LaTeXbangla 2.0.1 — Writing Bangla & Assamese with ordinary LaTeX
+LaTeXbangla 2.1 — Writing Bangla & Assamese with ordinary LaTeX
 
 LaTeXbangla switches automatically between your chosen language and English,
 preserving your English fonts. It supports bold and italic, native lists and
@@ -23,11 +23,11 @@ fonts, then use its name below:
 Tested fonts for both languages: Kalpurush, SolaimanLipi, Siyam Rupali,
 Noto Serif Bengali, Noto Sans Bengali, Anek Bangla, Tiro Bangla, Galada,
 Hind Siliguri, Nikosh, Kohinoor Bangla, Mukti, Baloo Da 2, Lohit Bengali,
-Jamrul, Likhan, Shimanto and FreeSerif. Jamrul 0.1 and Likhan 0.6 lack
+Jamrul, Likhan, Shimanto, Mina, AdorshoLipi, BenSen, BenSenHandwriting,
+Atma, Alkatra, Shonar Bangla and FreeSerif. Jamrul 0.1 and Likhan 0.6 lack
 ৎ (U+09CE). Other Bangla fonts may work too, but have not been tested.
-Fonts are not included. If Anek fails to load by name, save its TTF
-as AnekBangla-VF.ttf beside your document and use
-\setbanglamainfont{AnekBangla-VF.ttf}.
+Fonts are not included. Load the Anek and Alkatra variable fonts by filename;
+see the manual for examples.
 
 For Assamese documents, use \usepackage[language=assamese]{latexbangla}
 and the same font commands. Bangla remains the default language.

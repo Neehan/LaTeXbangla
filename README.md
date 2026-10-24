@@ -10,7 +10,7 @@ handles bold and italic, and preserves your chosen English and math fonts.
 
 You also get native numbering, lists with ১, ২, ৩ and ক, খ, গ, translated reference
 names, numeric citations, and Bangla or Assamese text and digits inside equations.
-Tested with **XeLaTeX and LuaLaTeX** and **18 font families in both languages**.
+Tested with **XeLaTeX and LuaLaTeX** and **25 font families in both languages**.
 
 LaTeXbangla is free to use. If you use it to publish a book, please consider acknowledging
 the package and its author, Adib Hasan. :))
@@ -27,10 +27,12 @@ compile with **XeLaTeX or LuaLaTeX** on an updated TeX Live 2024 or later.
 
 **Tested fonts for both languages:** Kalpurush, SolaimanLipi, Siyam Rupali, Noto Serif Bengali,
 Noto Sans Bengali, Anek Bangla, Tiro Bangla, Galada, Hind Siliguri, Nikosh,
-Kohinoor Bangla, Mukti, Baloo Da 2, Lohit Bengali, Jamrul, Likhan, Shimanto, and FreeSerif.
+Kohinoor Bangla, Mukti, Baloo Da 2, Lohit Bengali, Jamrul, Likhan, Shimanto, Mina,
+AdorshoLipi, BenSen, BenSenHandwriting, Atma, Alkatra, Shonar Bangla, and FreeSerif.
 [Compare the fonts](examples/supported-fonts.pdf). Jamrul 0.1 and Likhan 0.6 lack ৎ (U+09CE).
 Other Bangla fonts may work too, but have not been tested.
-Use your chosen font name or filename in `\setbanglamainfont`.
+Use your chosen font name or filename in `\setbanglamainfont`; for the Anek and
+Alkatra variable fonts, follow the filename examples in the font guide.
 
 ```latex
 \documentclass{article}

@@ -76,7 +76,7 @@
 \definecolor{CodePaper}{HTML}{F4F6F8}
 \definecolor{ResultPaper}{HTML}{F0F8F4}
 \hypersetup{colorlinks,linkcolor=BanglaGreen,urlcolor=BanglaGreen,
-  citecolor=BanglaGreen,pdftitle={LaTeXbangla 2.0.1: User guide},pdfauthor={Adib Hasan}}
+  citecolor=BanglaGreen,pdftitle={LaTeXbangla 2.1: User guide},pdfauthor={Adib Hasan}}
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{4pt plus 1pt}
 \setlength{\emergencystretch}{2em}
@@ -91,7 +91,7 @@
 \pagestyle{fancy}
 \fancyhf{}
 \fancyhead[L]{\small\sffamily\color{BanglaGreen}\LaTeX{}bangla}
-\fancyhead[R]{\small\sffamily\color{BanglaInk}Version 2.0.1\quad User guide}
+\fancyhead[R]{\small\sffamily\color{BanglaInk}Version 2.1\quad User guide}
 \fancyfoot[C]{\small\thepage}
 \renewcommand{\headrulewidth}{0.3pt}
 % Keep the English guide's navigation Western while examples use the package's
@@ -161,7 +161,7 @@
 {\Large\sffamily\color{BanglaGreen}Writing Bangla \& Assamese with ordinary \LaTeX}\\[5pt]
 {Adib Hasan}\\[2pt]
 {\small\href{https://groups.google.com/g/latexbangla}{\texttt{latexbangla@googlegroups.com}}}\\[3pt]
-{24 October 2026\quad\textcolor{BanglaRed}{\textbullet}\quad Version 2.0.1}
+{24 October 2026\quad\textcolor{BanglaRed}{\textbullet}\quad Version 2.1}
 \end{center}
 
 Follow this guide in \hyperref[manual:bangla]{বাংলা} or
@@ -255,7 +255,7 @@ Use the font's name in \verb|\setbanglamainfont{...}|. The families below have
 been tested with both Bangla and Assamese; compare their samples in the font
 guide in \href{https://github.com/Neehan/LaTeXbangla}{the repository}.
 Other fonts may work too, but have not been tested.
-\begin{table}[htbp]
+\begin{table}[!htbp]
 \centering\small
 \caption{Default settings for supported Bangla fonts.}\label{tab:font-defaults}
 \begin{tabularx}{\linewidth}{@{}lXXrr@{}}
@@ -275,10 +275,17 @@ Other fonts may work too, but have not been tested.
 \texttt{Kohinoor Bangla} & Real face & Synthetic 0.2 & 0.9 & 1.29 \\
 \texttt{Mukti} & Real face & Real face & 0.9 & 1.33 \\
 \texttt{Baloo Da 2} & Real face & Synthetic 0.2 & 0.9 & 1.86 \\
-\texttt{Lohit Bengali} & Synthetic 4.5 & Synthetic 0.2 & 0.9 & 1.33 \\
-\texttt{Jamrul} & Synthetic 2.5 & Synthetic 0.2 & 1 & 0.43 \\
+\texttt{Lohit Bengali} & Synthetic 5.5 & Synthetic 0.2 & 0.9 & 1.33 \\
+\texttt{Jamrul} & Synthetic 2.5 & Synthetic 0.2 & 0.9 & 0.43 \\
 \texttt{Likhan} & Synthetic 3.5 & Synthetic 0.2 & 0.9 & 0.97 \\
 \texttt{Shimanto} & Synthetic 3.5 & Synthetic 0.2 & 1 & 1.11 \\
+\texttt{Mina} & Real face & Synthetic 0.2 & 0.9 & 1.03 \\
+\texttt{AdorshoLipi} & Synthetic 4 & Synthetic 0.2 & 0.8 & 1.17 \\
+\texttt{BenSen} & Synthetic 4 & Synthetic 0.2 & 1.1 & 1.32 \\
+\texttt{BenSenHandwriting} & Synthetic 3.5 & Synthetic 0.2 & 1 & 1.32 \\
+\texttt{Atma} & Real face & Synthetic 0.2 & 1 & 1.79 \\
+\texttt{Alkatra} & Synthetic 4.5 & Synthetic 0.2 & 0.9 & 1.36 \\
+\texttt{Shonar Bangla} & Real face & Synthetic 0.2 & 1.1 & 1.47 \\
 \texttt{FreeSerif} & Synthetic 3.5 & Real face & 1 & 1.33 \\
 \bottomrule
 \end{tabularx}
@@ -288,6 +295,7 @@ Other fonts may work too, but have not been tested.
 If Anek Bangla fails to load by name, save its TTF as \texttt{AnekBangla-VF.ttf}
 beside your document and use \verb|\setbanglamainfont{AnekBangla-VF.ttf}|. For Mukti, use version 3;
 for Baloo Da 2, install the static font files.
+For Alkatra, save the TTF as \texttt{Alkatra-VF.ttf} and load it by filename too.
 Jamrul 0.1 and Likhan 0.6 lack the standalone letter ৎ (U+09CE).
 With Shimanto 1.0, \hologo{XeLaTeX} reports missing glyphs for explicit ZWJ/ZWNJ controls.
 \end{tcolorbox}
@@ -825,7 +833,7 @@ Noto Sans Bengali and Siyam Rupali.}
 \setcounter{table}{0}
 \renewcommand{\manualcodetitle}{কোড}
 \renewcommand{\manualresulttitle}{ফলাফল}
-\fancyhead[R]{\small\sffamily\color{BanglaInk}সংস্করণ ২.০.১\quad ব্যবহার নির্দেশিকা}
+\fancyhead[R]{\small\sffamily\color{BanglaInk}সংস্করণ ২.১\quad ব্যবহার নির্দেশিকা}
 \hypertarget{guide-bangla}{}
 \phantomsection\label{manual:bangla}
 \addcontentsline{toc}{part}{বাংলা ব্যবহার নির্দেশিকা}
@@ -835,7 +843,7 @@ Noto Sans Bengali and Siyam Rupali.}
 {\Large\sffamily\color{BanglaGreen}চেনা \LaTeX-এর কমান্ডেই বাংলা ও অসমীয়া লেখা}\\[5pt]
 {আদীব হাসান}\\[2pt]
 {\small\href{https://groups.google.com/g/latexbangla}{\texttt{latexbangla@googlegroups.com}}}\\[3pt]
-{২৪ অক্টোবর ২০২৬\quad\textcolor{BanglaRed}{\textbullet}\quad সংস্করণ ২.০.১}
+{২৪ অক্টোবর ২০২৬\quad\textcolor{BanglaRed}{\textbullet}\quad সংস্করণ ২.১}
 \end{center}
 
 \LaTeX{}bangla হলো পরিচিত \LaTeX-এর কমান্ড দিয়ে বাংলা বা অসমীয়া ডকুমেন্ট লেখার
@@ -929,7 +937,7 @@ English keeps its own typeface.
 অসমীয়া দুই ভাষাতেই পরীক্ষা করা হয়েছে। নমুনা তুলনা করতে
 \href{https://github.com/Neehan/LaTeXbangla}{রিপোজিটরিতে দেওয়া} ফন্ট নির্দেশিকাটি
 দেখতে পারেন। অন্য ফন্টও কাজ করতে পারে, তবে সেগুলো পরীক্ষা করা হয়নি।
-\begin{table}[htbp]
+\begin{table}[!htbp]
 \centering\small
 \caption{পরীক্ষিত বাংলা ফন্টের পূর্বনির্ধারিত সেটিং।}\label{bn:tab:font-defaults}
 \begin{tabularx}{\linewidth}{@{}lXXrr@{}}
@@ -949,10 +957,17 @@ English keeps its own typeface.
 \texttt{Kohinoor Bangla} & নিজস্ব রূপ & কৃত্রিম ০.২ & ০.৯ & ১.২৯ \\
 \texttt{Mukti} & নিজস্ব রূপ & নিজস্ব রূপ & ০.৯ & ১.৩৩ \\
 \texttt{Baloo Da 2} & নিজস্ব রূপ & কৃত্রিম ০.২ & ০.৯ & ১.৮৬ \\
-\texttt{Lohit Bengali} & কৃত্রিম ৪.৫ & কৃত্রিম ০.২ & ০.৯ & ১.৩৩ \\
-\texttt{Jamrul} & কৃত্রিম ২.৫ & কৃত্রিম ০.২ & ১ & ০.৪৩ \\
+\texttt{Lohit Bengali} & কৃত্রিম ৫.৫ & কৃত্রিম ০.২ & ০.৯ & ১.৩৩ \\
+\texttt{Jamrul} & কৃত্রিম ২.৫ & কৃত্রিম ০.২ & ০.৯ & ০.৪৩ \\
 \texttt{Likhan} & কৃত্রিম ৩.৫ & কৃত্রিম ০.২ & ০.৯ & ০.৯৭ \\
 \texttt{Shimanto} & কৃত্রিম ৩.৫ & কৃত্রিম ০.২ & ১ & ১.১১ \\
+\texttt{Mina} & নিজস্ব রূপ & কৃত্রিম ০.২ & ০.৯ & ১.০৩ \\
+\texttt{AdorshoLipi} & কৃত্রিম ৪ & কৃত্রিম ০.২ & ০.৮ & ১.১৭ \\
+\texttt{BenSen} & কৃত্রিম ৪ & কৃত্রিম ০.২ & ১.১ & ১.৩২ \\
+\texttt{BenSenHandwriting} & কৃত্রিম ৩.৫ & কৃত্রিম ০.২ & ১ & ১.৩২ \\
+\texttt{Atma} & নিজস্ব রূপ & কৃত্রিম ০.২ & ১ & ১.৭৯ \\
+\texttt{Alkatra} & কৃত্রিম ৪.৫ & কৃত্রিম ০.২ & ০.৯ & ১.৩৬ \\
+\texttt{Shonar Bangla} & নিজস্ব রূপ & কৃত্রিম ০.২ & ১.১ & ১.৪৭ \\
 \texttt{FreeSerif} & কৃত্রিম ৩.৫ & নিজস্ব রূপ & ১ & ১.৩৩ \\
 \bottomrule
 \end{tabularx}
@@ -962,6 +977,7 @@ English keeps its own typeface.
 Anek Bangla নাম দিয়ে লোড না হলে TTF ফাইলটি \texttt{AnekBangla-VF.ttf} নামে
 ডকুমেন্টের পাশে রেখে \verb|\setbanglamainfont{AnekBangla-VF.ttf}| লিখুন।
 Mukti-এর ৩ সংস্করণ এবং Baloo Da 2-এর static ফন্ট ফাইল ব্যবহার করুন।
+Alkatra-এর TTF ফাইলটি \texttt{Alkatra-VF.ttf} নামে রেখে ফাইলের নাম দিয়ে লোড করুন।
 Jamrul ০.১ ও Likhan ০.৬-এ স্বতন্ত্র ৎ (U+09CE) অক্ষরটি নেই।
 Shimanto ১.০-এ সরাসরি ZWJ/ZWNJ ব্যবহার করলে \hologo{XeLaTeX} গ্লিফ না থাকার বার্তা দেয়।
 \end{tcolorbox}
@@ -1503,7 +1519,7 @@ article, report, book ও memoir। কোনো কিছু প্রত্য
 \setcounter{table}{0}
 \renewcommand{\manualcodetitle}{কোড}
 \renewcommand{\manualresulttitle}{ফলাফল}
-\fancyhead[R]{\small\sffamily\color{BanglaInk}সংস্কৰণ ২.০.১\quad ব্যৱহাৰ নিৰ্দেশিকা}
+\fancyhead[R]{\small\sffamily\color{BanglaInk}সংস্কৰণ ২.১\quad ব্যৱহাৰ নিৰ্দেশিকা}
 \hypertarget{guide-assamese}{}
 \phantomsection\label{manual:assamese}
 \addcontentsline{toc}{part}{অসমীয়া ব্যৱহাৰ নিৰ্দেশিকা}
@@ -1513,7 +1529,7 @@ article, report, book ও memoir। কোনো কিছু প্রত্য
 {\Large\sffamily\color{BanglaGreen}চিনাকি \LaTeX\ কমাণ্ডেৰে বাংলা আৰু অসমীয়া লিখক}\\[5pt]
 {আদীব হাসান}\\[2pt]
 {\small\href{https://groups.google.com/g/latexbangla}{\texttt{latexbangla@googlegroups.com}}}\\[3pt]
-{২৪ অক্টোবৰ ২০২৬\quad\textcolor{BanglaRed}{\textbullet}\quad সংস্কৰণ ২.০.১}
+{২৪ অক্টোবৰ ২০২৬\quad\textcolor{BanglaRed}{\textbullet}\quad সংস্কৰণ ২.১}
 \end{center}
 
 \LaTeX{}bangla হৈছে চিনাকি \LaTeX\ কমাণ্ডেৰে বাংলা বা অসমীয়া নথি লিখাৰ এটা
@@ -1605,7 +1621,7 @@ English keeps its own typeface.
 অসমীয়া দুয়োটা ভাষাতে পৰীক্ষা কৰা হৈছে। নমুনা তুলনা কৰিবলৈ
 \href{https://github.com/Neehan/LaTeXbangla}{ৰিপ'জিটৰীত থকা} ফণ্ট নিৰ্দেশিকাখন চাব পাৰে।
 আন ফণ্টো কাম কৰিব পাৰে, কিন্তু সেইবোৰ পৰীক্ষা কৰা হোৱা নাই।
-\begin{table}[htbp]
+\begin{table}[!htbp]
 \centering\small
 \caption{পৰীক্ষিত ফণ্টৰ পূৰ্বনিৰ্ধাৰিত ছেটিং।}\label{as:tab:font-defaults}
 \begin{tabularx}{\linewidth}{@{}lXXrr@{}}
@@ -1625,10 +1641,17 @@ English keeps its own typeface.
 \texttt{Kohinoor Bangla} & নিজস্ব ৰূপ & কৃত্ৰিম ০.২ & ০.৯ & ১.২৯ \\
 \texttt{Mukti} & নিজস্ব ৰূপ & নিজস্ব ৰূপ & ০.৯ & ১.৩৩ \\
 \texttt{Baloo Da 2} & নিজস্ব ৰূপ & কৃত্ৰিম ০.২ & ০.৯ & ১.৮৬ \\
-\texttt{Lohit Bengali} & কৃত্ৰিম ৪.৫ & কৃত্ৰিম ০.২ & ০.৯ & ১.৩৩ \\
-\texttt{Jamrul} & কৃত্ৰিম ২.৫ & কৃত্ৰিম ০.২ & ১ & ০.৪৩ \\
+\texttt{Lohit Bengali} & কৃত্ৰিম ৫.৫ & কৃত্ৰিম ০.২ & ০.৯ & ১.৩৩ \\
+\texttt{Jamrul} & কৃত্ৰিম ২.৫ & কৃত্ৰিম ০.২ & ০.৯ & ০.৪৩ \\
 \texttt{Likhan} & কৃত্ৰিম ৩.৫ & কৃত্ৰিম ০.২ & ০.৯ & ০.৯৭ \\
 \texttt{Shimanto} & কৃত্ৰিম ৩.৫ & কৃত্ৰিম ০.২ & ১ & ১.১১ \\
+\texttt{Mina} & নিজস্ব ৰূপ & কৃত্ৰিম ০.২ & ০.৯ & ১.০৩ \\
+\texttt{AdorshoLipi} & কৃত্ৰিম ৪ & কৃত্ৰিম ০.২ & ০.৮ & ১.১৭ \\
+\texttt{BenSen} & কৃত্ৰিম ৪ & কৃত্ৰিম ০.২ & ১.১ & ১.৩২ \\
+\texttt{BenSenHandwriting} & কৃত্ৰিম ৩.৫ & কৃত্ৰিম ০.২ & ১ & ১.৩২ \\
+\texttt{Atma} & নিজস্ব ৰূপ & কৃত্ৰিম ০.২ & ১ & ১.৭৯ \\
+\texttt{Alkatra} & কৃত্ৰিম ৪.৫ & কৃত্ৰিম ০.২ & ০.৯ & ১.৩৬ \\
+\texttt{Shonar Bangla} & নিজস্ব ৰূপ & কৃত্ৰিম ০.২ & ১.১ & ১.৪৭ \\
 \texttt{FreeSerif} & কৃত্ৰিম ৩.৫ & নিজস্ব ৰূপ & ১ & ১.৩৩ \\
 \bottomrule
 \end{tabularx}
@@ -1638,6 +1661,7 @@ English keeps its own typeface.
 Anek Bangla নামৰ দ্বাৰা লোড নহ'লে TTF ফাইলটো \texttt{AnekBangla-VF.ttf} নামেৰে
 নথিৰ কাষত ৰাখি \verb|\setbanglamainfont{AnekBangla-VF.ttf}| লিখক।
 Mukti-ৰ সংস্কৰণ ৩ আৰু Baloo Da 2-ৰ static ফণ্ট ফাইল ব্যৱহাৰ কৰক।
+Alkatra-ৰ TTF ফাইলটো \texttt{Alkatra-VF.ttf} নামেৰে ৰাখি ফাইলৰ নামেৰে লোড কৰক।
 Jamrul ০.১ আৰু Likhan ০.৬-ত স্বতন্ত্ৰ ৎ (U+09CE) আখৰটো নাই।
 Shimanto ১.০-ত পোনপটীয়াকৈ ZWJ/ZWNJ ব্যৱহাৰ কৰিলে \hologo{XeLaTeX}-এ গ্লিফ নথকাৰ বাৰ্তা দিয়ে।
 \end{tcolorbox}

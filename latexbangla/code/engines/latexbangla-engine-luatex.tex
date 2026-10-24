@@ -5,9 +5,9 @@
 % This is a default for Bangla setters only; user features are applied last.
 \tl_gset:Nn \g__latexbangla_renderer_features_tl {Renderer=HarfBuzz,}
 
-% SolaimanLipi's fixed-pitch flag is wrong: its glyph advances are proportional.
-% Use luaotfload's feature to retain normal space stretch/shrink before fontspec
-% applies WordSpace. The shared SolaimanLipi profile alone requests this fix.
+% SolaimanLipi and AdorshoLipi advertise fixed pitch but have proportional
+% advances. Their shared font profiles request this feature to restore normal
+% space stretch/shrink before fontspec applies WordSpace.
 \tl_gset:Nn \g__latexbangla_proportional_spacing_features_tl {RawFeature={-fixedspace},}
 
 % Lua's font resolver does not always substitute a bold face for missing bold

@@ -745,9 +745,16 @@ font_spacing_defaults = {
     "mukti": (0.9, 1.33),
     "baloo-da-2": (0.9, 1.86),
     "lohit-bengali": (0.9, 1.33),
-    "jamrul": (1, 0.43),
+    "jamrul": (0.9, 0.43),
     "likhan": (0.9, 0.97),
     "shimanto": (1, 1.11),
+    "mina": (0.9, 1.03),
+    "adorsholipi": (0.8, 1.17),
+    "bensen": (1.1, 1.32),
+    "bensen-handwriting": (1, 1.32),
+    "atma": (1, 1.79),
+    "alkatra": (0.9, 1.36),
+    "shonar-bangla": (1.1, 1.47),
 }
 for suffix in BENGALI_FONTS:
     for adjusted in (False, True):
@@ -760,7 +767,7 @@ for suffix in BENGALI_FONTS:
         scale, default_word_space = font_spacing_defaults[suffix]
         factors = (1.2, 1.3, 1.4) if adjusted else (default_word_space,) * 3
         native_dimensions = dimensions["NATIVE"]
-        if ENGINE == "lualatex" and suffix == "solaimanlipi" and len(native_dimensions) == 3:
+        if ENGINE == "lualatex" and suffix in {"solaimanlipi", "adorsholipi"} and len(native_dimensions) == 3:
             # The original font wrongly advertises fixed pitch. Its corrected
             # proportional spacing has the same stretch/shrink ratios as XeTeX.
             width = native_dimensions[0]
@@ -768,7 +775,8 @@ for suffix in BENGALI_FONTS:
         check(
             len(dimensions["NATIVE"]) == len(dimensions["SELECTED"]) == 3
             and all(
-                math.isclose(actual, native * scale * factor, abs_tol=0.0001)
+                # Font scaling and WordSpace each round to TeX scaled points.
+                math.isclose(actual, native * scale * factor, abs_tol=0.0002)
                 for native, actual, factor in zip(
                     native_dimensions, dimensions["SELECTED"], factors
                 )
@@ -794,12 +802,15 @@ for suffix in BENGALI_FONTS:
         )
         if not adjusted:
             reference = re.search(r"DEFAULT-ENGLISH-SPACE: ([\d.]+)pt", log)
-            # Kalpurush already has generous spacing; the other presets target
+            # Kalpurush has generous spacing; BenSen is enlarged to 1.1. Others target
             # the default English range without forcing all fonts to one width.
+            # Jamrul, Mina and Alkatra keep their space factors at the reviewed
+            # 0.9 scale, so their gaps are also 10% smaller.
+            minimum_ratio = 0.9 if suffix in {"jamrul", "mina", "alkatra"} else 0.95
             check(
                 reference is not None and len(dimensions["SELECTED"]) == 3
-                and 0.95 <= dimensions["SELECTED"][0] / float(reference.group(1))
-                <= (1.15 if suffix == "kalpurush" else 1.05),
+                and minimum_ratio <= dimensions["SELECTED"][0] / float(reference.group(1))
+                <= (1.15 if suffix in {"kalpurush", "bensen"} else 1.05),
                 f"{name}: preset spacing stays near the measured default English reference",
             )
 
@@ -836,6 +847,7 @@ for suffix, family in (
     ("noto-serif", "NotoSerifBengali"), ("noto-sans", "NotoSansBengali"),
     ("hind-siliguri", "HindSiliguri"), ("baloo-da-2", "BalooDa2"),
     ("kohinoor-bangla", "KohinoorBangla"),
+    ("mina", "Mina"), ("atma", "Atma"), ("shonar-bangla", "ShonarBangla"),
 ):
     if suffix not in BENGALI_FONTS:
         continue
@@ -844,7 +856,8 @@ for suffix, family in (
         check(
             {round(size * font_spacing_defaults[suffix][0] * 72 / 72.27, 2)
              for size in (8, 11, 16)}
-            <= rendered_slant_sizes(name, family + "-" + weight, 0.2),
+            <= rendered_slant_sizes(name, family if suffix == "shonar-bangla" and weight == "Regular"
+                                    else family + "-" + weight, 0.2),
             f"{name}: {weight} italic has visible slant at footnote, body and heading sizes",
         )
     with fitz.open(BUILD / name / "main.pdf") as document:
@@ -871,6 +884,7 @@ with fitz.open(BUILD / "font-faces-mukti/main.pdf") as document:
           "Mukti uses four genuine faces without synthetic thickening")
 
 for suffix, family in (("mukti", "Mukti"), ("kohinoor-bangla", "KohinoorBangla-Regular"),
+                       ("atma", "Atma-Regular"), ("bensen", "BenSen"),
                        ("assamese", "Mukti")):
     if suffix != "assamese" and suffix not in BENGALI_FONTS:
         continue
@@ -1035,9 +1049,21 @@ if ENGINE == "lualatex":
         "Anek Width selects distinct condensed and expanded designs",
     )
 
+# The BenSen fonts share erroneous SolaimanLipi family metadata. Check actual
+# rendered script text so a different family cannot pass as a bold substitute.
+for suffix, family in (("bensen", "BenSen"), ("bensen-handwriting", "BenSenHandwriting")):
+    for name in ("font-faces-" + suffix, "font-faces-" + suffix + "-file", "assamese-font-" + suffix):
+        with fitz.open(BUILD / name / "main.pdf") as document:
+            script_fonts = {t["font"] for p in document for t in p.get_texttrace()
+                            if t["font"].startswith(("BenSen", "SolaimanLipi"))}
+        check(script_fonts == {family}, f"{name}: all script styles retain the requested family")
+
 # Filename aliases must retain the same size, slant and shaped advances as
 # installed-family loads, including the adjusted spacing in each sample row.
-for suffix in ("jamrul", "likhan", "shimanto"):
+for suffix in ("jamrul", "likhan", "shimanto", "mina", "adorsholipi",
+               "bensen", "bensen-handwriting", "atma", "shonar-bangla"):
+    if suffix not in BENGALI_FONTS:
+        continue
     metrics = []
     for ending in ("", "-file"):
         log = (BUILD / ("font-faces-" + suffix + ending) / "main.log").read_text(encoding="utf-8")
@@ -1064,20 +1090,29 @@ guide_fonts = (
       if "kohinoor-bangla" in BENGALI_FONTS else []),
     ("Mukti", "Mukti", None),
     ("Baloo Da 2", "BalooDa2", None),
-    ("Lohit Bengali", "Lohit-Bengali", 4.5),
+    ("Lohit Bengali", "Lohit-Bengali", 5.5),
     ("Jamrul", "JamrulNormal", 2.5),
     ("Likhan", "LikhanNormal", 3.5),
     ("Shimanto", "Shimanto", 3.5),
+    ("Mina", "Mina", None),
+    ("AdorshoLipi", "AdorshoLipi", 4),
+    ("BenSen", "BenSen", 4),
+    ("BenSenHandwriting", "BenSenHandwriting", 3.5),
+    ("Atma", "Atma", None),
+    ("Alkatra", "Alkatra", 4.5),
+    *([("Shonar Bangla", "ShonarBangla", None)]
+      if "shonar-bangla" in BENGALI_FONTS else []),
     ("FreeSerif", "FreeSerif", 3.5),
 )
 with fitz.open(BUILD / "supported-fonts/main.pdf") as document:
     check(
-        len(document) == len(guide_fonts)
-        and document.get_toc() == [[1, name, i + 1] for i, (name, _, _) in enumerate(guide_fonts)],
-        "Public font guide has one page per font and bookmarks in the intended order",
+        len(document) == len(guide_fonts) + 1
+        and all(name in document[0].get_text() for name, _, _ in guide_fonts)
+        and document.get_toc() == [[1, name, i + 2] for i, (name, _, _) in enumerate(guide_fonts)],
+        "Public font guide starts with contents, followed by one page per font with matching bookmarks",
     )
     for index, (name, family, strength) in enumerate(guide_fonts):
-        page = document[index]
+        page = document[index + 1]
         traces = [t for t in page.get_texttrace() if t["font"].startswith(family)]
         strokes = [t for t in traces if t["type"] == 1]
         check(
@@ -1105,13 +1140,20 @@ for suffix, family, strength, scale in (
     ("galada", "Galada", 3.5, 0.9),
     ("galada-file", "Galada", 3.5, 0.9),
     ("nikosh", "Nikosh", 3.5, 1),
-    ("lohit-bengali", "Lohit-Bengali", 4.5, 0.9),
-    ("jamrul", "JamrulNormal", 2.5, 1),
+    ("lohit-bengali", "Lohit-Bengali", 5.5, 0.9),
+    ("jamrul", "JamrulNormal", 2.5, 0.9),
     ("likhan", "LikhanNormal", 3.5, 0.9),
     ("shimanto", "Shimanto", 3.5, 1),
-    ("jamrul-file", "JamrulNormal", 2.5, 1),
+    ("jamrul-file", "JamrulNormal", 2.5, 0.9),
     ("likhan-file", "LikhanNormal", 3.5, 0.9),
     ("shimanto-file", "Shimanto", 3.5, 1),
+    ("adorsholipi", "AdorshoLipi", 4, 0.8),
+    ("adorsholipi-file", "AdorshoLipi", 4, 0.8),
+    ("bensen", "BenSen", 4, 1.1),
+    ("bensen-file", "BenSen", 4, 1.1),
+    ("bensen-handwriting", "BenSenHandwriting", 3.5, 1),
+    ("bensen-handwriting-file", "BenSenHandwriting", 3.5, 1),
+    ("alkatra", "Alkatra", 4.5, 0.9),
 ):
     with fitz.open(BUILD / ("font-faces-" + suffix) / "main.pdf") as document:
         strokes = [

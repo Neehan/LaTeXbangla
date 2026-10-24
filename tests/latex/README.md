@@ -111,17 +111,21 @@ Nikosh comes from the Bangladesh Navy's font download. Mukti 3.4.3 and the
 static Baloo Da 2 1.640 faces come from their authors' releases.
 Jamrul 0.1 and Likhan 0.6 come from the [Free Bangla Fonts Project](https://www.nongnu.org/freebangfont/downloads.html);
 Shimanto 1.0 comes from the [BanglaCode archive](https://banglacode.com/bangla-font-download.htm).
+Mina, Atma and Alkatra come from pinned Google Fonts revisions; AdorshoLipi,
+BenSen and BenSenHandwriting come from OmicronLab.
 The tested Jamrul and Likhan releases lack U+09CE (standalone khanda ta).
 Shimanto 1.0 lacks ZWJ/ZWNJ entries; its two joiner tests check the exact XeTeX
 diagnostics, including a fontspec-only reproduction. Other missing glyphs still fail.
 Kohinoor Bangla tests run when a local copy is available. On macOS the fetcher
 uses the installed collection; elsewhere, pass `--kohinoor-font /path/to/KohinoorBangla.ttc`
 to `fetch-fonts.py`. The collection remains in the ignored font directory.
+For Shonar Bangla, place licensed copies of `Shonar.ttf` and `Shonarb.ttf`
+in `tests/latex/fonts/`; these optional tests never download or redistribute them.
 
 [fetch-fonts.py](fetch-fonts.py) verifies SHA-256 hashes. Downloaded fonts and the
 license notices stay in the ignored `fonts/` directory; fonts are not
 redistributed. `fonts.conf` and `OSFONTDIR` make them available to the test processes.
-Anek is loaded by filename on both engines; its variable-weight example is
+Anek and Alkatra are loaded by filename on both engines; Anek’s variable-weight example is
 checked with LuaLaTeX. The default uses synthetic bold and italic.
 
 Spacing tests measure native and selected space, stretch and shrink, plus actual
