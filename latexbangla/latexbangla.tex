@@ -724,20 +724,10 @@ headers with \pkg{fancyhdr}, headings with \pkg{titlesec}, and boxed material
 with \pkg{tcolorbox}. These combinations are tested; each package keeps control
 of its own layout and styles.
 
-For grouped or ranged references, load \pkg{cleveref} after \pkg{amsmath},
-\pkg{amsthm} and \pkg{hyperref}. Counter and page numbers remain Bangla;
-cleveref controls reference names and connecting words. For example:
-\begin{code}
-\usepackage[english]{cleveref}
-\crefname{equation}{সমীকরণ}{সমীকরণসমূহ}
-\AtBeginDocument{%
-  \renewcommand{\crefrangeconjunction}{ থেকে }%
-  \renewcommand{\crefpairconjunction}{ ও }%
-}
-\end{code}
-Then use \verb|\cref{eq:first,eq:second}| or
-\verb|\crefrange{eq:first}{eq:last}|. The \pkg{english} option supplies
-cleveref's initial names and connecting words; the commands above customize them.
+With \pkg{cleveref}, reference names and connecting words follow the selected
+language automatically. Load it after \pkg{amsmath}, \pkg{amsthm} and
+\pkg{hyperref} if you use them.
+
 Load \pkg{microtype} normally to use its available typography features
 with mixed Bangla and English fonts.
 
@@ -1408,20 +1398,10 @@ natbib-এর জন্য একটি \hologo{BibTeX} style বেছে ন�
 রাখতে \pkg{tcolorbox} ব্যবহার করতে পারেন। এগুলোর সঙ্গে প্যাকেজটি পরীক্ষা
 করা হয়েছে; প্রতিটির বিন্যাস ও নকশা সেই প্যাকেজই নিয়ন্ত্রণ করে।
 
-একসঙ্গে কয়েকটি রেফারেন্স বা একটি পরিসর লিখতে \pkg{amsmath}, \pkg{amsthm}
-ও \pkg{hyperref}-এর পরে \pkg{cleveref} লোড করুন। কাউন্টার ও পাতার নম্বর
-বাংলাই থাকে; রেফারেন্সের নাম ও সংযোজক শব্দ cleveref নিয়ন্ত্রণ করে। যেমন:
-\begin{code}
-\usepackage[english]{cleveref}
-\crefname{equation}{সমীকরণ}{সমীকরণসমূহ}
-\AtBeginDocument{%
-  \renewcommand{\crefrangeconjunction}{ থেকে }%
-  \renewcommand{\crefpairconjunction}{ ও }%
-}
-\end{code}
-এরপর \verb|\cref{eq:first,eq:second}| বা
-\verb|\crefrange{eq:first}{eq:last}| ব্যবহার করুন। \pkg{english} অপশনটি
-cleveref-এর প্রাথমিক নাম ও সংযোজক শব্দ দেয়; ওপরের কমান্ডগুলো সেগুলো বদলায়।
+\pkg{cleveref}-এর রেফারেন্সের নাম ও সংযোজক শব্দ স্বয়ংক্রিয়ভাবে নির্বাচিত
+ভাষা অনুসরণ করে। \pkg{amsmath}, \pkg{amsthm} ও \pkg{hyperref} ব্যবহার করলে
+সেগুলোর পরে এটি লোড করুন।
+
 বাংলা ও ইংরেজি ফন্ট একসঙ্গে ব্যবহার করেও \pkg{microtype} স্বাভাবিকভাবে লোড
 করে আপনার ইঞ্জিনে এর উপলব্ধ টাইপোগ্রাফির সুবিধাগুলো ব্যবহার করতে পারেন।
 
@@ -2100,20 +2080,10 @@ natbib-ৰ বাবে এটা \hologo{BibTeX} style বাছি লৈ ল�
 লেখা ৰাখিবলৈ \pkg{tcolorbox} ব্যৱহাৰ কৰিব পাৰে। এই পেকেজবোৰৰ সৈতে পৰীক্ষা
 কৰা হৈছে; প্ৰতিটোৰ বিন্যাস আৰু নক্সা সেই পেকেজেই নিয়ন্ত্ৰণ কৰে।
 
-একেলগে কেইবাটাও প্ৰসংগ বা এটা পৰিসৰ উল্লেখ কৰিবলৈ \pkg{amsmath}, \pkg{amsthm}
-আৰু \pkg{hyperref}-ৰ পিছত \pkg{cleveref} লোড কৰক। কাউণ্টাৰ আৰু পৃষ্ঠাৰ নম্বৰ
-অসমীয়া অংকতে থাকে; প্ৰসংগৰ নাম আৰু সংযোগী শব্দ cleveref-এ নিয়ন্ত্ৰণ কৰে। যেনে:
-\begin{code}
-\usepackage[english]{cleveref}
-\crefname{equation}{সমীকৰণ}{সমীকৰণসমূহ}
-\AtBeginDocument{%
-  \renewcommand{\crefrangeconjunction}{ৰ পৰা }%
-  \renewcommand{\crefpairconjunction}{ আৰু }%
-}
-\end{code}
-তাৰ পিছত \verb|\cref{eq:first,eq:second}| বা
-\verb|\crefrange{eq:first}{eq:last}| ব্যৱহাৰ কৰক। \pkg{english} বিকল্পই
-cleveref-ৰ প্ৰাথমিক নাম আৰু সংযোগী শব্দ দিয়ে; ওপৰৰ কমাণ্ডবোৰে সেইবোৰ সলনি কৰে।
+\pkg{cleveref}-ৰ প্ৰসংগৰ নাম আৰু সংযোগী শব্দই স্বয়ংক্ৰিয়ভাৱে বাছনি কৰা
+ভাষা অনুসৰণ কৰে। \pkg{amsmath}, \pkg{amsthm} আৰু \pkg{hyperref} ব্যৱহাৰ কৰিলে
+সেইবোৰৰ পিছত ইয়াক লোড কৰক।
+
 অসমীয়া আৰু ইংৰাজী ফণ্ট একেলগে ব্যৱহাৰ কৰিও \pkg{microtype} সাধাৰণভাৱে লোড
 কৰি আপোনাৰ ইঞ্জিনত উপলব্ধ টাইপোগ্ৰাফীৰ সুবিধাবোৰ ব্যৱহাৰ কৰিব পাৰে।
 

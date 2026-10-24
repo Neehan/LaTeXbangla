@@ -40,6 +40,7 @@ only the selected tests. Run one runner per engine at a time: each engine has it
 ## Coverage
 
 - Mixed Bangla/English text, supported font families, styles, spacing, and font overrides.
+- Bangla/Assamese paragraphs, punctuation at line breaks, narrow columns and tall glyphs with inline math.
 - Local fontspec families, nested font changes, features, styles and restoration.
 - Composed, decomposed and TeX-accent Latin input, including Biber bibliographies.
 - Assamese captions, dates, alphabetic labels, font coverage, and shared integrations.
@@ -55,7 +56,7 @@ Common-package tests cover these combinations:
 | Mathematics | `amsmath`, `mathtools`, `amssymb`, `bm`, `cancel`, `amsthm`; Bangla text, digits and references |
 | Tables | `array`, `booktabs`, `tabularx`, `longtable`, `multirow`, `siunitx`; mixed-script cells and captions |
 | Layout | `geometry`, `graphicx`, `xcolor`, `float`, `caption`, `subcaption`, `fancyhdr`, `titlesec` |
-| References | `hyperref`, `cleveref`; sorting, ranges, page references, footnotes and appendices |
+| References | `hyperref`, `cleveref`; translated names, author overrides, sorting, ranges, page references, footnotes and appendices |
 | Citations | Standard LaTeX, `natbib`, `biblatex`; numeric and author–year styles |
 | Lists and boxes | `enumitem`, `tcolorbox`; custom labels and numbered theorem boxes |
 | Extended labels | `alphalph`; both load orders, the 35-letter Bangla and 37-entry Assamese alphabets, multi-letter labels and links |

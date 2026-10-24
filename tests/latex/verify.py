@@ -373,10 +373,23 @@ for name, radix, last_letter in (
     )
     check(f"example.{radix + 1}" in PDFS[name]["targets"], f"{name}: reference links to the custom counter")
 for name in ("common-cleveref", "common-cleveref-first", "common-cleveref-no-hyperref", "common-cleveref-off",
-             "assamese-common-cleveref", "assamese-common-cleveref-first", "assamese-common-cleveref-off"):
+             "assamese-common-cleveref", "assamese-common-cleveref-first", "assamese-common-cleveref-off",
+             "assamese-common-cleveref-no-hyperref"):
     log = (BUILD / name / "main.log").read_text(encoding="utf-8")
     check("CREF-SORT-KEY: 11" in log, f"{name}: sorting receives Western integer values")
     check("CREF-PAGE-KEY: 2" in log, f"{name}: page sorting receives Western integer values")
+    assamese = name.startswith("assamese-")
+    equation = "সমীকৰণ" if assamese else "সমীকরণ"
+    section = "পৰিচ্ছেদ" if assamese else "পরিচ্ছেদ"
+    pair_word = "আৰু" if assamese else "ও"
+    range_word = "পৰা" if assamese else "থেকে"
+    check(f"CREF-EQUATION-NAME: {equation}" in log, f"{name}: automatic equation name")
+    check(f"CREF-SECTION-NAME: {section}" in log, f"{name}: automatic section name")
+    for marker, word in (("PAIR", pair_word), ("RANGE", range_word)):
+        check(any(word in line for line in log.splitlines() if line.startswith(f"CREF-{marker}-WORD:")),
+              f"{name}: automatic {marker.lower()} conjunction")
+    check(equation in text(name).split("Capital:")[1].split("Mixed:")[0],
+          f"{name}: Cref uses the native name too")
     western = name.endswith("-off")
     nine, ten, eleven = ("9", "10", "11") if western else ("৯", "১০", "১১")
     flattened = re.sub(r"\s+", "", text(name))
@@ -388,6 +401,8 @@ for name in ("common-cleveref", "common-cleveref-first", "common-cleveref-no-hyp
             and f"({ten})" not in rendered_range,
             f"{name}: {start} displays an ordered, compressed range in the selected script",
         )
+    check(r"\newlabel{app:cref@cref}{{[appendix]" in aux(name),
+          f"{name}: appendix retains its reference type")
     page_reference = flattened.split("Pages:")[1].split(".")[0]
     check(
         re.findall(r"[0-9০-৯]+", page_reference) == (["1", "2"] if western else ["১", "২"]),
@@ -398,6 +413,48 @@ for name in ("common-cleveref", "common-cleveref-first", "common-cleveref-no-hyp
         f"{name}: appendix theorem retains its compound label",
     )
 
+
+for prefix in ("", "assamese-"):
+    for timing in ("before", "after", "begin"):
+        name = prefix + "cleveref-overrides-" + timing
+        rendered = re.sub(r"\s+", " ", text(name))
+        check("relations" in rendered and "Relation" in rendered,
+              f"{name}: author singular/plural and capitalized names survive")
+        check("plus" in rendered and "through" in rendered,
+              f"{name}: author conjunctions survive")
+
+
+# Punctuation must stay with its word across automatic script-font changes.
+for language in ("bangla", "assamese"):
+    for suffix in ("kalpurush", "solaimanlipi", "noto-serif"):
+        name = "paragraph-" + language + "-" + suffix
+        log = (BUILD / name / "main.log").read_text(encoding="utf-8")
+        check("Overfull \\hbox" not in log, f"{name}: paragraph text fits its columns")
+        with fitz.open(BUILD / name / "main.pdf") as document:
+            check(len(document) == 2, f"{name}: complete paragraph and punctuation proofs")
+            page = document[-1]
+            lines = page.get_text().split("Punctuation\n")[-1].splitlines()
+            lines = [line.strip() for line in lines if line.strip()]
+            check(len(lines) == 22, f"{name}: each punctuation probe wraps to two lines")
+            check(all(line[0] not in "।,;:!?…”’)]" and line[-1] not in "“‘(["
+                      for line in lines), f"{name}: no stranded opening or closing punctuation")
+            endings = "।,;:!?”’)]…"
+            check(len(lines) == 22 and all(lines[2*i+1].endswith(mark)
+                                          for i, mark in enumerate(endings)),
+                  f"{name}: all eleven punctuation endings remain visible")
+            # Ignore math scripts and oversized font bounding boxes. The six
+            # repeated lines must retain distinct, adequately spaced baselines.
+            page_spans = [span for block in page.get_text("dict")["blocks"]
+                          for line in block.get("lines", []) for span in line["spans"]]
+            punctuation_y = next(span["origin"][1] for span in page_spans
+                                 if "Punctuation" in span["text"])
+            baselines = sorted({round(span["origin"][1], 2) for span in page_spans
+                                if span["origin"][1] < punctuation_y and span["size"] > 10
+                                and any("\u0980" <= c <= "\u09ff" for c in span["text"])})
+            check(len(baselines) == 6 and all(b-a >= 12 for a, b in zip(baselines, baselines[1:])),
+                  f"{name}: tall text and inline math retain line spacing")
+        check(any("Pythagoras" in span["text"] and span["font"] == "TeXGyrePagella-Regular"
+                  for span in spans(name)), f"{name}: paragraph retains the English font")
 
 def protrusion_codes(name):
     log = (BUILD / name / "main.log").read_text(encoding="utf-8")

@@ -852,14 +852,9 @@ Second page বাংলা.\par\textbf{Bold English বাংলা.}
     )
     reference_packages = r"""
 \usepackage{amsmath,amsthm,hyperref}
-\usepackage[english]{cleveref}
+\usepackage{cleveref}
 \newtheorem{result}{উপপাদ্য}[section]
-\crefname{equation}{সমীকরণ}{সমীকরণসমূহ}
 \crefname{result}{উপপাদ্য}{উপপাদ্যসমূহ}
-\AtBeginDocument{%
-  \renewcommand{\crefrangeconjunction}{ থেকে }%
-  \renewcommand{\crefpairconjunction}{ ও }%
-}
 """
     reference_body = (FIXTURES / "common-references.tex").read_text(encoding="utf-8")
     for variant in ("", "-off", "-first", "-no-hyperref"):
@@ -868,6 +863,33 @@ Second page বাংলা.\par\textbf{Bold English বাংলা.}
         if variant == "-no-hyperref":
             pre = pre.replace("amsmath,amsthm,hyperref", "amsmath,amsthm")
         add("common-cleveref" + variant, pre, reference_body)
+    # Author names and joins must survive either package order and late setup.
+    reference_overrides = r"""
+\crefname{equation}{relation}{relations}
+\Crefname{equation}{Relation}{Relations}
+\newcommand{\crefpairconjunction}{ plus }
+\newcommand{\crefrangeconjunction}{ through }
+"""
+    for variant in ("before", "after", "begin"):
+        base = reference_packages
+        if variant == "before":
+            pre = base + reference_overrides + setup()
+        else:
+            overrides = reference_overrides.replace(r"\newcommand", r"\renewcommand")
+            if variant == "begin":
+                overrides = r"\AtBeginDocument{" + overrides + "}"
+            pre = setup() + base + overrides
+        add("cleveref-overrides-" + variant, pre, reference_body)
+    paragraph_body = (FIXTURES / "paragraph-typography.tex").read_text(encoding="utf-8")
+    for language in ("bangla", "assamese"):
+        for suffix in ("kalpurush", "solaimanlipi", "noto-serif"):
+            add(
+                "paragraph-" + language + "-" + suffix,
+                setup("language=" + language, font=BENGALI_FONTS[suffix])
+                + r"\usepackage[margin=20mm]{geometry}",
+                paragraph_body,
+                passes=1,
+            )
     protrusion_body = (FIXTURES / "microtype.tex").read_text(encoding="utf-8")
     # Save the actual Latin font before automatic switching starts. Between
     # text runs the selected font may be Bengali; its protrusion is unrelated.
@@ -1165,6 +1187,8 @@ English code 12; বাংলা ১২
     for source in (
         "signed-counters", "footnotes-symbol", "footnotes-roman",
         "common-cleveref", "common-cleveref-off", "common-cleveref-first",
+        "common-cleveref-no-hyperref", "cleveref-overrides-before",
+        "cleveref-overrides-after", "cleveref-overrides-begin",
         "common-tables", "common-layout", "common-boxes", "math",
         "unicode-math-pagella", "hyperref-first",
         "citations-standard", "citations-natbib", "citations-biblatex",

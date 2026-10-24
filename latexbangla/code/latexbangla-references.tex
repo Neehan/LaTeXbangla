@@ -24,21 +24,89 @@
     \__latexbangla_translate_autoref:Nnn \partautorefname {Part}{\partname}
     \__latexbangla_translate_autoref:Nnn \pageautorefname {page}{\pagename}
     \__latexbangla_translate_autoref:Nnn \sectionautorefname
-      {section}{\prop_item:Nn \g__latexbangla_autoref_names_prop {section}}
+      {section}{\prop_item:Nn \g__latexbangla_reference_names_prop {section}}
     \__latexbangla_translate_autoref:Nnn \subsectionautorefname
-      {subsection}{\prop_item:Nn \g__latexbangla_autoref_names_prop {subsection}}
+      {subsection}{\prop_item:Nn \g__latexbangla_reference_names_prop {subsection}}
     \__latexbangla_translate_autoref:Nnn \subsubsectionautorefname
-      {subsubsection}{\prop_item:Nn \g__latexbangla_autoref_names_prop {subsubsection}}
+      {subsubsection}{\prop_item:Nn \g__latexbangla_reference_names_prop {subsubsection}}
     \__latexbangla_translate_autoref:Nnn \paragraphautorefname
-      {paragraph}{\prop_item:Nn \g__latexbangla_autoref_names_prop {paragraph}}
+      {paragraph}{\prop_item:Nn \g__latexbangla_reference_names_prop {paragraph}}
     \__latexbangla_translate_autoref:Nnn \subparagraphautorefname
-      {subparagraph}{\prop_item:Nn \g__latexbangla_autoref_names_prop {subparagraph}}
+      {subparagraph}{\prop_item:Nn \g__latexbangla_reference_names_prop {subparagraph}}
     \__latexbangla_translate_autoref:Nnn \equationautorefname
-      {Equation}{\prop_item:Nn \g__latexbangla_autoref_names_prop {equation}}
+      {Equation}{\prop_item:Nn \g__latexbangla_reference_names_prop {equation}}
     \__latexbangla_translate_autoref:Nnn \footnoteautorefname
-      {footnote}{\prop_item:Nn \g__latexbangla_autoref_names_prop {footnote}}
+      {footnote}{\prop_item:Nn \g__latexbangla_reference_names_prop {footnote}}
     \__latexbangla_translate_autoref:Nnn \itemautorefname
-      {item}{\prop_item:Nn \g__latexbangla_autoref_names_prop {item}}
+      {item}{\prop_item:Nn \g__latexbangla_reference_names_prop {item}}
+  }
+
+% cleveref has no Bengali/Assamese language option. Supply its English base
+% for unnamed types and punctuation, then localize the supported names below.
+% Passing the option now still allows later author options to take precedence.
+\IfPackageLoadedTF{cleveref}{}{\PassOptionsToPackage{english}{cleveref}}
+
+% cleveref keeps language defaults in @preamble commands until begin-document;
+% an unsuffixed name already present here is an author's explicit choice.
+% Use its public setters only for absent names, preserving either load order
+% and later preamble overrides. Both scripts have identical upper/lowercase forms.
+\bool_new:N \l__latexbangla_cref_capital_name_exists_bool
+\cs_new_protected:Npn \__latexbangla_set_default_cref_name:nn #1#2
+  {
+    \bool_set:Nn \l__latexbangla_cref_capital_name_exists_bool
+      {\cs_if_exist_p:c {Cref@#1@name}}
+    \cs_if_exist:cF {cref@#1@name}
+      {\crefname{#1}{#2}{#2\c__latexbangla_reference_plural_tl}}
+    % Avoid cleveref's automatic case conversion of font/language macros.
+    \bool_if:NF \l__latexbangla_cref_capital_name_exists_bool
+      {\Crefname{#1}{#2}{#2\c__latexbangla_reference_plural_tl}}
+  }
+% Recent LaTeX kernels rebuild cleveref label data from the current counter.
+% Public aliases retain appendix types in that path as well as older cleveref.
+\cs_new_protected:Npn \__latexbangla_set_default_cref_alias:nn #1#2
+  {\cs_if_exist:cF {cref@#1@alias} {\crefalias{#1}{#2}}}
+\AddToHook{package/cleveref/after}[latexbangla/reference-names]
+  {
+    \cs_if_exist:NT \appendix
+      {
+        \AddToHook{cmd/appendix/after}[latexbangla/reference-types]
+          {
+            \cs_if_exist:NTF \chapter
+              {
+                \__latexbangla_set_default_cref_alias:nn {chapter}{appendix}
+                \__latexbangla_set_default_cref_alias:nn {section}{subappendix}
+                \__latexbangla_set_default_cref_alias:nn {subsection}{subsubappendix}
+              }
+              {
+                \__latexbangla_set_default_cref_alias:nn {section}{appendix}
+                \__latexbangla_set_default_cref_alias:nn {subsection}{subappendix}
+                \__latexbangla_set_default_cref_alias:nn {subsubsection}{subsubappendix}
+              }
+          }
+      }
+    \clist_map_inline:nn {part,chapter,appendix,figure,table,page}
+      {\__latexbangla_set_default_cref_name:nn {#1}{\use:c {#1name}}}
+    \prop_map_inline:Nn \g__latexbangla_reference_names_prop
+      {\__latexbangla_set_default_cref_name:nn {#1}{#2}}
+    % Nested lists, subfigures and appendix levels have their own cref types.
+    \clist_map_inline:nn {enumi,enumii,enumiii,enumiv,enumv}
+      {\__latexbangla_set_default_cref_name:nn {#1}
+        {\prop_item:Nn \g__latexbangla_reference_names_prop {item}}}
+    \clist_map_inline:nn {subappendix,subsubappendix,subsubsubappendix}
+      {\__latexbangla_set_default_cref_name:nn {#1}{\appendixname}}
+    \__latexbangla_set_default_cref_name:nn {subfigure}{\figurename}
+    \__latexbangla_set_default_cref_name:nn {subtable}{\tablename}
+    % Public conjunctions are also undefined until initialization unless an
+    % author has supplied them. Set all group variants to avoid English joins
+    % when a reference mixes equations, figures and other types.
+    \clist_map_inline:nn
+      {crefpairconjunction,creflastconjunction,
+       crefpairgroupconjunction,creflastgroupconjunction}
+      {\cs_if_exist:cF {#1}
+        {\cs_new:cpn {#1} {~\g__latexbangla_reference_pair_tl\nobreakspace}}}
+    \cs_if_exist:NF \crefrangeconjunction
+      {\cs_new:Npn \crefrangeconjunction
+        {\g__latexbangla_reference_range_tl}}
   }
 
 % cleveref stores \arabic-based sort keys alongside the visible reference.

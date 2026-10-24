@@ -2,6 +2,7 @@
 
 ## 2.1
 
+- Translate standard `cleveref` reference names and connecting words automatically.
 - Add Mina, AdorshoLipi, BenSen, BenSenHandwriting, Atma, Alkatra and Shonar Bangla, with tuned font defaults.
 - Support updated TeX Live 2024 and later.
 - Keep combining Latin accents in the English font, fixing names such as Erdős with Kalpurush.

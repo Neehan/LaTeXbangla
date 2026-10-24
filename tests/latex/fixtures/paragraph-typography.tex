@@ -1,0 +1,49 @@
+% Real paragraphs and constrained punctuation runs exercise line breaking
+% after automatic font switching. Use ordinary spacing and paragraph settings.
+\pagestyle{empty}
+\parindent=0pt
+\ifdefstring{\mainlanguagename}{assamese}{%
+  \newcommand\auditparagraphtext{শিক্ষাৰ্থীয়ে প্ৰশ্ন কৰিলে, “সমকোণী ত্ৰিভুজৰ অতিভুজৰ দৈৰ্ঘ্য কেনেকৈ নিৰ্ণয় কৰিম?” শিক্ষকে ক’লে: লম্ব বাহু দুটাৰ দৈৰ্ঘ্য $a$ আৰু $b$ হ’লে $c^2=a^2+b^2$। যেনে, $a=৩$ আৰু $b=৪$ হ’লে $c=৫$। এই ফলটো Pythagoras-ৰ উপপাদ্য নামেৰে জনাজাত। (চিত্ৰটো চোৱা।) উত্তৰটো শুদ্ধ; কিন্তু প্ৰতিটো ধাপ ব্যাখ্যা কৰিব লাগিব! পৰৱৰ্তী প্ৰশ্ন—পূৰ্ণসংখ্যা, ক্ষুদ্ৰ ভগ্নাংশ আৰু বৃত্তৰ ক্ষেত্ৰফলৰ বিষয়ে। “চেষ্টা কৰা…” বুলি কৈ শিক্ষক ৰৈ থাকিল। দৃষ্টি, সৃষ্টি, শ্ৰদ্ধা, স্বাস্থ্য, দায়িত্ব, ঊৰ্ধ্বমুখী, সূক্ষ্ম আৰু স্বাধীনতা শব্দবোৰ পঢ়ি লিখা।}
+  \newcommand\audittalltext{দৃষ্টি সৃষ্টি শ্ৰদ্ধা সূক্ষ্ম ঊৰ্ধ্ব পূৰ্ণ}
+}{%
+  \newcommand\auditparagraphtext{শিক্ষার্থী প্রশ্ন করল, “সমকোণী ত্রিভুজের অতিভুজের দৈর্ঘ্য কীভাবে নির্ণয় করব?” শিক্ষক বললেন: দুটি লম্ব বাহুর দৈর্ঘ্য $a$ ও $b$ হলে $c^2=a^2+b^2$। যেমন, $a=৩$ এবং $b=৪$ হলে $c=৫$। এই ফলটি Pythagoras-এর উপপাদ্য নামে পরিচিত। (চিত্রটি দেখো।) উত্তরটি সঠিক; কিন্তু প্রতিটি ধাপ ব্যাখ্যা করতে হবে! পরের প্রশ্ন—পূর্ণসংখ্যা, ক্ষুদ্র ভগ্নাংশ ও বৃত্তের ক্ষেত্রফল নিয়ে। “চেষ্টা করো…” বলে শিক্ষক অপেক্ষা করলেন। দৃষ্টি, সৃষ্টি, শ্রদ্ধা, স্বাস্থ্য, দায়িত্ব, ঊর্ধ্বমুখী, সূক্ষ্ম ও স্বাধীনতা শব্দগুলো পড়ে লেখো।}
+  \newcommand\audittalltext{দৃষ্টি সৃষ্টি শ্রদ্ধা সূক্ষ্ম ঊর্ধ্ব পূর্ণ}
+}
+\newcommand\auditparagraph[1]{%
+  \begin{minipage}[t]{#1}\auditparagraphtext\par\end{minipage}}
+\auditparagraph{\linewidth}\par\bigskip
+\auditparagraph{.47\linewidth}\hfill
+\begin{minipage}[t]{.47\linewidth}
+  \raggedright\auditparagraphtext\par
+\end{minipage}
+\newpage
+Tall glyphs\par\bigskip
+\newcommand\audittallline{%
+  \audittalltext\ $x^{২}+y_{৩}$ \audittalltext}
+\audittallline\\
+\audittallline\\
+\audittallline\\
+\audittallline\\
+\audittallline\\
+\audittallline\par
+\bigskip
+Punctuation\par\smallskip
+% Force the final word onto the next line. Opening and closing punctuation
+% must move with it, despite being typeset in different script fonts.
+\newcommand\auditpunctuation[1]{%
+  \begingroup\raggedright
+  \setbox0=\hbox{শব্দ শব্দ শেষ}%
+  \dimen0=\wd0\advance\dimen0 by -1pt
+  \vtop{\hsize=\dimen0\noindent শব্দ শব্দ #1\par}%
+  \par\smallskip\endgroup}
+\auditpunctuation{শেষ।}
+\auditpunctuation{শেষ,}
+\auditpunctuation{শেষ;}
+\auditpunctuation{শেষ:}
+\auditpunctuation{শেষ!}
+\auditpunctuation{শেষ?}
+\auditpunctuation{“শেষ”}
+\auditpunctuation{‘শেষ’}
+\auditpunctuation{(শেষ)}
+\auditpunctuation{[শেষ]}
+\auditpunctuation{শেষ…}
