@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.1
+
+- Keep combining Latin accents in the English font, fixing names such as Erdős with Kalpurush.
+
 ## 2.0
 
 - Add Assamese language support with `language=assamese`, translated examples and a complete Assamese manual.

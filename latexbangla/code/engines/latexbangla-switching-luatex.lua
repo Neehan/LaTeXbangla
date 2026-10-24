@@ -12,6 +12,7 @@ local disc_id = node.id("disc")
 local latin_characters = {}
 local latin_blocks = {
     {0x0020, 0x024F}, -- Basic Latin, Latin-1 Supplement, Latin Extended A/B.
+    {0x0300, 0x036F}, -- Combining accents used by decomposed Latin letters.
     {0x1E00, 0x1EFF}, -- Latin Extended Additional.
     {0x2C60, 0x2C7F}, -- Latin Extended C.
     {0xA720, 0xA7FF}, -- Latin Extended D.

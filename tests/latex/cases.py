@@ -80,6 +80,16 @@ def cases():
             tex=document(pre, body, cls), passes=passes, backend=backend, expect_error=error
         )
 
+    for language in ("bangla", "assamese"):
+        add(
+            "latin-accents-" + language,
+            r"\usepackage[language=" + language + r"]{latexbangla}"
+            r"\setbanglamainfont{Kalpurush}\tracinglostchars=3"
+            r"\newfontfamily\accenttestfont{TeX Gyre Pagella}",
+            (FIXTURES / "latin-accents.tex").read_text(encoding="utf-8"),
+            passes=1,
+        )
+
     add(
         "preamble-font-box",
         setup() + r"""

@@ -1,6 +1,5 @@
-LaTeXbangla 2.0 — Writing Bangla & Assamese with ordinary LaTeX
+LaTeXbangla 2.0.1 — Writing Bangla & Assamese with ordinary LaTeX
 
-Write Bangla or Assamese documents with familiar LaTeX commands.
 LaTeXbangla switches automatically between your chosen language and English,
 preserving your English fonts. It supports bold and italic, native lists and
 numbering, references, citations, and text and digits in mathematics.

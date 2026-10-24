@@ -1,7 +1,7 @@
 % XeTeX script transitions, implemented by ucharclasses.
 % Part of latexbangla, LPPL 1.3c or later; copyright 2026 Adib Hasan.
 
-\RequirePackage[Latin,Bengali,Devanagari]{ucharclasses}
+\RequirePackage[Latin,CombiningDiacriticalMarks,Bengali,Devanagari]{ucharclasses}
 
 % ucharclasses inserts these groups only around Latin runs. Selecting a font
 % family preserves size, weight and shape; normalfont would discard them.
@@ -13,6 +13,11 @@
 \clist_map_inline:nn {"2013,"2014,"2018,"2019,"201C,"201D,"2026}
   {\XeTeXcharclass #1 = \BasicLatinClass\scan_stop:}
 \setTransitionsForLatin
+  {\group_begin:\__latexbangla_select_latin_font:} {\group_end:}
+% TU accent commands can emit a base letter and a separate combining mark
+% when the enclosing Bangla font lacks the precomposed Latin letter. Keep
+% both in the Latin run; Bengali vowel signs belong to their own block.
+\setTransitionsFor{CombiningDiacriticalMarks}
   {\group_begin:\__latexbangla_select_latin_font:} {\group_end:}
 
 % ucharclasses installs transitions only between its enabled blocks and the
@@ -28,6 +33,8 @@
     {\cs_if_exist:cT {#1Class}
       {\seq_put_right:Nn \l__latexbangla_latin_classes_seq {#1Class}}}
   \LatinClasses
+  \seq_put_right:Nn \l__latexbangla_latin_classes_seq
+    {CombiningDiacriticalMarksClass}
   \seq_map_inline:Nn \l__latexbangla_latin_classes_seq
     {
       \tex_global:D \XeTeXinterchartoks 0 \use:c {#1} =

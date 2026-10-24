@@ -177,6 +177,17 @@ def aux(name):
     return (BUILD / name / "main.aux").read_text(encoding="utf-8")
 
 
+for language in ("bangla", "assamese"):
+    name = "latin-accents-" + language
+    check(normalize("NFC", text(name)).count("Erdős") == 9,
+          f"{name}: accent commands and Unicode retain the double acute")
+    accent_spans = [span for span in spans(name)
+                    if "ő" in normalize("NFC", span["text"])]
+    check(bool(accent_spans) and all("Kalpurush" not in span["font"]
+                                   for span in accent_spans),
+          f"{name}: accented Latin letters use the English companion")
+
+
 for token, family in [
     ("EnglishRoman", "TeXGyrePagella-Regular"),
     ("EnglishBold", "TeXGyrePagella-Bold"),
