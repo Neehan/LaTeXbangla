@@ -99,6 +99,50 @@ commands such as `\textsf` and `\texttt`; each script keeps its chosen font:
 
 <img src="img/font-families.png" alt="The example typeset with separate main, sans and mono Bangla/English fonts, including bold and italic" width="650">
 
+## Cite sources in Bangla
+
+Use biblatex or natbib for citations and bibliographies with translated terms,
+dates and numbers. Here is a biblatex example using two sample entries in `references.bib`:
+
+```bibtex
+@book{book,
+  author = {আরিফ রহমান and মায়া সেন},
+  title = {গণনার প্রথম পাঠ},
+  translator = {সুমন দত্ত},
+  edition = {2},
+  publisher = {নমুনা প্রকাশনী},
+  date = {2023-04-12}
+}
+@article{article,
+  author = {নীলা দাস},
+  title = {একটি গণনার সমস্যা},
+  journaltitle = {গণিতচর্চা},
+  volume = {8}, number = {2},
+  pages = {12-34}, date = {2024-06}
+}
+```
+
+```latex
+\documentclass{article}
+\usepackage{latexbangla}
+\setbanglamainfont{Kalpurush}
+\usepackage[backend=biber,style=numeric-comp,sorting=none,date=long]{biblatex}
+\addbibresource{references.bib}
+
+\begin{document}
+গণনার প্রাথমিক ধারণার জন্য দেখুন \cite{book}।
+একটি প্রয়োগ আলোচনা করা হয়েছে \cite{article}-এ।
+\printbibliography
+\end{document}
+```
+
+Compile with XeLaTeX or LuaLaTeX, run Biber, then compile twice more.
+
+<img src="img/bibliography.png" alt="Bangla citations and bibliography with native numbers, translated author and translator labels, edition, dates and page range" width="650">
+
+Assamese works the same way with `language=assamese`. For natbib, use
+`plainnatbn`, `abbrvnatbn` or `unsrtnatbn`; see the [manual](latexbangla/latexbangla.pdf).
+
 [Report a bug](https://github.com/Neehan/LaTeXbangla/issues) ·
 [latexbangla@googlegroups.com](https://groups.google.com/g/latexbangla) ·
 [Contributing](CONTRIBUTING.md)
