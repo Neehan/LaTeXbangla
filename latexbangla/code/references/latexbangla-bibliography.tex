@@ -1,48 +1,53 @@
-% Shared display-number helpers for Bengali and Assamese bibliographies.
+% Source-script numbers and generated suffixes shared by bibliography adapters.
 % Part of latexbangla, LPPL 1.3c or later; copyright 2026 Adib Hasan.
-\tl_new:N \l__latexbangla_bibliography_number_tl
-% Convert only the supplied display value. Never rewrite entry data, labels,
-% names, titles or identifiers; punctuation and formatting tokens survive.
-\cs_new_protected:Npn \__latexbangla_bibliography_digits:n #1
+
+% Explicit English environments suspend automatic switching. Select a script
+% font only for native runs, leaving surrounding Latin text in its own font.
+\cs_new_protected:Npn \__latexbangla_bibliography_native_text:n #1
+  {\group_begin:\use:c {\g__latexbangla_language_tl font}#1\group_end:}
+\cs_new_protected:Npn \__latexbangla_bibliography_select_fonts:N #1
   {
-    \group_begin:
-      \protected@edef \l__latexbangla_bibliography_number_tl {#1}
-      \int_step_inline:nnn {0}{9}
-        {
-          \tl_replace_all:Nee \l__latexbangla_bibliography_number_tl
-            {\int_to_arabic:n {##1}} {\char_generate:nn {"09E6+##1}{12}}
-        }
-      \tl_use:N \l__latexbangla_bibliography_number_tl
-    \group_end:
+    \regex_replace_all:nnN {[\x{0980}-\x{09FF}]+}
+      {\c{__latexbangla_bibliography_native_text:n}\cB\{\0\cE\}} #1
+  }
+\cs_new_protected:Npn \__latexbangla_bibliography_normalize:N #1
+  {
+    \int_step_inline:nnn {0}{9}
+      {\tl_replace_all:Nee #1
+        {\char_generate:nn {"09E6+##1}{12}} {\int_to_arabic:n {##1}}}
   }
 \cs_generate_variant:Nn \tl_replace_all:Nnn {Nee}
-\cs_new_protected:Npn \__latexbangla_bibliography_ordinal:nn #1#2
+\cs_generate_variant:Nn \regex_match:nnTF {nVTF}
+\cs_generate_variant:Nn \regex_replace_all:nnN {eeN}
+
+% Bijective lettering also handles suffixes beyond one alphabet cycle.
+\cs_new:Npn \__latexbangla_bibliography_native_suffix:n #1
   {
-    \__latexbangla_bibliography_digits:n {\int_eval:n {#2}}
-    \int_case:nnF {#2}
-      {{1}{ম}{2}{য়}{3}{য়}
-       {4}{\str_if_eq:eeTF {#1}{assamese}{ৰ্থ}{র্থ}}
-       {5}{ম}{6}{ষ্ঠ}{7}{ম}{8}{ম}{9}{ম}{10}{ম}}
-      {তম}
+    \int_compare:nNnT {#1}>{\clist_count:N\c__latexbangla_alphabet_clist}
+      {\__latexbangla_bibliography_native_suffix:n
+        {\int_div_truncate:nn{#1-1}{\clist_count:N\c__latexbangla_alphabet_clist}}}
+    \clist_item:Nn \c__latexbangla_alphabet_clist
+      {\int_mod:nn{#1-1}{\clist_count:N\c__latexbangla_alphabet_clist}+1}
   }
-% Biblatex's datezeros option controls padding, independently of the locale.
-\cs_new_protected:Npn \__latexbangla_bibliography_date_number:nn #1#2
+\cs_new:Npn \__latexbangla_bibliography_english_ordinal:n #1
   {
-    \group_begin:
-      \protected@edef \l__latexbangla_bibliography_number_tl {#2}
-      % Compressed ranges omit the repeated year at the first endpoint.
-      \tl_if_empty:NF \l__latexbangla_bibliography_number_tl
-        {
-          \exp_args:NV \ifinteger \l__latexbangla_bibliography_number_tl
-            {
-              \iftoggle{blx@datezeros}
-                {\prg_replicate:nn
-                   {\int_max:nn {0}{#1-\str_count:e {\int_eval:n {#2}}}} {০}}
-                {}
-              \__latexbangla_bibliography_digits:n {\int_eval:n {#2}}
-            }
-            {#2}
-        }
-    \group_end:
+    \int_compare:nNnTF {\int_mod:nn{#1}{100}} > {10}
+      {\int_compare:nNnTF {\int_mod:nn{#1}{100}} < {14}
+        {th}{\__latexbangla_bibliography_english_ordinal_last:n {#1}}}
+      {\__latexbangla_bibliography_english_ordinal_last:n {#1}}
   }
+\cs_new:Npn \__latexbangla_bibliography_english_ordinal_last:n #1
+  {\int_case:nnF {\int_mod:nn{#1}{10}} {{1}{st}{2}{nd}{3}{rd}} {th}}
+% Arguments: native language, original field, numeric edition value.
+\cs_new_protected:Npn \__latexbangla_bibliography_ordinal_suffix:nnn #1#2#3
+  {
+    \regex_match:nnTF {[০-৯]} {#2}
+      {\__latexbangla_bibliography_native_text:n
+        {\int_case:nnF {#3}
+          {{1}{ম}{2}{য়}{3}{য়}
+           {4}{\str_if_eq:eeTF {#1}{assamese}{ৰ্থ}{র্থ}}
+           {5}{ম}{6}{ষ্ঠ}{7}{ম}{8}{ম}{9}{ম}{10}{ম}} {তম}}}
+      {\__latexbangla_bibliography_english_ordinal:n {#3}}
+  }
+\cs_generate_variant:Nn \__latexbangla_bibliography_ordinal_suffix:nnn {nVn}
 \endinput

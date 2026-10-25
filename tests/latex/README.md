@@ -43,6 +43,7 @@ only the selected tests. Run one runner per engine at a time: each engine has it
 - Bangla/Assamese paragraphs, punctuation at line breaks, narrow columns and tall glyphs with inline math.
 - Local fontspec families, nested font changes, features, styles and restoration.
 - Composed, decomposed and TeX-accent Latin input, including Biber bibliographies.
+- Bibliography input scripts, inherited fields, dates, ordinals and year suffixes with Biber and all three localized natbib styles.
 - Assamese captions, dates, alphabetic labels, font coverage, and shared integrations.
 - Decimal and alphabetic counters, nested lists, footnotes, and appendices.
 - Bangla math text and digits, conventional math fonts, and unicode-math.
@@ -75,8 +76,8 @@ The English, Bangla and Assamese manual runs its code/output examples during
 compilation, using Biber for its bibliography previews; checks inspect counters,
 citations, boldness and reference links. Assamese examples also compile as standalone documents.
 The `manual-natbib-bangla` and `manual-natbib-assamese` cases compile the manual's
-separate natbib panels. After changing them, copy their `main.pdf` outputs to
-`latexbangla/doc/natbib-bangla.pdf` and `natbib-assamese.pdf` before rebuilding the manual.
+examples from `natbib/`. Checks compare their sources and rendered output with the
+manual's embedded sources and static previews; no preview PDFs need to be copied.
 
 ## Test environment and fonts
 

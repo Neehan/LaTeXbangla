@@ -1135,8 +1135,40 @@ MACRO {jul} {"\latexbanglabibstring{july}{July}"}
 
 READ
 
+% Normalize UTF-8 digits for sorting/disambiguation; printed fields stay raw.
+STRINGS { digit.input digit.output digit.head }
+INTEGERS { digit.index digit.width }
+% Bengali digits occupy three UTF-8 bytes; other input bytes pass through.
+FUNCTION {normalize.native.digits}
+{ 'digit.input :=
+  "" 'digit.output :=
+  #1 'digit.index :=
+  { digit.input digit.index #1 substring$ "" = not }
+  { digit.input digit.index #3 substring$ 'digit.head :=
+    #1 'digit.width :=
+    digit.head "০" = { "0" 'digit.head := #3 'digit.width := } 'skip$ if$
+    digit.head "১" = { "1" 'digit.head := #3 'digit.width := } 'skip$ if$
+    digit.head "২" = { "2" 'digit.head := #3 'digit.width := } 'skip$ if$
+    digit.head "৩" = { "3" 'digit.head := #3 'digit.width := } 'skip$ if$
+    digit.head "৪" = { "4" 'digit.head := #3 'digit.width := } 'skip$ if$
+    digit.head "৫" = { "5" 'digit.head := #3 'digit.width := } 'skip$ if$
+    digit.head "৬" = { "6" 'digit.head := #3 'digit.width := } 'skip$ if$
+    digit.head "৭" = { "7" 'digit.head := #3 'digit.width := } 'skip$ if$
+    digit.head "৮" = { "8" 'digit.head := #3 'digit.width := } 'skip$ if$
+    digit.head "৯" = { "9" 'digit.head := #3 'digit.width := } 'skip$ if$
+    digit.width #1 =
+      { digit.input digit.index #1 substring$ 'digit.head := }
+      'skip$
+    if$
+    digit.output digit.head * 'digit.output :=
+    digit.index digit.width + 'digit.index :=
+  }
+  while$
+  digit.output
+}
+
 FUNCTION {sortify}
-{ purify$
+{ normalize.native.digits purify$
   "l" change.case$
 }
 
@@ -1437,13 +1469,13 @@ FUNCTION {initialize.longest.label}
 }
 
 FUNCTION {forward.pass}
-{ last.label label =
+{ last.label label normalize.native.digits =
     { last.extra.num #1 + 'last.extra.num :=
       last.extra.num int.to.chr$ 'extra.label :=
     }
     { "a" chr.to.int$ 'last.extra.num :=
       "" 'extra.label :=
-      label 'last.label :=
+      label normalize.native.digits 'last.label :=
     }
   if$
   number.label #1 + 'number.label :=

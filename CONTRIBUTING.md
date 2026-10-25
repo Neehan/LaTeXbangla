@@ -17,5 +17,5 @@ The `latexbangla/` directory contains the
 complete CTAN upload; tests and repository documentation stay outside it.
 
 The three natbib styles share `latexbangla/code/references/latexbangla-natbib.mbs`.
-After editing it, run `tex code/references/latexbangla-natbib.ins` from
+After editing it, run `xetex code/references/latexbangla-natbib.ins` from
 `latexbangla/` to regenerate the `.bst` files.

@@ -3,52 +3,20 @@
 
 % Use written inventories: alphabetic order is not a contiguous Unicode range.
 % Both languages end at ya; neither has separate uppercase labels.
-\prop_new:N \g__latexbangla_reference_names_prop
 % The plural suffix is shared by the two reference vocabularies.
 \tl_const:Nn \c__latexbangla_reference_plural_tl {সমূহ}
-\tl_new:N \g__latexbangla_reference_pair_tl
-\tl_new:N \g__latexbangla_reference_range_tl
-\str_if_eq:VnTF \g__latexbangla_language_tl {assamese}
-  {
-    % Keep our fallback under a package-specific filename so it cannot shadow
-    % a future upstream gloss-assamese.ldf in the TeX search path.
-    \file_if_exist:nF {gloss-assamese.ldf}
-      {
-        % The normal gloss loader passes these options to initialization.
-        % They must be active before Polyglossia selects background numbering.
-        \tl_set:Ne \xpg__tmp_default_options_tl
-          {numerals=bengali,changecounternumbering=
-            \bool_if:NTF \g__latexbangla_convert_counters_bool {true}{false}}
-        \file_input:n {code/languages/latexbangla-assamese.tex}
-        % Polyglossia has no public registration API for an external
-        % gloss filename. These two calls register the definitions with its
-        % normal loader; options and language activation remain upstream.
-        \xpg_define_language_commands:n {assamese}
-        \seq_gput_right:Nn \g__xpg_langs_loaded_seq {assamese}
-      }
-    \tl_gset:Nn \g__latexbangla_reference_pair_tl {আৰু}
-    \tl_gset:Nn \g__latexbangla_reference_range_tl {ৰ~পৰা\nobreakspace}
-    % Written consonant sequence: include Assamese ra/wa and the traditional
-    % ksha entry. Combining signs are not standalone alphabetic labels.
-    \clist_const:Nn \c__latexbangla_alphabet_clist
-      {ক,খ,গ,ঘ,ঙ,চ,ছ,জ,ঝ,ঞ,ট,ঠ,ড,ঢ,ণ,ত,থ,দ,ধ,ন,
-       প,ফ,ব,ভ,ম,য,ৰ,ল,ৱ,শ,ষ,স,হ,ক্ষ,ড়,ঢ়,য়}
-    \prop_gset_from_keyval:Nn \g__latexbangla_reference_names_prop
-      {section=পৰিচ্ছেদ,subsection=উপপৰিচ্ছেদ,subsubsection=উপউপপৰিচ্ছেদ,
-       paragraph=অনুচ্ছেদ,subparagraph=উপঅনুচ্ছেদ,equation=সমীকৰণ,
-       footnote=পাদটীকা,item=পদ,theorem=উপপাদ্য}
-  }
-  {
-    \tl_gset:Nn \g__latexbangla_reference_pair_tl {ও}
-    \tl_gset:Nn \g__latexbangla_reference_range_tl {~থেকে\nobreakspace}
-    \clist_const:Nn \c__latexbangla_alphabet_clist
-      {ক,খ,গ,ঘ,ঙ,চ,ছ,জ,ঝ,ঞ,ট,ঠ,ড,ঢ,ণ,ত,থ,দ,ধ,ন,
-       প,ফ,ব,ভ,ম,য,র,ল,শ,ষ,স,হ,ড়,ঢ়,য়}
-    \prop_gset_from_keyval:Nn \g__latexbangla_reference_names_prop
-      {section=পরিচ্ছেদ,subsection=উপপরিচ্ছেদ,subsubsection=উপউপপরিচ্ছেদ,
-       paragraph=অনুচ্ছেদ,subparagraph=উপানুচ্ছেদ,equation=সমীকরণ,
-       footnote=পাদটীকা,item=পদ,theorem=উপপাদ্য}
-  }
+\use:e {\exp_not:N\file_input:n
+  {code/languages/latexbangla-\g__latexbangla_language_tl.tex}}
+
+% Shared integrations use aliases to the selected language's immutable data.
+\cs_new_eq:Nc \c__latexbangla_alphabet_clist
+  {c__latexbangla_\g__latexbangla_language_tl _alphabet_clist}
+\cs_new_eq:Nc \c__latexbangla_reference_names_prop
+  {c__latexbangla_\g__latexbangla_language_tl _reference_names_prop}
+\cs_new_eq:Nc \c__latexbangla_reference_pair_tl
+  {c__latexbangla_\g__latexbangla_language_tl _reference_pair_tl}
+\cs_new_eq:Nc \c__latexbangla_reference_range_tl
+  {c__latexbangla_\g__latexbangla_language_tl _reference_range_tl}
 
 % Both languages use the same Unicode digits. Select them explicitly because
 % the upstream Bengali module's default numeral system is Devanagari.

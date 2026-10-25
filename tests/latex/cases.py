@@ -1127,6 +1127,62 @@ Note: \cite[pp.~12--14]{alpha}.
         backend="bibtex",
     )
 
+    # The same input digits must survive both backends and explicit English
+    # output. Native data is normalized only for backend parsing/sorting.
+    def input_script_data(backend):
+        filename = ("bibliography" if backend == "biber" else "natbib") + "-input-scripts.bib"
+        return (r"\begin{filecontents*}{input-scripts.bib}" + "\n"
+                + (FIXTURES / filename).read_text(encoding="utf-8")
+                + "\n" + r"\end{filecontents*}" + "\n")
+
+    for language in ("bangla", "assamese", "english"):
+        base = setup("language=" + ("assamese" if language == "assamese" else "bangla"))
+        base += r"\setotherlanguage{english}"
+        for dates in ("long", "short"):
+            add(
+                f"input-script-biber-{language}-{dates}",
+                base + r"\usepackage[backend=biber,style=authoryear,date=" + dates
+                + (",language=english,autolang=other" if language == "english" else "")
+                + r"]{biblatex}" + input_script_data("biber")
+                + r"\addbibresource{input-scripts.bib}\usepackage{hyperref}",
+                r"\cite{samewestern,samenative,inherited,overridden}"
+                r"\nocite{*}\printbibliography", backend="biber",
+            )
+        for style in ("plainnatbn", "abbrvnatbn", "unsrtnatbn"):
+            add(
+                f"input-script-natbib-{language}-{style}",
+                base + r"\usepackage[authoryear,sort]{natbib}\usepackage{hyperref}"
+                + input_script_data("bibtex"),
+                (r"\selectlanguage{english}" if language == "english" else "")
+                + r"\citep{later,samenative,earlier,samewestern}; "
+                r"\citet{groupa,groupb,groupc}; \citep{westgroupa,westgroupb}; "
+                r"\citeyearpar{groupa,groupb,groupc}.\nocite{*}"
+                r"\bibliographystyle{" + style + r"}\bibliography{input-scripts}",
+                backend="bibtex",
+            )
+    for mode in ("native", "western"):
+        add(
+            "input-script-natbib-numbers-" + mode,
+            setup("changecounternumbering=" + ("true" if mode == "native" else "false"))
+            + r"\usepackage[numbers,sort&compress]{natbib}\usepackage{hyperref}"
+            + input_script_data("bibtex"),
+            r"\citep{groupa,groupb,groupc}; \citeyearpar{groupa,groupb}."
+            r"\nocite{*}\bibliographystyle{plainnatbn}\bibliography{input-scripts}",
+            backend="bibtex",
+        )
+
+    add(
+        "input-script-biber-custom-format",
+        setup() + r"\setotherlanguage{english}"
+        r"\usepackage[backend=biber,style=numeric,language=english,autolang=other]{biblatex}"
+        + input_script_data("biber") + r"\addbibresource{input-scripts.bib}"
+        r"\DeclareFieldFormat[article]{volume}{VOL:#1}"
+        r"\DeclareFieldFormat[article]{number}{NO:#1}"
+        r"\DeclareFieldFormat{pages}{PAGES:#1}"
+        r"\DeclareFieldFormat{pagetotal}{TOTAL:#1}",
+        r"\nocite{range,native}\printbibliography", backend="biber",
+    )
+
     bibliography_fixture = (FIXTURES / "bibliography-localization.tex").read_text(encoding="utf-8")
     for language in ("bangla", "assamese"):
         for style in ("numeric", "numeric-comp", "alphabetic", "authoryear", "authoryear-comp", "verbose"):
@@ -1287,9 +1343,18 @@ English code 12; বাংলা ১২
         passes=1, backend=None, expect_error=None,
     )
     for language in ("bangla", "assamese"):
+        bibliography_data = (ROOT / f"natbib/natbib-{language}.bib").read_text(encoding="utf-8")
+        manual_data = manual_source.split(
+            r"\begin{VerbatimOut}{\jobname-natbib-" + language + ".bib}", 1
+        )[1].split(r"\end{VerbatimOut}", 1)[0]
+        assert bibliography_data.strip() == manual_data.strip(), (
+            f"The manual's {language} natbib source differs from its test fixture."
+        )
         data[f"manual-natbib-{language}"] = dict(
             tex=r"\def\previewlanguage{" + language + "}\n"
-                + (REPO / "latexbangla/doc/natbib-preview.tex").read_text(encoding="utf-8"),
+                + r"\begin{filecontents*}{manual-natbib.bib}" + "\n"
+                + bibliography_data + r"\end{filecontents*}" + "\n"
+                + (ROOT / "natbib/natbib-preview.tex").read_text(encoding="utf-8"),
             passes=3, backend="bibtex", expect_error=None,
             restricted_shell_escape=True,
         )

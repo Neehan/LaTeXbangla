@@ -24,21 +24,21 @@
     \__latexbangla_translate_autoref:Nnn \partautorefname {Part}{\partname}
     \__latexbangla_translate_autoref:Nnn \pageautorefname {page}{\pagename}
     \__latexbangla_translate_autoref:Nnn \sectionautorefname
-      {section}{\prop_item:Nn \g__latexbangla_reference_names_prop {section}}
+      {section}{\prop_item:Nn \c__latexbangla_reference_names_prop {section}}
     \__latexbangla_translate_autoref:Nnn \subsectionautorefname
-      {subsection}{\prop_item:Nn \g__latexbangla_reference_names_prop {subsection}}
+      {subsection}{\prop_item:Nn \c__latexbangla_reference_names_prop {subsection}}
     \__latexbangla_translate_autoref:Nnn \subsubsectionautorefname
-      {subsubsection}{\prop_item:Nn \g__latexbangla_reference_names_prop {subsubsection}}
+      {subsubsection}{\prop_item:Nn \c__latexbangla_reference_names_prop {subsubsection}}
     \__latexbangla_translate_autoref:Nnn \paragraphautorefname
-      {paragraph}{\prop_item:Nn \g__latexbangla_reference_names_prop {paragraph}}
+      {paragraph}{\prop_item:Nn \c__latexbangla_reference_names_prop {paragraph}}
     \__latexbangla_translate_autoref:Nnn \subparagraphautorefname
-      {subparagraph}{\prop_item:Nn \g__latexbangla_reference_names_prop {subparagraph}}
+      {subparagraph}{\prop_item:Nn \c__latexbangla_reference_names_prop {subparagraph}}
     \__latexbangla_translate_autoref:Nnn \equationautorefname
-      {Equation}{\prop_item:Nn \g__latexbangla_reference_names_prop {equation}}
+      {Equation}{\prop_item:Nn \c__latexbangla_reference_names_prop {equation}}
     \__latexbangla_translate_autoref:Nnn \footnoteautorefname
-      {footnote}{\prop_item:Nn \g__latexbangla_reference_names_prop {footnote}}
+      {footnote}{\prop_item:Nn \c__latexbangla_reference_names_prop {footnote}}
     \__latexbangla_translate_autoref:Nnn \itemautorefname
-      {item}{\prop_item:Nn \g__latexbangla_reference_names_prop {item}}
+      {item}{\prop_item:Nn \c__latexbangla_reference_names_prop {item}}
   }
 
 % cleveref has no Bengali/Assamese language option. Supply its English base
@@ -86,12 +86,12 @@
       }
     \clist_map_inline:nn {part,chapter,appendix,figure,table,page}
       {\__latexbangla_set_default_cref_name:nn {#1}{\use:c {#1name}}}
-    \prop_map_inline:Nn \g__latexbangla_reference_names_prop
+    \prop_map_inline:Nn \c__latexbangla_reference_names_prop
       {\__latexbangla_set_default_cref_name:nn {#1}{#2}}
     % Nested lists, subfigures and appendix levels have their own cref types.
     \clist_map_inline:nn {enumi,enumii,enumiii,enumiv,enumv}
       {\__latexbangla_set_default_cref_name:nn {#1}
-        {\prop_item:Nn \g__latexbangla_reference_names_prop {item}}}
+        {\prop_item:Nn \c__latexbangla_reference_names_prop {item}}}
     \clist_map_inline:nn {subappendix,subsubappendix,subsubsubappendix}
       {\__latexbangla_set_default_cref_name:nn {#1}{\appendixname}}
     \__latexbangla_set_default_cref_name:nn {subfigure}{\figurename}
@@ -103,10 +103,10 @@
       {crefpairconjunction,creflastconjunction,
        crefpairgroupconjunction,creflastgroupconjunction}
       {\cs_if_exist:cF {#1}
-        {\cs_new:cpn {#1} {~\g__latexbangla_reference_pair_tl\nobreakspace}}}
+        {\cs_new:cpn {#1} {~\c__latexbangla_reference_pair_tl\nobreakspace}}}
     \cs_if_exist:NF \crefrangeconjunction
       {\cs_new:Npn \crefrangeconjunction
-        {\g__latexbangla_reference_range_tl}}
+        {\c__latexbangla_reference_range_tl}}
   }
 
 % cleveref stores \arabic-based sort keys alongside the visible reference.
@@ -237,6 +237,14 @@
   }
 \AddToHook{package/biblatex/after}[latexbangla/bibliography-language]
   {
+    % The hook also runs immediately when biblatex was loaded first.
+    % Restore the caller's expl3 catcodes after reading the adapter.
+    \use:e
+      {
+        \exp_not:N\file_input:n {code/references/latexbangla-biblatex-output.tex}
+        \int_compare:nNnT {\char_value_catcode:n{95}} = {11}
+          {\exp_not:N\ExplSyntaxOn}
+      }
     \NewBibliographyString{article} % Shared electronic-article label.
     % Capture upstream captions before biblatex replaces bibname/refname with
     % its own strings. A direct reference to those commands inside an .lbx

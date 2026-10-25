@@ -1,0 +1,171 @@
+% Source-script rendering for biblatex fields and generated year suffixes.
+% Part of latexbangla, LPPL 1.3c or later; copyright 2026 Adib Hasan.
+\ExplSyntaxOn
+\file_input:n {code/references/latexbangla-biblatex-input.tex}
+
+\tl_new:N \l__latexbangla_biblatex_field_tl
+\tl_new:N \l__latexbangla_biblatex_source_tl
+\tl_new:N \l__latexbangla_biblatex_output_tl
+\tl_new:N \l__latexbangla_biblatex_run_tl
+\seq_new:N \l__latexbangla_biblatex_source_runs_seq
+\seq_new:N \l__latexbangla_biblatex_output_parts_seq
+\int_new:N \l__latexbangla_biblatex_run_int
+% Resolve virtual label fields to the original date component, including
+% legacy year fields. Annotations then follow Biber's inheritance machinery.
+\cs_new_protected:Npn \__latexbangla_biblatex_source:n #1
+  {
+    \tl_set:Ne \l__latexbangla_biblatex_field_tl {#1}
+    \regex_replace_once:nnN {\Alabel} {} \l__latexbangla_biblatex_field_tl
+    \str_if_eq:eeF {#1}{\l__latexbangla_biblatex_field_tl}
+      {
+        \tl_set:Ne \l_tmpa_tl {\thefield{labeldatesource}}
+        \str_if_eq:VnT \l_tmpa_tl {year}{\tl_clear:N \l_tmpa_tl}
+        \tl_put_left:NV \l__latexbangla_biblatex_field_tl \l_tmpa_tl
+      }
+    % The public getter prints its result and cannot assign a token list.
+    % Isolate the read of biblatex's annotation storage here.
+    \tl_clear:N \l__latexbangla_biblatex_source_tl
+    \cs_if_exist:cT
+      {abx@annotation@literal@field@\l__latexbangla_biblatex_field_tl @latexbangla-input}
+      {\tl_set:Ne \l__latexbangla_biblatex_source_tl
+        {\use:c{abx@annotation@literal@field@\l__latexbangla_biblatex_field_tl @latexbangla-input}}}
+  }
+% Restore script per numeric run, retaining punctuation and formatting tokens.
+% Right alignment accounts for removed leading zeros and shortened ranges.
+\cs_new_protected:Npn \__latexbangla_biblatex_restore:nn #1#2
+  {
+    \group_begin:
+    \__latexbangla_biblatex_source:n {#1}
+    \protected@edef \l__latexbangla_biblatex_output_tl {#2}
+    \tl_if_empty:NTF \l__latexbangla_biblatex_source_tl
+      {\tl_use:N \l__latexbangla_biblatex_output_tl}
+      {
+        \regex_extract_all:nVN {[0-9০-৯]+}
+          \l__latexbangla_biblatex_source_tl \l__latexbangla_biblatex_source_runs_seq
+        \regex_split:nVN {([0-9]+)}
+          \l__latexbangla_biblatex_output_tl \l__latexbangla_biblatex_output_parts_seq
+        \int_zero:N \l__latexbangla_biblatex_run_int
+        \seq_map_indexed_inline:Nn \l__latexbangla_biblatex_output_parts_seq
+          {
+            \int_if_even:nTF {##1}
+              {
+                \int_incr:N \l__latexbangla_biblatex_run_int
+                \tl_set:Ne \l__latexbangla_biblatex_run_tl
+                  {\seq_item:Nn \l__latexbangla_biblatex_source_runs_seq {\l__latexbangla_biblatex_run_int}}
+                \int_step_inline:nn {\tl_count:n{##2}}
+                  {
+                    \tl_set:Ne \l_tmpa_tl
+                      {\tl_item:Nn \l__latexbangla_biblatex_run_tl
+                        {\int_max:nn{1}{\tl_count:N\l__latexbangla_biblatex_run_tl-\tl_count:n{##2}+####1}}}
+                    \regex_match:nVTF {[০-৯]} \l_tmpa_tl
+                      {\__latexbangla_bibliography_native_text:n{\char_generate:nn {"09E6+\tl_item:nn{##2}{####1}}{12}}}
+                      {\tl_item:nn{##2}{####1}}
+                  }
+              }
+              {##2}
+          }
+      }
+    \group_end:
+  }
+\cs_generate_variant:Nn \regex_extract_all:nnN {nVN}
+\cs_generate_variant:Nn \regex_split:nnN {nVN}
+\cs_new_protected:Npn \__latexbangla_bibliography_digits:n #1
+  {\__latexbangla_biblatex_restore:nn {\currentfield}{#1}}
+% Print the restored number, then choose its suffix from the original field.
+\cs_new_protected:Npn \__latexbangla_bibliography_ordinal:nn #1#2
+  {
+    \group_begin:
+    \__latexbangla_biblatex_source:n {\currentfield}
+    \__latexbangla_biblatex_restore:nn {\currentfield}{\int_eval:n{#2}}
+    \__latexbangla_bibliography_ordinal_suffix:nVn
+      {#1}\l__latexbangla_biblatex_source_tl{#2}
+    \group_end:
+  }
+\cs_new_protected:Npn \__latexbangla_biblatex_date_component:nn #1#2
+  {
+    \group_begin:
+    \protected@edef \l__latexbangla_biblatex_output_tl {\thefield{#2}}
+    \tl_if_empty:NF \l__latexbangla_biblatex_output_tl
+      {
+        \exp_args:NV \ifinteger \l__latexbangla_biblatex_output_tl
+          {
+            \tl_set:Ne \l__latexbangla_biblatex_output_tl {\int_eval:n{\l__latexbangla_biblatex_output_tl}}
+            \iftoggle{blx@datezeros}
+              {\tl_put_left:Ne \l__latexbangla_biblatex_output_tl
+                {\prg_replicate:nn{\int_max:nn{0}{#1-\tl_count:N\l__latexbangla_biblatex_output_tl}}{0}}}{}
+          }{}
+        \__latexbangla_biblatex_restore:nn {#2}{\l__latexbangla_biblatex_output_tl}
+      }
+    \group_end:
+  }
+% A generated suffix follows the script of the year it is attached to.
+\cs_new_protected:Npn \__latexbangla_biblatex_suffix:n #1
+  {
+    \group_begin:
+    \iffieldundef{labelendyear}
+      {\__latexbangla_biblatex_source:n{labelyear}}
+      {\__latexbangla_biblatex_source:n{labelendyear}}
+    \regex_match:nVTF {[০-৯]} \l__latexbangla_biblatex_source_tl
+      {\__latexbangla_bibliography_native_text:n{\__latexbangla_bibliography_native_suffix:n{#1}}}{\mknumalph{#1}}
+    \group_end:
+  }
+\DeclareFieldFormat{extradate}{\iffieldnums{labelyear}
+  {\__latexbangla_biblatex_suffix:n{#1}}{\mkbibparens{\__latexbangla_biblatex_suffix:n{#1}}}}
+% Patch numeric output sites in the standard English formatters, retaining
+% their wording and date order. Catcode-safe aliases allow etoolbox patches.
+\cs_new_protected:Npn\__latexbangla_biblatex_field_number:w\thefield#1\q_stop#2
+  {\__latexbangla_biblatex_date_component:nn{#2}{#1}}
+\cs_new_eq:NN \latexbangla@bibdigits \__latexbangla_bibliography_digits:n
+\cs_new_protected:Npn\latexbangla@bibstripzeros#1
+  {\__latexbangla_biblatex_field_number:w#1\q_stop{0}}
+\cs_new_protected:Npn\latexbangla@bibmonthday#1
+  {\__latexbangla_biblatex_field_number:w#1\q_stop{2}}
+\cs_new_protected:Npn\latexbangla@bibyear#1
+  {\__latexbangla_biblatex_field_number:w#1\q_stop{4}}
+% Wrap existing English formats rather than replacing their style-specific
+% labels or punctuation. Missing entry-type formats retain normal fallback.
+\cs_new_protected:Npn \__latexbangla_biblatex_wrap_field:nn #1#2
+  {
+    \cs_if_exist:cT {abx@ffd@#1@#2}
+      {
+        \cs_if_exist:cF {latexbangla@savedformat@#1@#2}
+          {\cs_set_eq:cc {latexbangla@savedformat@#1@#2}{abx@ffd@#1@#2}}
+        \DeclareFieldFormat[#1]{#2}
+          {\use:c{latexbangla@savedformat@#1@#2}
+            {\__latexbangla_bibliography_digits:n{##1}}}
+      }
+  }
+% Page formatters must inspect the raw value to choose singular/plural labels.
+% Restore digits at their output callback; custom formats keep their own text.
+\cs_new_protected:Npn \__latexbangla_biblatex_wrap_pages:nN #1#2
+  {
+    \cs_if_exist:cF {latexbangla@savedformat@*@#1}
+      {\cs_set_eq:cc {latexbangla@savedformat@*@#1}{abx@ffd@*@#1}}
+    \cs_set_eq:cc {abx@ffd@*@#1}{latexbangla@savedformat@*@#1}
+    \exp_args:Nc \patchcmd {abx@ffd@*@#1}
+      {#2[bookpagination]{##1}}
+      {#2[bookpagination][\latexbangla@bibdigits]{##1}}
+      {}{\__latexbangla_biblatex_wrap_field:nn {*}{#1}}
+  }
+\cs_new_protected:Npn \__latexbangla_biblatex_install_english:
+  {
+    \patchcmd\mkbibdatelong{\stripzeros}{\latexbangla@bibstripzeros}{}{}
+    \patchcmd\mkbibdatelong{\stripzeros}{\latexbangla@bibstripzeros}{}{}
+    \patchcmd\mkbibdateshort{\mkdayzeros}{\latexbangla@bibmonthday}{}{}
+    \patchcmd\mkbibdateshort{\mkmonthzeros}{\latexbangla@bibmonthday}{}{}
+    \patchcmd\mkbibdateshort{\mkyearzeros}{\latexbangla@bibyear}{}{}
+    \cs_set_protected:Npn\mkbibordinal ##1
+      {\__latexbangla_bibliography_ordinal:nn{\g__latexbangla_language_tl}{##1}}
+    \__latexbangla_biblatex_wrap_pages:nN {pages}\mkpageprefix
+    \__latexbangla_biblatex_wrap_pages:nN {pagetotal}\mkpagetotal
+    % These standard formats do not parse their value; retain their labels.
+    \clist_map_inline:nn {volume,volumes,number,part,chapter,version}
+      {
+        \__latexbangla_biblatex_wrap_field:nn {*}{##1}
+        \__latexbangla_biblatex_wrap_field:nn {article}{##1}
+        \__latexbangla_biblatex_wrap_field:nn {periodical}{##1}
+      }
+  }
+\DefineBibliographyExtras{english}{\__latexbangla_biblatex_install_english:}
+\ExplSyntaxOff
+\endinput

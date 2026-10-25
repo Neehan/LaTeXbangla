@@ -20,6 +20,7 @@ __pycache__/
 latexbangla-example-*.tex
 latexbangla-bangla.bib
 latexbangla-assamese.bib
+latexbangla-natbib-*.bib
 _minted*/
 *.minted
 *.minted-*

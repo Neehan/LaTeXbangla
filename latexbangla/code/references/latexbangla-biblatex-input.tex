@@ -1,0 +1,53 @@
+% Preserve source digits before Biber parses dates, ranges and numeric fields.
+% Part of latexbangla, LPPL 1.3c or later; copyright 2026 Adib Hasan.
+
+\tl_new:N \l__latexbangla_biblatex_maps_tl
+% Arguments: input field, annotation field, capture pattern.
+\cs_new_protected:Npn \__latexbangla_biblatex_map_component:nnn #1#2#3
+  {
+    \tl_put_right:Nn \l__latexbangla_biblatex_maps_tl
+      {\map[overwrite]{
+        \step[fieldsource={#1},match=\regexp{#3},final]
+        \step[fieldset={#2+an:latexbangla-input},origfieldval]
+        \step[fieldsource={#2+an:latexbangla-input},match=\regexp{#3},
+          replace=\regexp{=\x{22}$1\x{22}}]}}
+  }
+\cs_new_protected:Npn \__latexbangla_biblatex_map_date:n #1
+  {
+    \__latexbangla_biblatex_map_component:nnn {#1date}{#1year}
+      {\A(-?[0-9০-৯]+)(?:[^0-9০-৯].*)?\z}
+    \__latexbangla_biblatex_map_component:nnn {#1date}{#1month}
+      {\A-?[0-9০-৯]+-([0-9০-৯]+)(?:[^0-9০-৯].*)?\z}
+    \__latexbangla_biblatex_map_component:nnn {#1date}{#1day}
+      {\A-?[0-9০-৯]+-[0-9০-৯]+-([0-9০-৯]+)(?:[^0-9০-৯].*)?\z}
+    \__latexbangla_biblatex_map_component:nnn {#1date}{#1endyear}
+      {\A[^/]*/(-?[0-9০-৯]+)(?:[^0-9০-৯].*)?\z}
+    \__latexbangla_biblatex_map_component:nnn {#1date}{#1endmonth}
+      {\A[^/]*/-?[0-9০-৯]+-([0-9০-৯]+)(?:[^0-9০-৯].*)?\z}
+    \__latexbangla_biblatex_map_component:nnn {#1date}{#1endday}
+      {\A[^/]*/-?[0-9০-৯]+-[0-9০-৯]+-([0-9০-৯]+)(?:[^0-9০-৯].*)?\z}
+  }
+% Record Western values too: an explicit child field must not inherit its
+% parent's native-script annotation when crossref or xdata is used.
+\tl_put_right:Nn \l__latexbangla_biblatex_maps_tl
+  {\map[overwrite,foreach={year,month,day,edition,volume,volumes,number,part,chapter,pages,pagetotal,version}]{
+    \step[fieldsource=\regexp{$MAPLOOP},match=\regexp{[0-9০-৯]},final]
+    \step[fieldset=\regexp{$MAPLOOP+an:latexbangla-input},origfieldval]
+    \step[fieldsource=\regexp{$MAPLOOP+an:latexbangla-input},
+      match=\regexp{\A(.*)\z},replace=\regexp{=\x{22}$1\x{22}}]}}
+% Biber gives date precedence over legacy year/month/day fields. Record its
+% components last so their script wins when both forms occur in one entry.
+\__latexbangla_biblatex_map_date:n {}
+\clist_map_function:nN {orig,event,url} \__latexbangla_biblatex_map_date:n
+\tl_put_right:Nn \l__latexbangla_biblatex_maps_tl
+  {\map[overwrite,foreach={date,origdate,eventdate,urldate,year,month,day,edition,volume,volumes,number,part,chapter,pages,pagetotal,version}]}
+\tl_clear:N \l_tmpa_tl
+\int_step_inline:nnn {0}{9}
+  {\tl_put_right:Ne \l_tmpa_tl
+    {\exp_not:N\step[fieldsource=\exp_not:N\regexp{$MAPLOOP},
+      match={\char_generate:nn{"09E6+#1}{12}},replace={\int_to_arabic:n{#1}}]}}
+\tl_put_right:Ne \l__latexbangla_biblatex_maps_tl {{\exp_not:V\l_tmpa_tl}}
+% Style maps compose with the author's sourcemaps instead of replacing them.
+\use:e {\exp_not:N\DeclareStyleSourcemap
+  {\exp_not:N\maps[datatype=bibtex]{\exp_not:V\l__latexbangla_biblatex_maps_tl}}}
+\endinput

@@ -26,14 +26,7 @@
 % select it with language=assamese; they do not need this documentation setup.
 \makeatletter
 \ExplSyntaxOn
-\file_if_exist:nF {gloss-assamese.ldf}
-  {
-    \tl_set:Nn \xpg__tmp_default_options_tl
-      {numerals=bengali,changecounternumbering=true}
-    \file_input:n {code/languages/latexbangla-assamese.tex}
-    \xpg_define_language_commands:n {assamese}
-    \seq_gput_right:Nn \g__xpg_langs_loaded_seq {assamese}
-  }
+\file_input:n {code/languages/latexbangla-assamese.tex}
 \ExplSyntaxOff
 \makeatother
 \setotherlanguage[numerals=bengali,changecounternumbering=true]{assamese}
@@ -53,12 +46,8 @@
 \makeatletter
 \newalphalph{\extendedBangla}{\@alph}{35}
 \makeatother
-% Match the Assamese label inventory for the third guide. The acceptance test
-% compares this sequence with a standalone language=assamese document.
+% Reuse the package alphabet for the third guide.
 \ExplSyntaxOn
-\clist_const:Nn \c_manual_assamese_alphabet_clist
-  {ক,খ,গ,ঘ,ঙ,চ,ছ,জ,ঝ,ঞ,ট,ঠ,ড,ঢ,ণ,ত,থ,দ,ধ,ন,
-   প,ফ,ব,ভ,ম,য,ৰ,ল,ৱ,শ,ষ,স,হ,ক্ষ,ড়,ঢ়,য়}
 \cs_new:Npn \manualassamesealph #1
   {
     \int_compare:nNnTF {#1} = {0} {}
@@ -66,7 +55,7 @@
         \int_compare:nNnTF {#1} < {1} {\use:c {@ctrerr}}
           {
             \int_compare:nNnTF {#1} > {37} {\use:c {@ctrerr}}
-              {\clist_item:Nn \c_manual_assamese_alphabet_clist {#1}}
+              {\clist_item:Nn \c__latexbangla_assamese_alphabet_clist {#1}}
           }
       }
   }
@@ -150,9 +139,9 @@
   author = {আরিফ রহমান and মায়া সেন},
   title = {গণনার প্রথম পাঠ},
   translator = {সুমন দত্ত},
-  edition = {2},
+  edition = {২},
   publisher = {নমুনা প্রকাশনী},
-  date = {2023-04-12}
+  date = {২০২৩-০৪-১২}
 }
 @article{article,
   author = {নীলা দাস},
@@ -167,9 +156,9 @@
   author = {আৰিফ ৰহমান and মায়া সেন},
   title = {গণনাৰ প্ৰথম পাঠ},
   translator = {সুমন দত্ত},
-  edition = {2},
+  edition = {২},
   publisher = {নমুনা প্ৰকাশনী},
-  date = {2023-04-12}
+  date = {২০২৩-০৪-১২}
 }
 @article{article,
   author = {নীলা দাস},
@@ -194,15 +183,68 @@
   \end{tcolorbox}
   \end{tcbraster}}
 
-% Natbib is compiled separately because it cannot share a document with biblatex.
+% Static natbib previews are checked against real BibTeX output by the tests.
+\begin{VerbatimOut}{\jobname-natbib-bangla.bib}
+@book{book,
+  author = {আরিফ রহমান and মায়া সেন},
+  title = {গণনার প্রথম পাঠ},
+  edition = {২},
+  publisher = {নমুনা প্রকাশনী},
+  year = {২০২৩}
+}
+@article{article,
+  author = {নীলা দাস},
+  title = {একটি গণনার সমস্যা},
+  journal = {গণিতচর্চা},
+  volume = {8}, number = {2},
+  pages = {12-34}, year = {2024}
+}
+\end{VerbatimOut}
+\begin{VerbatimOut}{\jobname-natbib-assamese.bib}
+@book{book,
+  author = {আৰিফ ৰহমান and মায়া সেন},
+  title = {গণনাৰ প্ৰথম পাঠ},
+  edition = {২},
+  publisher = {নমুনা প্ৰকাশনী},
+  year = {২০২৩}
+}
+@article{article,
+  author = {নীলা দাস},
+  title = {এটা গণনাৰ সমস্যা},
+  journal = {গণিতচৰ্চা},
+  volume = {8}, number = {2},
+  pages = {12-34}, year = {2024}
+}
+\end{VerbatimOut}
+
+\newcommand{\manualnatbibpreview}[3]{%
+  #1\par
+  \medskip\noindent{\large\bfseries #2}\par
+  \begin{list}{}{\setlength{\leftmargin}{1.8em}%
+    \setlength{\labelwidth}{1.5em}\setlength{\labelsep}{.3em}%
+    \setlength{\itemsep}{4pt}\setlength{\parsep}{0pt}}
+    #3
+  \end{list}}
+\newcommand{\manualnatbibbangla}{%
+  \manualnatbibpreview{রহমান এবং সেন [২]; [১, ২].}{তথ্যসূত্রসমূহ}{%
+    \item[{[১]}] নীলা দাস. একটি গণনার সমস্যা.
+      \emph{গণিতচর্চা}, 8(2):12--34, 2024.
+    \item[{[২]}] আরিফ রহমান এবং মায়া সেন. \emph{গণনার প্রথম পাঠ}.
+      নমুনা প্রকাশনী, ২য় সংস্করণ, ২০২৩.}}
+\newcommand{\manualnatbibassamese}{%
+  \manualnatbibpreview{ৰহমান আৰু সেন [২]; [১, ২].}{প্ৰসংগ}{%
+    \item[{[১]}] নীলা দাস. এটা গণনাৰ সমস্যা.
+      \emph{গণিতচৰ্চা}, 8(2):12--34, 2024.
+    \item[{[২]}] আৰিফ ৰহমান আৰু মায়া সেন. \emph{গণনাৰ প্ৰথম পাঠ}.
+      নমুনা প্ৰকাশনী, ২য় সংস্কৰণ, ২০২৩.}}
 \newcommand{\manualnatbibpair}[1]{%
   \begin{tcbraster}[raster columns=2,raster column skip=3mm,
     raster equal height=rows,raster valign=top]
   \begin{tcolorbox}[manualbox,title={\manualcodetitle: \texttt{references.bib}}]
-    \inputminted[fontsize=\footnotesize]{bibtex}{doc/natbib-#1.bib}
+    \inputminted[fontsize=\footnotesize]{bibtex}{\jobname-natbib-#1.bib}
   \end{tcolorbox}
   \begin{tcolorbox}[manualbox,title=\manualresulttitle,colback=ResultPaper]
-    \includegraphics[width=\linewidth]{doc/natbib-#1.pdf}
+    \csname manualnatbib#1\endcsname
   \end{tcolorbox}
   \end{tcbraster}}
 
@@ -770,14 +812,16 @@ Save these sample entries as \pkg{references.bib}, then put
 \verb|\cite{book,article}| and \verb|\printbibliography| in your document:
 \manualbibliographypair{bangla}{তথ্যসূত্রসমূহ}
 Run your chosen \LaTeX{} engine, Biber, then the same engine twice. Names and titles
-stay as entered; connecting words, editions, dates, volumes and page numbers
-follow the bibliography language. Identifiers such as URLs and DOIs stay unchanged.
+stay as entered; connecting words and month names follow the bibliography language.
+Numbers retain their input script: \texttt{2024} stays 2024, and \texttt{২০২৩}
+stays ২০২৩. Attached suffixes follow suit: \texttt{4th}/\texttt{৪র্থ} and
+\texttt{2024a}/\texttt{২০২৩ক}. URLs and DOIs stay unchanged.
 
-For English terms and numbers, declare \verb|\setotherlanguage{english}| in the
+For English wording, declare \verb|\setotherlanguage{english}| in the
 preamble and add \pkg{language=english} and \pkg{autolang=other} to the biblatex options.
 
 \textbf{With natbib.} Use \verb|\citet| for textual citations and \verb|\citep|
-for parenthetical citations. For translated bibliography terms and numbers:
+for parenthetical citations. For translated bibliography terms:
 \begin{code}
 \usepackage[numbers,sort&compress]{natbib} % Or [authoryear].
 \bibliographystyle{plainnatbn}
@@ -805,6 +849,21 @@ for tables. You can style captions with \pkg{caption} and \pkg{subcaption},
 headers with \pkg{fancyhdr}, headings with \pkg{titlesec}, and boxed material
 with \pkg{tcolorbox}. These combinations are tested; each package keeps control
 of its own layout and styles.
+
+\Needspace{14\baselineskip}
+If \pkg{amsthm} theorem headings trigger an ``invalid node'' error under
+\hologo{LuaLaTeX}, add this after loading \pkg{amsthm} to disable hyphenation only
+in the headings (BOOKbangla already applies this workaround):
+\begin{code}
+\usepackage{iftex,xpatch}
+\makeatletter
+\ifLuaTeX
+  \xpatchcmd{\deferred@thm@head}{\normalfont#1}
+    {\normalfont\language=\l@nohyphenation #1}{}
+    {\PackageError{amsthm}{Heading patch failed}{}}
+\fi
+\makeatother
+\end{code}
 
 With \pkg{cleveref}, reference names and connecting words follow the selected
 language automatically. Load it after \pkg{amsmath}, \pkg{amsthm} and
@@ -1461,14 +1520,16 @@ $৩^{২}+৪^{২}=৫^{২}$।
 \verb|\cite{book,article}| ও \verb|\printbibliography| লিখুন:
 \manualbibliographypair{bangla}{তথ্যসূত্রসমূহ}
 আপনার নির্বাচিত \LaTeX{} ইঞ্জিন, তারপর Biber, তারপর একই ইঞ্জিন আরও দুবার চালান।
-নাম ও শিরোনাম যেমন লিখেছেন তেমনই থাকে; সংযোজক শব্দ, সংস্করণ, তারিখ, খণ্ড ও
-পৃষ্ঠার নম্বর তথ্যসূত্রের ভাষা অনুসরণ করে। URL ও DOI-এর মতো শনাক্তকারী বদলায় না।
+নাম ও শিরোনাম যেমন লিখেছেন তেমনই থাকে; সংযোজক শব্দ ও মাসের নাম তথ্যসূত্রের ভাষা অনুসরণ করে।
+সংখ্যা যে অঙ্কে লিখবেন, সে অঙ্কেই থাকবে: \texttt{2024} থেকে 2024, আর
+\texttt{২০২৩} থেকে ২০২৩। সঙ্গে যুক্ত প্রত্যয়ও তা অনুসরণ করে:
+\texttt{4th}/\texttt{৪র্থ} ও \texttt{2024a}/\texttt{২০২৩ক}। URL ও DOI বদলায় না।
 
-শব্দ ও নম্বর ইংরেজিতে চাইলে preamble-এ \verb|\setotherlanguage{english}| দিন এবং
+শব্দগুলো ইংরেজিতে চাইলে preamble-এ \verb|\setotherlanguage{english}| দিন এবং
 biblatex-এর অপশনে \pkg{language=english} ও \pkg{autolang=other} যোগ করুন।
 
 \textbf{natbib দিয়ে।} বাক্যের অংশ হিসেবে উদ্ধৃতির জন্য \verb|\citet|, আর
-বন্ধনীর মধ্যে উদ্ধৃতির জন্য \verb|\citep| ব্যবহার করুন। তথ্যসূত্রের শব্দ ও সংখ্যা অনুবাদ করতে:
+বন্ধনীর মধ্যে উদ্ধৃতির জন্য \verb|\citep| ব্যবহার করুন। তথ্যসূত্রের শব্দ অনুবাদ করতে:
 \begin{code}
 \usepackage[numbers,sort&compress]{natbib} % Or [authoryear].
 \bibliographystyle{plainnatbn}
@@ -1496,6 +1557,21 @@ environment ব্যবহার করুন।
 লেখা সাজাতে \pkg{fancyhdr}, শিরোনামের জন্য \pkg{titlesec}, আর বাক্সে লেখা
 রাখতে \pkg{tcolorbox} ব্যবহার করতে পারেন। এগুলোর সঙ্গে প্যাকেজটি পরীক্ষা
 করা হয়েছে; প্রতিটির বিন্যাস ও নকশা সেই প্যাকেজই নিয়ন্ত্রণ করে।
+
+\Needspace{14\baselineskip}
+\hologo{LuaLaTeX}-এ \pkg{amsthm}-এর উপপাদ্যের শিরোনামে ``invalid node'' ত্রুটি হলে
+শুধু শিরোনামে হাইফেনেশন বন্ধ করতে \pkg{amsthm} লোড করার পরে নিচের কোড দিন
+(BOOKbangla-তে এই সমাধানটি আগে থেকেই আছে):
+\begin{code}
+\usepackage{iftex,xpatch}
+\makeatletter
+\ifLuaTeX
+  \xpatchcmd{\deferred@thm@head}{\normalfont#1}
+    {\normalfont\language=\l@nohyphenation #1}{}
+    {\PackageError{amsthm}{Heading patch failed}{}}
+\fi
+\makeatother
+\end{code}
 
 \pkg{cleveref}-এর রেফারেন্সের নাম ও সংযোজক শব্দ স্বয়ংক্রিয়ভাবে নির্বাচিত
 ভাষা অনুসরণ করে। \pkg{amsmath}, \pkg{amsthm} ও \pkg{hyperref} ব্যবহার করলে
@@ -2161,14 +2237,16 @@ Polyglossia-ই দিয়ে; অসমীয়া অনুবাদ \LaTeX
 \verb|\cite{book,article}| আৰু \verb|\printbibliography| লিখক:
 \manualbibliographypair{assamese}{প্ৰসংগ}
 নিৰ্বাচিত \LaTeX{} ইঞ্জিন, তাৰ পিছত Biber, আৰু তাৰ পিছত একেই ইঞ্জিন দুবাৰ চলাওক।
-নাম আৰু শিৰোনাম লিখাৰ দৰেই থাকে; সংযোগী শব্দ, সংস্কৰণ, তাৰিখ, খণ্ড আৰু পৃষ্ঠাৰ
-নম্বৰে তথ্যসূত্ৰৰ ভাষা অনুসৰণ কৰে। URL আৰু DOI-ৰ দৰে চিনাক্তকাৰী সলনি নহয়।
+নাম আৰু শিৰোনাম লিখাৰ দৰেই থাকে; সংযোগী শব্দ আৰু মাহৰ নামে তথ্যসূত্ৰৰ ভাষা অনুসৰণ কৰে।
+সংখ্যা যি অংকত লিখিব, সেই অংকতেই থাকিব: \texttt{2024}ৰ পৰা 2024, আৰু
+\texttt{২০২৩}ৰ পৰা ২০২৩। লগত যুক্ত প্ৰত্যয়েও তাক অনুসৰণ কৰে:
+\texttt{4th}/\texttt{৪ৰ্থ} আৰু \texttt{2024a}/\texttt{২০২৩ক}। URL আৰু DOI সলনি নহয়।
 
-শব্দ আৰু নম্বৰ ইংৰাজীত বিচাৰিলে preamble-ত \verb|\setotherlanguage{english}| দিয়ক আৰু
+শব্দবোৰ ইংৰাজীত বিচাৰিলে preamble-ত \verb|\setotherlanguage{english}| দিয়ক আৰু
 biblatex-ৰ বিকল্পত \pkg{language=english} আৰু \pkg{autolang=other} যোগ কৰক।
 
 \textbf{natbib-ৰ সৈতে।} বাক্যৰ অংশ হিচাপে উদ্ধৃতিৰ বাবে \verb|\citet|, আৰু
-বন্ধনীৰ ভিতৰত উদ্ধৃতিৰ বাবে \verb|\citep| ব্যৱহাৰ কৰক। তথ্যসূত্ৰৰ শব্দ আৰু সংখ্যা অনুবাদ কৰিবলৈ:
+বন্ধনীৰ ভিতৰত উদ্ধৃতিৰ বাবে \verb|\citep| ব্যৱহাৰ কৰক। তথ্যসূত্ৰৰ শব্দ অনুবাদ কৰিবলৈ:
 \begin{code}
 \usepackage[numbers,sort&compress]{natbib} % Or [authoryear].
 \bibliographystyle{plainnatbn}
@@ -2196,6 +2274,21 @@ environment ব্যৱহাৰ কৰক।
 ওপৰৰ লেখা সজাবলৈ \pkg{fancyhdr}, শিৰোনামৰ বাবে \pkg{titlesec}, আৰু বাকচত
 লেখা ৰাখিবলৈ \pkg{tcolorbox} ব্যৱহাৰ কৰিব পাৰে। এই পেকেজবোৰৰ সৈতে পৰীক্ষা
 কৰা হৈছে; প্ৰতিটোৰ বিন্যাস আৰু নক্সা সেই পেকেজেই নিয়ন্ত্ৰণ কৰে।
+
+\Needspace{14\baselineskip}
+\hologo{LuaLaTeX}-ত \pkg{amsthm}-ৰ উপপাদ্যৰ শিৰোনামত ``invalid node'' ত্ৰুটি হ’লে
+কেৱল শিৰোনামত হাইফেনেচন বন্ধ কৰিবলৈ \pkg{amsthm} লোড কৰাৰ পিছত তলৰ কোড দিয়ক
+(BOOKbangla-ত এই সমাধান আগৰে পৰাই আছে):
+\begin{code}
+\usepackage{iftex,xpatch}
+\makeatletter
+\ifLuaTeX
+  \xpatchcmd{\deferred@thm@head}{\normalfont#1}
+    {\normalfont\language=\l@nohyphenation #1}{}
+    {\PackageError{amsthm}{Heading patch failed}{}}
+\fi
+\makeatother
+\end{code}
 
 \pkg{cleveref}-ৰ প্ৰসংগৰ নাম আৰু সংযোগী শব্দই স্বয়ংক্ৰিয়ভাৱে বাছনি কৰা
 ভাষা অনুসৰণ কৰে। \pkg{amsmath}, \pkg{amsthm} আৰু \pkg{hyperref} ব্যৱহাৰ কৰিলে

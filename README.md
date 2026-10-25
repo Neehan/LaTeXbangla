@@ -30,7 +30,7 @@ compile with **XeLaTeX or LuaLaTeX** on an updated TeX Live 2024 or later.
 Noto Sans Bengali, Anek Bangla, Tiro Bangla, Galada, Hind Siliguri, Nikosh,
 Kohinoor Bangla, Mukti, Baloo Da 2, Lohit Bengali, Jamrul, Likhan, Shimanto, Mina,
 AdorshoLipi, BenSen, BenSenHandwriting, Atma, Alkatra, Shonar Bangla, and FreeSerif.
-[Compare the fonts](examples/supported-fonts.pdf). Jamrul 0.1 and Likhan 0.6 lack ৎ (U+09CE).
+[Compare the fonts](examples/supported-fonts.pdf).
 Other Bangla fonts may work too, but have not been tested.
 Use your chosen font name or filename in `\setbanglamainfont`; for the Anek and
 Alkatra variable fonts, follow the filename examples in the font guide.
@@ -101,17 +101,17 @@ commands such as `\textsf` and `\texttt`; each script keeps its chosen font:
 
 ## Cite sources in Bangla
 
-Use biblatex or natbib for citations and bibliographies with translated terms,
-dates and numbers. Here is a biblatex example using two sample entries in `references.bib`:
+Use biblatex or natbib for citations and bibliographies with translated terms.
+Numbers keep the script you type. Here is a biblatex example using two sample entries in `references.bib`:
 
 ```bibtex
 @book{book,
   author = {আরিফ রহমান and মায়া সেন},
   title = {গণনার প্রথম পাঠ},
   translator = {সুমন দত্ত},
-  edition = {2},
+  edition = {২},
   publisher = {নমুনা প্রকাশনী},
-  date = {2023-04-12}
+  date = {২০২৩-০৪-১২}
 }
 @article{article,
   author = {নীলা দাস},
@@ -138,7 +138,7 @@ dates and numbers. Here is a biblatex example using two sample entries in `refer
 
 Compile with XeLaTeX or LuaLaTeX, run Biber, then compile twice more.
 
-<img src="img/bibliography.png" alt="Bangla citations and bibliography with native numbers, translated author and translator labels, edition, dates and page range" width="650">
+<img src="img/bibliography.png" alt="Bangla citations and bibliography with mixed-script numbers, translated author and translator labels, edition, dates and page range" width="650">
 
 Assamese works the same way with `language=assamese`. For natbib, use
 `plainnatbn`, `abbrvnatbn` or `unsrtnatbn`; see the [manual](latexbangla/latexbangla.pdf).

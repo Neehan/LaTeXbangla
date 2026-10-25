@@ -1,0 +1,69 @@
+@book{western,
+ author={Ada Example}, title={Western input 2012},
+ date={2012-04-12}, edition={2}, volume={3}, pagetotal={128},
+ publisher={Example Press}}
+@book{native,
+ author={Bela Example}, title={Native input ২০১২},
+ date={২০১২-০৪-১২}, edition={২}, volume={৩}, pagetotal={১২৮},
+ publisher={Example Press}}
+@article{range,
+ author={Cara Example}, title={Native range},
+ date={২০১২-০৪-১২/২০১৩-০৫-১৩}, volume={৮}, number={২},
+ pages={১২-৩৪}, journaltitle={Test Journal}}
+@book{legacy,
+ author={Dana Example}, title={Native legacy year},
+ year={২০১২}, edition={২}, publisher={Example Press}}
+
+@book{samewestern, author={Robin Writer},title={Alpha Western},date={2012},publisher={Test}}
+@book{samenative, author={Robin Writer},title={Beta Native},date={২০১২},publisher={Test}}
+@book{nativeparent, author={Pat Parent},title={Native Parent},date={২০১৪},edition={৩},publisher={Test}}
+@inbook{inherited, title={Inherited Native Date},crossref={nativeparent}}
+@inbook{overridden, title={Western Override},date={2015},crossref={nativeparent}}
+@xdata{nativedata, date={২০১৬-০৮-০৯},edition={৪},publisher={Test}}
+@book{xdatainherited, author={Xena Data},title={Inherited Xdata},xdata={nativedata}}
+@book{xdataoverride, author={Xena Data},title={Western Xdata Override},date={2017},edition={5},xdata={nativedata}}
+@book{mixedfields, author={Mira Mix},title={Mixed Fields},date={2018-02-03},edition={২},volume={3},pagetotal={১২৮},publisher={Test}}
+@book{mixedrange, author={Mira Mix},title={Mixed Script Range},date={২০১৯/2020},publisher={Test}}
+@online{urlnative,author={Uma User},title={Native Access Date},date={2021},url={https://example.org/2012},urldate={২০২৪-১০-২৫}}
+
+@article{mixedparts,
+ author={Edge Tester}, title={Mixed component scripts},
+ journaltitle={Test Journal}, date={২০১২-04-12}, pages={১২-34}}
+@book{mixedreverse,
+ author={Edge Tester}, title={Western year with native day},
+ publisher={Test}, date={2013-০৫-১৩}}
+
+@article{mixeddigits, author={Digit Tester},title={Mixed digits within numbers},
+ journaltitle={Test Journal},date={20১৪-০6-1৫},volume={1২},number={৩4},pages={১2-3৪}}
+@book{leadingzeros, author={Zero Tester},title={Leading zeros},
+ date={২০১৫-০১-০২},edition={০২},pagetotal={১28}}
+@book{nativeeditionparent, author={Parent Tester}, title={Native edition parent}, date={২০১০},edition={৩}}
+@inbook{westerneditionchild, author={Child Tester},title={Explicit Western edition},crossref={nativeeditionparent},date={2011},edition={4}}
+
+@book{ord1w,author={Ordinal Tester},title={Edition check 1 Western},year={2020},edition={1},publisher={Test}}
+@book{ord1n,author={Ordinal Tester},title={Edition check 1 native},year={2020},edition={১},publisher={Test}}
+@book{ord2w,author={Ordinal Tester},title={Edition check 2 Western},year={2020},edition={2},publisher={Test}}
+@book{ord2n,author={Ordinal Tester},title={Edition check 2 native},year={2020},edition={২},publisher={Test}}
+@book{ord3w,author={Ordinal Tester},title={Edition check 3 Western},year={2020},edition={3},publisher={Test}}
+@book{ord3n,author={Ordinal Tester},title={Edition check 3 native},year={2020},edition={৩},publisher={Test}}
+@book{ord4w,author={Ordinal Tester},title={Edition check 4 Western},year={2020},edition={4},publisher={Test}}
+@book{ord4n,author={Ordinal Tester},title={Edition check 4 native},year={2020},edition={৪},publisher={Test}}
+@book{ord11w,author={Ordinal Tester},title={Edition check 11 Western},year={2020},edition={11},publisher={Test}}
+@book{ord11n,author={Ordinal Tester},title={Edition check 11 native},year={2020},edition={১১},publisher={Test}}
+@book{ord12w,author={Ordinal Tester},title={Edition check 12 Western},year={2020},edition={12},publisher={Test}}
+@book{ord12n,author={Ordinal Tester},title={Edition check 12 native},year={2020},edition={১২},publisher={Test}}
+@book{ord13w,author={Ordinal Tester},title={Edition check 13 Western},year={2020},edition={13},publisher={Test}}
+@book{ord13n,author={Ordinal Tester},title={Edition check 13 native},year={2020},edition={১৩},publisher={Test}}
+@book{ord21w,author={Ordinal Tester},title={Edition check 21 Western},year={2020},edition={21},publisher={Test}}
+@book{ord21n,author={Ordinal Tester},title={Edition check 21 native},year={2020},edition={২১},publisher={Test}}
+@book{ord22w,author={Ordinal Tester},title={Edition check 22 Western},year={2020},edition={22},publisher={Test}}
+@book{ord22n,author={Ordinal Tester},title={Edition check 22 native},year={2020},edition={২২},publisher={Test}}
+@book{ord23w,author={Ordinal Tester},title={Edition check 23 Western},year={2020},edition={23},publisher={Test}}
+@book{ord23n,author={Ordinal Tester},title={Edition check 23 native},year={2020},edition={২৩},publisher={Test}}
+@book{ord111w,author={Ordinal Tester},title={Edition check 111 Western},year={2020},edition={111},publisher={Test}}
+@book{ord111n,author={Ordinal Tester},title={Edition check 111 native},year={2020},edition={১১১},publisher={Test}}
+
+@book{datewins,author={Alice Precedence},title={Western date precedence},
+ date={2023-04-12},year={২০২৩},month={০৪}}
+@book{nativedatewins,author={Bela Precedence},title={Native date precedence},
+ date={২০২৪-০৫-১৩},year={2024},month={05}}

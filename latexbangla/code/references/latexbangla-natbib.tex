@@ -14,51 +14,63 @@
       {\prop_item:cn {g__latexbangla_bibliography_\languagename _prop}{#1}}
       {#2}
   }
-\NewDocumentCommand \latexbanglabibnumber {m}
-  {\__latexbangla_native_bibliography:TF
-     {\__latexbangla_bibliography_digits:n {#1}}{#1}}
-
-\tl_new:N \l__latexbangla_bibliography_edition_tl
+\tl_new:N \l__latexbangla_natbib_output_tl
+\tl_new:N \l__latexbangla_natbib_date_tl
+\tl_new:N \l__latexbangla_natbib_link_tl
+\tl_new:N \l__latexbangla_natbib_edition_number_tl
+\tl_new:N \l__latexbangla_natbib_edition_display_tl
 \prop_const_from_keyval:Nn \c__latexbangla_bibtex_editions_prop
   {first=1,second=2,third=3,fourth=4,fifth=5,sixth=6,seventh=7,eighth=8,ninth=9,tenth=10}
 \cs_generate_variant:Nn \prop_get:NnNTF {NeNTF}
-\NewDocumentCommand \latexbanglabibedition {m}
+\NewDocumentCommand\latexbanglabibnumber{m}
   {
+    \group_begin:
+    % Only the style-generated suffix marker is localized. Authored letters
+    % in a page identifier or version remain literal input.
+    \regex_match:nnT{[০-৯]}{#1}
+      {\cs_set_eq:NN \__latexbangla_natbib_original_suffix:n \natexlab
+       \cs_set:Npn\natexlab ##1
+        {\__latexbangla_natbib_original_suffix:n
+          {\__latexbangla_bibliography_native_text:n
+            {\__latexbangla_bibliography_native_suffix:n{\int_from_alph:n{##1}}}}}}
+    \tl_set:Nn \l__latexbangla_natbib_output_tl {#1}
+    \__latexbangla_bibliography_select_fonts:N \l__latexbangla_natbib_output_tl
+    \tl_use:N \l__latexbangla_natbib_output_tl
+    \group_end:
+  }
+\NewDocumentCommand\latexbanglabibedition{m}
+  {
+    \group_begin:
+    \tl_set:Nn \l__latexbangla_natbib_edition_display_tl {#1}
     \__latexbangla_native_bibliography:TF
+      {\prop_get:NeNTF \c__latexbangla_bibtex_editions_prop
+         {\str_lowercase:n{#1}}\l__latexbangla_natbib_edition_display_tl
+         {}{\tl_set:Nn\l__latexbangla_natbib_edition_display_tl{#1}}}{}
+    \tl_set_eq:NN\l__latexbangla_natbib_edition_number_tl\l__latexbangla_natbib_edition_display_tl
+    \__latexbangla_bibliography_normalize:N \l__latexbangla_natbib_edition_number_tl
+    \exp_args:NnV\regex_match:nnTF{\A[0-9]+(st|nd|rd|th)?\Z}\l__latexbangla_natbib_edition_number_tl
       {
-        % BibTeX styles traditionally expect "Second" or "2nd"; accept both,
-        % as well as numeric editions. Other authored descriptions stay intact.
-        \prop_get:NeNTF \c__latexbangla_bibtex_editions_prop
-          {\str_lowercase:n {#1}} \l__latexbangla_bibliography_edition_tl
-          {}{\tl_set:Nn \l__latexbangla_bibliography_edition_tl {#1}}
-        \exp_args:NnV \regex_match:nnTF {\A[0-9]+(st|nd|rd|th)?\Z}
-          \l__latexbangla_bibliography_edition_tl
-          {
-            \regex_replace_once:nnN {(st|nd|rd|th)\Z}{}
-              \l__latexbangla_bibliography_edition_tl
-            \__latexbangla_bibliography_ordinal:nn {\languagename}
-              {\l__latexbangla_bibliography_edition_tl}
-          }
-          {#1}
+        \regex_replace_once:nnN{(st|nd|rd|th)\Z}{}\l__latexbangla_natbib_edition_number_tl
+        \regex_replace_once:nnN{(st|nd|rd|th)\Z}{}\l__latexbangla_natbib_edition_display_tl
+        \exp_args:NV\latexbanglabibnumber\l__latexbangla_natbib_edition_display_tl
+        \__latexbangla_bibliography_ordinal_suffix:nnn
+          {\g__latexbangla_language_tl}{#1}{\l__latexbangla_natbib_edition_number_tl}
       }
       {#1}
     \nobreakspace\latexbanglabibstring{edition}{edition}
+    \group_end:
   }
 \NewDocumentCommand \latexbanglabibvolume {m m}
-  {
-    \__latexbangla_native_bibliography:TF
-      {
-        \tl_if_empty:nF {#2}{\emph{#2},~}
-        \latexbanglabibstring{volume}{volume}\nobreakspace
-        \latexbanglabibnumber{#1}
-      }
-      {volume\nobreakspace#1\tl_if_empty:nF {#2}{~of~\emph{#2}}}
-  }
+  {\__latexbangla_native_bibliography:TF
+    {\tl_if_empty:nF{#2}{\emph{#2},~}
+     \latexbanglabibstring{volume}{volume}\nobreakspace\latexbanglabibnumber{#1}}
+    {volume\nobreakspace\latexbanglabibnumber{#1}
+     \tl_if_empty:nF{#2}{~of~\emph{#2}}}}
 \NewDocumentCommand \latexbanglabibseriesseparator {}
   {\__latexbangla_native_bibliography:TF {,~}{~of~}}
 
 % The .bbl marks these styles in the aux file so citations preceding the
-% bibliography also get native dates on the next normal LaTeX pass.
+% bibliography also preserve the input script on the next normal LaTeX pass.
 \bool_new:N \g__latexbangla_natbib_localized_bool
 \NewDocumentCommand \latexbanglanatbibactive {}
   {\bool_gset_true:N \g__latexbangla_natbib_localized_bool}
@@ -69,31 +81,78 @@
       \immediate\write\@auxout{\string\latexbanglanatbibactive}
     \fi
   }
-% Adapt only the display date after natbib has parsed its raw year and
-% disambiguation suffix. Sorting and author/year comparisons stay raw.
-\cs_new_protected:Npn \__latexbangla_natbib_localize_date:
+\cs_new_protected:Npn \__latexbangla_natbib_suffix:N #1
+  {
+    \int_step_inline:nn {26}
+      {\regex_replace_all:eeN
+        {\int_to_alph:n{##1}}{\__latexbangla_bibliography_native_suffix:n{##1}} #1}
+  }
+% Normalize only the parser input; comparisons retain the displayed year.
+\cs_new_protected:Npn \__latexbangla_natbib_parse_date:
   {
     \bool_if:NT \g__latexbangla_natbib_localized_bool
       {
-        \__latexbangla_native_bibliography:TF
+        \exp_args:NnV \regex_match:nnT {[০-৯]} \NAT@date
           {
-            % Natbib's emptiness test requires literal date characters.
-            \int_step_inline:nnn {0}{9}
-              {\tl_replace_all:Nee \NAT@date
-                {\int_to_arabic:n {##1}}
-                {\char_generate:nn {"09E6+##1}{12}}}
+            % Parse with ASCII digits, then restore the source year used in
+            % comparisons. Different displayed scripts remain distinct groups.
+            \tl_set_eq:NN \l__latexbangla_natbib_date_tl \NAT@date
+            \__latexbangla_bibliography_normalize:N \l__latexbangla_natbib_date_tl
+            \exp_after:wN\NAT@parse@date\l__latexbangla_natbib_date_tl??????@@
+            \tl_set:Ne \NAT@year {\tl_range:Nnn\NAT@date{1}{\tl_count:N\NAT@year}}
+            \__latexbangla_natbib_suffix:N \NAT@date
+            \__latexbangla_natbib_suffix:N \NAT@exlab
           }
-          {}
       }
   }
+% Keep raw dates in natbib's comparisons; select fonts at the printing boundary.
+\cs_new_protected:Npn \__latexbangla_natbib_print:N #1
+  {
+    \group_begin:
+    \tl_set_eq:NN \l__latexbangla_natbib_output_tl #1
+    \bool_if:NT \g__latexbangla_natbib_localized_bool
+      {\__latexbangla_bibliography_select_fonts:N \l__latexbangla_natbib_output_tl}
+    \tl_use:N \l__latexbangla_natbib_output_tl
+    \group_end:
+  }
+\cs_new_protected:Npn \__latexbangla_natbib_install:
+  {
+    \cs_new_eq:NN \__latexbangla_natbib_hyper:n \NAT@hyper@
+    \cs_set_protected:Npn \NAT@hyper@ ##1
+      {
+        \bool_if:NTF \g__latexbangla_natbib_localized_bool
+          {
+            \group_begin:
+            \tl_set:Nn \l__latexbangla_natbib_link_tl {##1}
+            \tl_replace_all:Nnn \l__latexbangla_natbib_link_tl
+              {\NAT@date}{\__latexbangla_natbib_print:N\NAT@date}
+            \tl_replace_all:Nnn \l__latexbangla_natbib_link_tl
+              {\NAT@exlab}{\__latexbangla_natbib_print:N\NAT@exlab}
+            \exp_args:NV \__latexbangla_natbib_hyper:n \l__latexbangla_natbib_link_tl
+            \group_end:
+          }
+          {\__latexbangla_natbib_hyper:n{##1}}
+      }
+  }
+\cs_new_eq:NN \latexbangla@natbibprintdate \__latexbangla_natbib_print:N
+\ExplSyntaxOff
+\newcommand*\latexbangla@patchnatbibdate{%
+  \begingroup\ExplSyntaxOff
+  \patchcmd{\NAT@test}{\else \NAT@date}
+    {\else \latexbangla@natbibprintdate\NAT@date}%
+    {\global\let\NAT@test\NAT@test}%
+    {\PackageError{latexbangla}{Cannot patch natbib date output}%
+      {Check the installed natbib version.}}%
+  \endgroup}
+\ExplSyntaxOn
 \AddToHook{package/natbib/after}[latexbangla/natbib-dates]
   {
-    % Natbib associates citation punctuation with the bibliography filename.
-    % Keep each original style's defaults unless the author supplied a preset.
     \clist_map_inline:nn {plainnat,abbrvnat,unsrtnat}
       {\cs_if_exist:cF {bibstyle@#1bn}
         {\cs_new_eq:cc {bibstyle@#1bn}{bibstyle@#1}}}
     \AddToHook{cmd/NAT@parse/after}[latexbangla/natbib-dates]
-      {\__latexbangla_natbib_localize_date:}
+      {\__latexbangla_natbib_parse_date:}
+    \__latexbangla_natbib_install:
+    \latexbangla@patchnatbibdate
   }
 \endinput
