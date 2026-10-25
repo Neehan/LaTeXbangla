@@ -161,7 +161,12 @@
       \protected@edef \l__latexbangla_citation_label_tl {#1}
       \regex_match:NVTF \c__latexbangla_decimal_label_regex
         \l__latexbangla_citation_label_tl
-        {\exp_args:NV \bengalidigits \l__latexbangla_citation_label_tl}
+        {
+          % Numeric labels may remain native inside an English bibliography,
+          % even when its Latin font has no Bengali glyphs.
+          \__latexbangla_select_script_font:
+          \exp_args:NV \bengalidigits \l__latexbangla_citation_label_tl
+        }
         {#1}
     \group_end:
   }
@@ -215,8 +220,8 @@
 % creates a live reference, so using it to save a formatter before redefining
 % that formatter would recurse. The two reads of biblatex's format registry are
 % deliberately isolated here; subsequent installation uses its public API.
-% Only labelnumber and its bibliography width format are adapted; years, page
-% locators, sort keys, entry identifiers and hyperlink destinations stay intact.
+% This adapter handles only numeric labels. The bibliography locale owns dates
+% and field numbers; citation notes, sort keys and link destinations stay intact.
 \cs_new_protected:Npn \__latexbangla_install_biblatex_formats:
   {
     \cs_new_eq:Nc \__latexbangla_original_labelnumber:n
@@ -232,6 +237,7 @@
   }
 \AddToHook{package/biblatex/after}[latexbangla/bibliography-language]
   {
+    \NewBibliographyString{article} % Shared electronic-article label.
     % Capture upstream captions before biblatex replaces bibname/refname with
     % its own strings. A direct reference to those commands inside an .lbx
     % string would then refer back to itself. This snapshot avoids both that

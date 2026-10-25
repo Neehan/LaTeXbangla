@@ -15,3 +15,7 @@ affected PDFs and the README preview when their source or output changes.
 Before release, update the version and changelog and run the full suite.
 The `latexbangla/` directory contains the
 complete CTAN upload; tests and repository documentation stay outside it.
+
+The three natbib styles share `latexbangla/code/references/latexbangla-natbib.mbs`.
+After editing it, run `tex code/references/latexbangla-natbib.ins` from
+`latexbangla/` to regenerate the `.bst` files.

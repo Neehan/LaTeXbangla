@@ -1,16 +1,85 @@
-% Minimal Bengali bibliography localization for the supported numeric styles.
+% Common bibliography terms; specialized untranslated strings inherit English.
 % Part of latexbangla, LPPL 1.3c or later; copyright 2026 Adib Hasan.
-% Untranslated bibliography strings inherit English. See the manual for the
-% scope of this Bengali mapping.
-\ProvidesFile{latexbangla-bengali.lbx}[2026/10/22 Bengali numeric bibliography support]
+\ProvidesFile{latexbangla-bengali.lbx}[2026/10/25 Bengali bibliography support]
 \InheritBibliographyExtras{english}
 \InheritBibliographyStrings{english}
+% Localize structured display numbers, not the bibliography's stored data.
+% Assamese shares these formats and changes only its words and ordinal suffix.
 \ExplSyntaxOn
+\DeclareBibliographyExtras{%
+  % Use biblatex's day-first range compression instead of English's
+  % month-first variant. English's inherited extras save/restore these hooks.
+  \protected\def\mkdaterangecomp{\mkdaterangetrunc{long}}%
+  \protected\def\mkdaterangecompextra{\mkdaterangetruncextra{long}}%
+  \protected\def\mkdaterangeterse{\mkdaterangetrunc{short}}%
+  \protected\def\mkdaterangeterseextra{\mkdaterangetruncextra{short}}%
+  % Biblatex rebinds these public commands at each entry, so change their
+  % registered implementations as well as the current aliases.
+  \savecommand\blx@imc@mkyearzeros
+  \savecommand\blx@imc@mkmonthzeros
+  \savecommand\blx@imc@mkdayzeros
+  \protected\def\blx@imc@mkyearzeros#1{\__latexbangla_bibliography_date_number:nn{4}{#1}}%
+  \protected\def\blx@imc@mkmonthzeros#1{\__latexbangla_bibliography_date_number:nn{2}{#1}}%
+  \protected\def\blx@imc@mkdayzeros#1{\__latexbangla_bibliography_date_number:nn{2}{#1}}%
+  \let\mkyearzeros\blx@imc@mkyearzeros
+  \let\mkmonthzeros\blx@imc@mkmonthzeros
+  \let\mkdayzeros\blx@imc@mkdayzeros
+  \clist_map_inline:nn {volume,volumes,number,part,chapter,version,pages,pagetotal,url}
+    {\savefieldformat{#1}}%
+  \savefieldformat[article]{volume}%
+  \savefieldformat[periodical]{volume}%
+  \savefieldformat[article]{number}%
+  \savefieldformat[periodical]{number}%
+  \DeclareFieldFormat{volume}{\bibstring{volume}\addnbspace\__latexbangla_bibliography_digits:n{#1}}%
+  \DeclareFieldFormat{volumes}{\__latexbangla_bibliography_digits:n{#1}\addnbspace\bibstring{volumes}}%
+  \DeclareFieldFormat{number}{\__latexbangla_bibliography_digits:n{#1}}%
+  \DeclareFieldFormat[article,periodical]{volume}{\__latexbangla_bibliography_digits:n{#1}}%
+  \DeclareFieldFormat[article,periodical]{number}{\__latexbangla_bibliography_digits:n{#1}}%
+  \DeclareFieldFormat{part}{.\__latexbangla_bibliography_digits:n{#1}}%
+  \DeclareFieldFormat{chapter}{\bibstring{chapter}\addnbspace\__latexbangla_bibliography_digits:n{#1}}%
+  \DeclareFieldFormat{version}{\bibstring{version}\addnbspace\__latexbangla_bibliography_digits:n{#1}}%
+  % Let biblatex inspect the original page range before converting its output.
+  \DeclareFieldFormat{pages}{\mkpageprefix[bookpagination][\__latexbangla_bibliography_digits:n]{#1}}%
+  \DeclareFieldFormat{pagetotal}{\mkpagetotal[bookpagination][\__latexbangla_bibliography_digits:n]{#1}}%
+  % Biblatex's default URL label is literal English, not a localized string.
+  \DeclareFieldFormat{url}{\bibstring{url}\addcolon\space\url{#1}}%
+}
+\UndeclareBibliographyExtras{%
+  \restorecommand\blx@imc@mkyearzeros
+  \restorecommand\blx@imc@mkmonthzeros
+  \restorecommand\blx@imc@mkdayzeros
+  \let\mkyearzeros\blx@imc@mkyearzeros
+  \let\mkmonthzeros\blx@imc@mkmonthzeros
+  \let\mkdayzeros\blx@imc@mkdayzeros
+  \clist_map_inline:nn {volume,volumes,number,part,chapter,version,pages,pagetotal,url}
+    {\restorefieldformat{#1}}%
+  \restorefieldformat[article]{volume}%
+  \restorefieldformat[periodical]{volume}%
+  \restorefieldformat[article]{number}%
+  \restorefieldformat[periodical]{number}%
+}
+\DeclareBibliographyExtras{%
+  \protected\def\mkbibordinal#1{\__latexbangla_bibliography_ordinal:nn{bengali}{#1}}%
+  \protected\def\mkbibdatelong#1#2#3{%
+    \iffieldundef{#3}{}{\__latexbangla_bibliography_digits:n{\thefield{#3}}%
+      \iffieldundef{#2}{\iffieldundef{#1}{}{\space}}{\nobreakspace}}%
+    \iffieldundef{#2}{}{\mkbibmonth{\thefield{#2}}%
+      \iffieldundef{#1}{}{\space}}%
+    \iffieldbibstring{#1}{\bibstring{\thefield{#1}}}%
+      {\dateeraprintpre{#1}\__latexbangla_bibliography_digits:n{\thefield{#1}}}}%
+  \protected\def\mkbibdateshort#1#2#3{%
+    \iffieldundef{#3}{}{\mkdayzeros{\thefield{#3}}%
+      \iffieldundef{#2}{\iffieldundef{#1}{}{\bibdatesep}}{\bibdatesep}}%
+    \iffieldundef{#2}{}{\mkmonthzeros{\thefield{#2}}%
+      \iffieldundef{#1}{}{\bibdatesep}}%
+    \iffieldbibstring{#1}{\bibstring{\thefield{#1}}}%
+      {\dateeraprintpre{#1}\mkyearzeros{\thefield{#1}}}}%
+}
 \DeclareBibliographyStrings{
   bibliography = {{\__latexbangla_bibliography_name:}{\__latexbangla_bibliography_name:}},
   references   = {{\__latexbangla_references_name:}{\__latexbangla_references_name:}},
-  and          = {{এবং}{এবং}},
-  andothers    = {{এবং~অন্যান্য}{এবং~অন্যান্য}},
 }
+\prop_map_inline:Nn \g__latexbangla_bibliography_bengali_prop
+  {\DeclareBibliographyStrings{#1={{#2}{#2}}}}
 \ExplSyntaxOff
 \endinput

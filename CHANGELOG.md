@@ -2,6 +2,8 @@
 
 ## 2.1
 
+- Localize bibliography terms, dates and numbers in Bangla and Assamese with
+  biblatex and the new `plainnatbn`, `abbrvnatbn` and `unsrtnatbn` natbib styles.
 - Translate standard `cleveref` reference names and connecting words automatically.
 - Add Mina, AdorshoLipi, BenSen, BenSenHandwriting, Atma, Alkatra and Shonar Bangla, with tuned font defaults.
 - Support updated TeX Live 2024 and later.

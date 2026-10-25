@@ -1,0 +1,26 @@
+% Exercise generated words through real bibliography drivers, not just strings.
+\begin{filecontents*}{localized-references.bib}
+@book{edited,
+  editor={Alice Editor and Bob Editor}, title={Edited Collection},
+  edition={4}, volume={2}, volumes={3}, pagetotal={123},
+  publisher={Example Press}, date={2020-03-12}, isbn={978-0-1234-5678-9}}
+@incollection{chapter,
+  author={Carol Writer and David Writer}, title={A Chapter},
+  editor={Alice Editor and Bob Editor}, booktitle={Collected Studies},
+  publisher={Example Press}, date={2021}, pages={12-34}}
+@book{translated,
+  author={Paul Erd{\H{o}}s and Pablo Soberón}, title={Translated Work},
+  translator={Eve Translator}, edition={2}, publisher={Birkhäuser}, date={2022},
+  doi={10.1234/example.2022}}
+@article{many,
+  author={Amy Author and Ben Author and Cy Author and Dee Author},
+  title={Many Authors}, journaltitle={Research Journal},
+  date={2023-04}, volume={8}, number={2}, pages={45-67}}
+@online{web,
+  author={Frank Author}, title={Online Notes 2024},
+  url={https://example.org/notes/2024}, urldate={2024-10-25}}
+@thesis{thesis,
+  author={Grace Researcher}, title={Doctoral Study}, type={phdthesis},
+  institution={Example University}, date={2024}}
+\end{filecontents*}
+\addbibresource{localized-references.bib}

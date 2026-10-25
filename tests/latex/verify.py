@@ -619,8 +619,9 @@ for name in ("citations-standard-off", "citations-natbib-off", "citations-biblat
 for name in ("citations-standard", "citations-natbib", "citations-biblatex",
              "assamese-citations-standard", "assamese-citations-natbib", "assamese-citations-biblatex"):
     check(
-        "2020" in text(name) and "12–14" in text(name),
-        f"{name}: authored years and citation notes stay Western",
+        ("২০২০" if "biblatex" in name else "2020") in text(name)
+        and "12–14" in text(name),
+        f"{name}: biblatex localizes dates while citation notes stay Western",
     )
     check(bool(PDFS.get(name, {}).get("targets")), f"{name}: citation hyperlinks exist")
 check(
@@ -645,9 +646,134 @@ check(
 )
 for name in ("natbib-author-year", "biblatex-author-year"):
     check(
-        "2020" in text(name) and "২০২০" not in text(name),
-        f"{name}: author-year data remains unchanged",
+        ("২০২০" if name == "biblatex-author-year" else "2020") in text(name),
+        f"{name}: author-year dates follow the bibliography system's locale",
     )
+
+# Localized natbib styles preserve raw citation data and upstream English output.
+for style in ("plainnatbn", "abbrvnatbn", "unsrtnatbn"):
+    for language in ("bangla", "assamese", "english"):
+        for mode in ("numbers", "authoryear"):
+            name = f"natbib-{style}-{language}-{mode}"
+            rendered = re.sub(r"\s+", "", normalize("NFC", text(name)))
+            native = language != "english"
+            for value in (("২০২৪", "১২–৩৪", "৮") if native else ("2024", "12–34", "8")):
+                check(value in rendered, f"{name}: structured number {value}")
+            conjunction = {"bangla": "এবং", "assamese": "আৰু", "english": "and"}[language]
+            check(conjunction in rendered, f"{name}: language-specific conjunction")
+            label = {"bangla": "ইউআরএল", "assamese": "ইউআৰএল", "english": "URL"}[language]
+            check(label in rendered, f"{name}: translated URL label")
+            for value in ("1984", "Series123", "978-0-1234-5678-9",
+                          "10.1234/example.2024", "https://example.org/notes/2024", "Erdős", "Soberón"):
+                check(value in rendered, f"{name}: preserves authored data {value}")
+            bbl = (BUILD / name / "main.bbl").read_text(encoding="utf-8")
+            check("আরিফ" in bbl and "অৰুণ" in bbl,
+                  f"{name}: UTF-8 given names survive BibTeX without broken initials")
+            if mode == "authoryear":
+                first_line = re.sub(r"\s+", "", text(name).splitlines()[0])
+                check(("২০২৪a,b" if native else "2024a,b") in first_line,
+                      f"{name}: author-year compression and suffixes survive localization")
+            else:
+                check("[১]" in rendered, f"{name}: native numeric labels remain independent of language")
+    original = "natbib-english-baseline-" + style.removesuffix("bn")
+    localized = "natbib-english-baseline-" + style
+    check(re.sub(r"\s+", "", text(original)) == re.sub(r"\s+", "", text(localized)),
+          f"{style}: English output matches its upstream natbib style")
+    bbl = (BUILD / f"natbib-{style}-bangla-numbers/main.bbl").read_text(encoding="utf-8")
+    keys = re.findall(r"\\bibitem\[.*?\]\{([^}]+)\}", bbl)
+    check(keys[:3] == ["samea", "sameb", "native"] if style == "unsrtnatbn"
+          else keys[:2] == ["samea", "sameb"], f"{style}: expected citation/sorted order")
+
+rendered = re.sub(r"\s+", "", text("natbib-localized-western"))
+check("[1]" in rendered and "[১]" not in rendered and "২০২৪" in rendered,
+      "Localized natbib: disabling counter conversion preserves native bibliography dates")
+rendered = re.sub(r"\s+", "", text("natbib-localized-roundtrip"))
+check("২০২৪a,b" in rendered and "2024a,b" in rendered,
+      "Localized natbib: citation dates switch between native and English")
+first_citation = re.sub(r"\s+", "", text("natbib-localized-custom-punctuation").splitlines()[0])
+check(first_citation == "(AuthorএবংWriter,২০২৪a,b)",
+      "Localized natbib: author punctuation presets survive package loading")
+
+for language in ("bangla", "assamese", "english"):
+    name = f"natbib-edgecases-{language}"
+    rendered = re.sub(r"\s+", "", normalize("NFC", text(name)))
+    native = language != "english"
+    check(("পৃষ্ঠা১২৮" if native else "page128") in rendered,
+          f"{name}: single-page references use the bibliography language")
+    check(("৭০–৮১" if native else "70–81") in rendered and "[১]" in rendered,
+          f"{name}: cross-referenced entries retain page ranges and parent labels")
+    article = {"bangla": "প্রবন্ধ", "assamese": "প্ৰবন্ধ", "english": "art."}[language]
+    # XeTeX's glyph mapping extracts the ra conjunct in visual order.
+    if native and ENGINE == "xelatex":
+        article = "পৰ্বন্ধ"
+    check(article + "e128" in rendered,
+          f"{name}: translates the article label without changing its identifier")
+
+# The same bibliography must change its display language without changing data,
+# identifiers, sorting or numeric-label policy.
+for language in ("bangla", "assamese"):
+    for style in ("numeric", "numeric-comp", "alphabetic", "authoryear",
+                  "authoryear-comp", "verbose", "western", "short-dates"):
+        name = f"bibliography-{language}-{style}"
+        rendered = re.sub(r"\s+", "", normalize("NFC", text(name)))
+        for value in ("২০২৩", "২০২২", "৮.২", "৪৫–৬৭", "১২–৩৪", "১২৩"):
+            check(value in rendered, f"{name}: native bibliography number {value}")
+        for value in ("OnlineNotes2024", "978-0-1234-5678-9", "10.1234/example.2022",
+                      "https://example.org/notes/2024", "Erdős", "Soberón", "Birkhäuser"):
+            check(value in rendered, f"{name}: preserves {value}")
+        if style in ("western", "short-dates"):
+            check("[1]" in rendered and "[১]" not in rendered,
+                  f"{name}: counter switch controls only numeric labels")
+        if style == "short-dates":
+            check("১২/০৩/২০২০" in rendered and "২৫/১০/২০২৪" in rendered,
+                  f"{name}: localized short dates retain zero padding")
+        if style.startswith("authoryear"):
+            check("২০২৩" in text(name).splitlines()[0],
+                  f"{name}: citation date is localized too")
+        check(any(link.get("uri") == "https://example.org/notes/2024"
+                  for link in PDFS.get(name, {}).get("links", [])),
+              f"{name}: URL destination retains Western digits")
+    for mode in ("english", "english-option"):
+        name = f"bibliography-{language}-{mode}"
+        rendered = re.sub(r"\s+", "", text(name))
+        check(all(value in rendered for value in ("2023", "2nd", "4th", "45–67"))
+              and not re.search("[০-৯]", rendered),
+              f"{name}: English language restores Western structured numbers")
+    name = f"bibliography-{language}-roundtrip"
+    with fitz.open(BUILD / name / "main.pdf") as document:
+        pages = [p.get_text() for p in document]
+        check(len(pages) == 3 and "২০২৩" in pages[0] and "২০২৩" in pages[2]
+              and "2023" in pages[1] and "২০২৩" not in pages[1],
+              f"{name}: native/English/native switching restores each locale")
+        url_label = "ইউআরএল" if language == "bangla" else "ইউআৰএল"
+        check(len(pages) == 3 and url_label in pages[0] and url_label in pages[2]
+              and "URL:" in pages[1] and url_label not in pages[1],
+              f"{name}: URL label follows the locale and restores English")
+
+for language in ("bangla", "assamese"):
+    for date_format in ("comp", "terse"):
+        name = f"bibliography-{language}-{date_format}-ranges"
+        with fitz.open(BUILD / name / "main.pdf") as document:
+            pages = [re.sub(r"\s+", "", page.get_text()) for page in document]
+            native = "১৫–১৭জুন২০২৩" if date_format == "comp" else "১৫–১৭/০৬/২০২৩"
+            check(len(pages) == 3 and native in pages[0] and native in pages[2],
+                  f"{name}: compact ranges use day-first ordering in both native passes")
+            check("2023" in pages[1] and "২০২৩" not in pages[1],
+                  f"{name}: English range formatting is restored")
+
+rendered = re.sub(r"\s+", "", text("bibliography-date-ranges"))
+check("১/৩/২০২০–২/৪/২০২১" in rendered,
+      "Bibliography date ranges honor datezeros=false")
+check("২০২৩a" in rendered and "২০২৩b" in rendered,
+      "Author-year disambiguation suffixes survive native date conversion")
+check(all(value in rendered for value in ("Title1984", "Press123", "Revised", "IV", "xii–xiv")),
+      "Textual editions, Roman numbers, titles and publishers remain authored text")
+rendered = text("bibliography-mixed-languages")
+check(all(value in rendered for value in ("2023", "২০২৩", "2nd", "[১]", "[২]")),
+      "Per-entry languages coexist with the independent numeric-label policy")
+check("[১]" in text("biblatex-english-native-labels")
+      and "2020" in text("biblatex-english-native-labels"),
+      "English bibliography retains readable native labels with the default Latin font")
 check(
     PDFS.get("citations-standard", {}).get("targets", [])[:3]
     == ["cite.gamma", "cite.alpha", "cite.beta"],
@@ -1423,11 +1549,11 @@ with fitz.open(BUILD / "manual/main.pdf") as document:
         r"\newlabel{ex:custom}{{১২}" in manual_aux
         and r"\newlabel{eq:speed}{{১}" in manual_aux
         and r"\newlabel{sec:numbering}{{4}{" in manual_aux
-        and document[section_pages["Numbers, lists and your own counters"]]
+        and document[section_pages["Numbers, lists and custom counters"]]
         .get_text().strip().splitlines()[-1]
-        == str(section_pages["Numbers, lists and your own counters"] + 1)
-        and "0012" not in manual_result_text("Numbers, lists and your own counters")
-        and "০০১২" in manual_result_text("Numbers, lists and your own counters"),
+        == str(section_pages["Numbers, lists and custom counters"] + 1)
+        and "0012" not in manual_result_text("Numbers, lists and custom counters")
+        and "০০১২" in manual_result_text("Numbers, lists and custom counters"),
         "Manual uses Bangla example counters, Western navigation and explicit digit conversion",
     )
     check(
@@ -1436,6 +1562,21 @@ with fitz.open(BUILD / "manual/main.pdf") as document:
         and "(১)" in manual_result_text("Labels, references and citations"),
         "Manual output resolves its citation, custom counter and equation reference",
     )
+    for title, result_title, language, connector, edition in (
+        ("Bibliographies and citations", "Result", "bangla", "এবং", "সংস্করণ"),
+        ("তথ্যসূত্র ও উদ্ধৃতি", "ফলাফল", "bangla", "এবং", "সংস্করণ"),
+        ("তথ্যসূত্ৰ আৰু উদ্ধৃতি", "ফলাফল", "assamese", "আৰু", "সংস্কৰণ"),
+    ):
+        rendered = manual_result_text(title, result_title)
+        standalone = re.sub(r"\s+", "", text("manual-" + language + "-bibliography"))
+        for value in ("[১]", "[২]", "২০২৩", "২০২৪", "১২–৩৪", "৮.২", connector, edition):
+            check(value in rendered and value in standalone,
+                  f"Manual {title} and its standalone example render {value}")
+    citation_links = [(page.number, link) for page in document for link in page.get_links()
+                      if link.get("nameddest", "").startswith("cite.")]
+    check(len(citation_links) == 6
+          and all(source == link.get("page") for source, link in citation_links),
+          "Each manual bibliography preview links to its own entries")
     for title, result_title in (
         ("Extended alphabetic labels", "Result"),
         ("একাধিক বর্ণের নম্বর", "ফলাফল"),
@@ -1494,7 +1635,7 @@ with fitz.open(BUILD / "manual/main.pdf") as document:
     check(
         r"\newlabel{bn:ex:custom}{{১২}" in manual_aux
         and r"\newlabel{bn:eq:speed}{{১}" in manual_aux
-        and "০০১২" in manual_result_text("ক্রমসংখ্যা, তালিকা ও নিজের কাউন্টার", "ফলাফল")
+        and "০০১২" in manual_result_text("ক্রমসংখ্যা, তালিকা ও নিজস্ব কাউন্টার", "ফলাফল")
         and all(
             token in manual_result_text("লেবেল, রেফারেন্স ও তথ্যসূত্র", "ফলাফল")
             for token in ("[১]", "১২", "(১)")
@@ -1509,7 +1650,7 @@ with fitz.open(BUILD / "manual/main.pdf") as document:
         and "page" in link
         and region.contains(link["from"])
     }
-    counter_pages = {page.number for page, _ in manual_section_regions("ক্রমসংখ্যা, তালিকা ও নিজের কাউন্টার")}
+    counter_pages = {page.number for page, _ in manual_section_regions("ক্রমসংখ্যা, তালিকা ও নিজস্ব কাউন্টার")}
     math_pages = {page.number for page, _ in manual_section_regions("গণিত, সারণি ও উপপাদ্য")}
     check(
         bool(counter_pages & reference_targets) and bool(math_pages & reference_targets)
@@ -1574,7 +1715,7 @@ check(
     all(token in standalone_as_text
         for token in ("সমীকৰণ", "০০১২", normalize("NFC", "য়,কক,কখ")))
     and any(token in standalone_as_text for token in ("প্ৰমাণ", "পৰ্মাণ"))
-    and any(token in standalone_as_text for token in ("প্ৰসংগ", "পৰ্সংগ"))
+    and any(token in text("manual-assamese-bibliography") for token in ("প্ৰসংগ", "পৰ্সংগ"))
     and r"\newlabel{as:ex:western}{{3}" in standalone_as_aux
     and r"\newlabel{as:item:latin}{{a}" in standalone_as_aux,
     "Translated examples work independently with language=assamese",

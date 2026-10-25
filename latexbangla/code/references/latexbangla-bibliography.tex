@@ -1,0 +1,48 @@
+% Shared display-number helpers for Bengali and Assamese bibliographies.
+% Part of latexbangla, LPPL 1.3c or later; copyright 2026 Adib Hasan.
+\tl_new:N \l__latexbangla_bibliography_number_tl
+% Convert only the supplied display value. Never rewrite entry data, labels,
+% names, titles or identifiers; punctuation and formatting tokens survive.
+\cs_new_protected:Npn \__latexbangla_bibliography_digits:n #1
+  {
+    \group_begin:
+      \protected@edef \l__latexbangla_bibliography_number_tl {#1}
+      \int_step_inline:nnn {0}{9}
+        {
+          \tl_replace_all:Nee \l__latexbangla_bibliography_number_tl
+            {\int_to_arabic:n {##1}} {\char_generate:nn {"09E6+##1}{12}}
+        }
+      \tl_use:N \l__latexbangla_bibliography_number_tl
+    \group_end:
+  }
+\cs_generate_variant:Nn \tl_replace_all:Nnn {Nee}
+\cs_new_protected:Npn \__latexbangla_bibliography_ordinal:nn #1#2
+  {
+    \__latexbangla_bibliography_digits:n {\int_eval:n {#2}}
+    \int_case:nnF {#2}
+      {{1}{ম}{2}{য়}{3}{য়}
+       {4}{\str_if_eq:eeTF {#1}{assamese}{ৰ্থ}{র্থ}}
+       {5}{ম}{6}{ষ্ঠ}{7}{ম}{8}{ম}{9}{ম}{10}{ম}}
+      {তম}
+  }
+% Biblatex's datezeros option controls padding, independently of the locale.
+\cs_new_protected:Npn \__latexbangla_bibliography_date_number:nn #1#2
+  {
+    \group_begin:
+      \protected@edef \l__latexbangla_bibliography_number_tl {#2}
+      % Compressed ranges omit the repeated year at the first endpoint.
+      \tl_if_empty:NF \l__latexbangla_bibliography_number_tl
+        {
+          \exp_args:NV \ifinteger \l__latexbangla_bibliography_number_tl
+            {
+              \iftoggle{blx@datezeros}
+                {\prg_replicate:nn
+                   {\int_max:nn {0}{#1-\str_count:e {\int_eval:n {#2}}}} {০}}
+                {}
+              \__latexbangla_bibliography_digits:n {\int_eval:n {#2}}
+            }
+            {#2}
+        }
+    \group_end:
+  }
+\endinput

@@ -23,7 +23,9 @@
 % The current maintainer is Adib Hasan.
 
 % This work consists of latexbangla.sty, the TeX and Lua files under code/,
-% latexbangla-*.lbx, the manual source latexbangla.tex, its PDF and logo.png.
+% latexbangla-*.lbx, *natbn.bst and their .mbs/.ins source under code/references/,
+% the manual source latexbangla.tex, its PDF, the sources and PDFs under doc/,
+% and logo.png.
 % ------------------------------------------------------------------
 
 % Minimum versions follow the final updated TeX Live 2024 distribution.
@@ -108,7 +110,11 @@
   {\file_input:n {code/engines/latexbangla-engine-luatex.tex}}
 \file_input:n {code/latexbangla-numbering.tex}
 \file_input:n {code/latexbangla-math-digits.tex}
-\file_input:n {code/latexbangla-references.tex}
+\file_input:n {code/references/latexbangla-bibliography.tex}
+\file_input:n {code/languages/latexbangla-bibliography-bengali.tex}
+\file_input:n {code/languages/latexbangla-bibliography-assamese.tex}
+\file_input:n {code/references/latexbangla-natbib.tex}
+\file_input:n {code/references/latexbangla-references.tex}
 
 % Legacy options use exactly the same setters as new documents. Explicit
 % setters later in the preamble therefore override the corresponding option.

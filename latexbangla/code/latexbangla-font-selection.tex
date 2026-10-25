@@ -42,6 +42,19 @@
       }
   }
 
+\cs_new_protected:Npn \__latexbangla_select_script_font:
+  {
+    \__latexbangla_select_font_guarded:n
+      {
+        \str_case:Vn \l__latexbangla_text_family_tl
+          {
+            {rm}{\use:c {\g__latexbangla_language_tl font}}
+            {sf}{\use:c {\g__latexbangla_language_tl fontsf}}
+            {tt}{\use:c {\g__latexbangla_language_tl fonttt}}
+          }
+      }
+  }
+
 % A fontspec family selected for Latin text becomes the local companion. Keep
 % the Bangla family as the enclosing text font so mixed text still shapes in
 % Bangla; the engine selects the companion only for Latin runs. Store a family,
@@ -61,15 +74,7 @@
                 \fontspec_if_current_script:nT {latn}
                   {
                     \tl_set:Ne \l__latexbangla_local_latin_family_tl {\f@family}
-                    \__latexbangla_select_font_guarded:n
-                      {
-                        \str_case:Vn \l__latexbangla_text_family_tl
-                          {
-                            {rm}{\use:c {\g__latexbangla_language_tl font}}
-                            {sf}{\use:c {\g__latexbangla_language_tl fontsf}}
-                            {tt}{\use:c {\g__latexbangla_language_tl fonttt}}
-                          }
-                      }
+                    \__latexbangla_select_script_font:
                   }
               }
           }

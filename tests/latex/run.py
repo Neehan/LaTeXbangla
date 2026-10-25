@@ -132,6 +132,8 @@ def main():
     environment = dict(
         os.environ,
         TEXINPUTS=".:" + str(REPO / "latexbangla") + ":",
+        BSTINPUTS=".:" + str(REPO / "latexbangla") + ":",
+        BIBINPUTS=".:" + str(REPO / "latexbangla") + ":",
         FONTCONFIG_FILE=str(ROOT / "fonts.conf"),
         OSFONTDIR=str(ROOT / "fonts") + "//:",
         max_print_line="1000",

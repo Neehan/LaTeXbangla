@@ -1,0 +1,16 @@
+% Natbib output used in the manual. Compile with BibTeX and either engine.
+% Override \previewlanguage with assamese for the Assamese panel.
+% Copyright 2026 Adib Hasan. LPPL 1.3c or later.
+\documentclass[11pt,varwidth=76mm]{standalone}
+\providecommand{\previewlanguage}{bangla}
+\expanded{\noexpand\usepackage[language=\previewlanguage]{latexbangla}}
+\setmainfont{TeX Gyre Pagella}
+\setbanglamainfont{Kalpurush}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{hyperref}
+\hypersetup{hidelinks}
+\begin{document}
+\citet{book}; \citep{book,article}.
+\bibliographystyle{plainnatbn}
+\bibliography{doc/natbib-\previewlanguage}
+\end{document}

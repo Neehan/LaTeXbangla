@@ -41,10 +41,12 @@
 \newcommand{\assamesefontsf}{\assamesefont}
 \newcommand{\assamesefonttt}{\assamesefont}
 
-\usepackage{amsmath,amsthm,graphicx,booktabs,tabularx}
+\usepackage{amsmath,amsthm,graphicx,booktabs,tabularx,float}
 \usepackage{xcolor,minted,tcolorbox,titlesec,fancyhdr,needspace}
 \tcbuselibrary{raster,skins}
 \usepackage{hologo}
+\usepackage[backend=biber,style=numeric-comp,sorting=none,date=long]{biblatex}
+\DeclareLanguageMapping{assamese}{latexbangla-assamese}
 \usepackage{hyperref}
 \usepackage{alphalph}
 % The extended-label example uses alphalph's custom-alphabet interface.
@@ -141,6 +143,68 @@
      \input{\manualexamplefile}
    \end{tcolorbox}
    \end{tcbraster}}
+
+% The source panels and Biber read these same sample entries.
+\begin{VerbatimOut}{\jobname-bangla.bib}
+@book{book,
+  author = {আরিফ রহমান and মায়া সেন},
+  title = {গণনার প্রথম পাঠ},
+  translator = {সুমন দত্ত},
+  edition = {2},
+  publisher = {নমুনা প্রকাশনী},
+  date = {2023-04-12}
+}
+@article{article,
+  author = {নীলা দাস},
+  title = {একটি গণনার সমস্যা},
+  journaltitle = {গণিতচর্চা},
+  volume = {8}, number = {2},
+  pages = {12-34}, date = {2024-06}
+}
+\end{VerbatimOut}
+\begin{VerbatimOut}{\jobname-assamese.bib}
+@book{book,
+  author = {আৰিফ ৰহমান and মায়া সেন},
+  title = {গণনাৰ প্ৰথম পাঠ},
+  translator = {সুমন দত্ত},
+  edition = {2},
+  publisher = {নমুনা প্ৰকাশনী},
+  date = {2023-04-12}
+}
+@article{article,
+  author = {নীলা দাস},
+  title = {এটা গণনাৰ সমস্যা},
+  journaltitle = {গণিতচৰ্চা},
+  volume = {8}, number = {2},
+  pages = {12-34}, date = {2024-06}
+}
+\end{VerbatimOut}
+% Independent reference sections restart labels and keep each guide's links local.
+\newcommand{\manualbibliographypair}[2]{%
+  \begin{tcbraster}[raster columns=2,raster column skip=3mm,
+    raster equal height=rows,raster valign=top]
+  \begin{tcolorbox}[manualbox,title={\manualcodetitle: \texttt{references.bib}}]
+    \inputminted[fontsize=\footnotesize]{bibtex}{\jobname-#1.bib}
+  \end{tcolorbox}
+  \begin{tcolorbox}[manualbox,title=\manualresulttitle,colback=ResultPaper]
+    \begin{refsection}[\jobname-#1.bib]
+    \cite{book,article}
+    \printbibliography[heading=subbibliography,title={#2}]
+    \end{refsection}
+  \end{tcolorbox}
+  \end{tcbraster}}
+
+% Natbib is compiled separately because it cannot share a document with biblatex.
+\newcommand{\manualnatbibpair}[1]{%
+  \begin{tcbraster}[raster columns=2,raster column skip=3mm,
+    raster equal height=rows,raster valign=top]
+  \begin{tcolorbox}[manualbox,title={\manualcodetitle: \texttt{references.bib}}]
+    \inputminted[fontsize=\footnotesize]{bibtex}{doc/natbib-#1.bib}
+  \end{tcolorbox}
+  \begin{tcolorbox}[manualbox,title=\manualresulttitle,colback=ResultPaper]
+    \includegraphics[width=\linewidth]{doc/natbib-#1.pdf}
+  \end{tcolorbox}
+  \end{tcbraster}}
 
 \begin{document}
 % The guide's navigation and tables use English labels in this half. Keep the language
@@ -244,10 +308,9 @@ the mixed paragraph directly. The example above matches the text's appearance;
 the Bangla numbering and translated document labels described later in this
 guide are additional parts of \LaTeX{}bangla's language support.
 
-\textbf{Install locally.} Copy \pkg{latexbangla.sty},
-\pkg{latexbangla-*.lbx} and the complete \pkg{code/} folder beside your
-main document, or install that structure in your \TeX{} tree. Package files are in
-\href{https://github.com/Neehan/LaTeXbangla}{the repository's \pkg{latexbangla/} folder}.
+\textbf{Install locally.} Copy the contents of
+\href{https://github.com/Neehan/LaTeXbangla/tree/master/latexbangla}{the repository's \pkg{latexbangla/} folder}
+beside your main document, keeping the subfolders intact.
 
 \section{Choose fonts and text styles}\label{sec:fonts}
 \subsection{Supported Bangla fonts}
@@ -255,7 +318,7 @@ Use the font's name in \verb|\setbanglamainfont{...}|. The families below have
 been tested with both Bangla and Assamese; compare their samples in the font
 guide in \href{https://github.com/Neehan/LaTeXbangla}{the repository}.
 Other fonts may work too, but have not been tested.
-\begin{table}[!htbp]
+\begin{table}[H]
 \centering\small
 \caption{Default settings for supported Bangla fonts.}\label{tab:font-defaults}
 \begin{tabularx}{\linewidth}{@{}lXXrr@{}}
@@ -469,7 +532,7 @@ footnotes use Bangla numbers; Roman or symbolic formats keep their structure.
 একটি তথ্য\footnote{ছোট ব্যাখ্যা।}
 \end{examplepair}
 
-\section{Numbers, lists and your own counters}\label{sec:numbering}
+\section{Numbers, lists and custom counters}\label{sec:numbering}
 Write an exercise with subparts using ordinary nested lists. \LaTeX{}bangla supplies
 the Bangla labels, so the same list commands work throughout your document.
 
@@ -671,50 +734,69 @@ or citations so their references can be resolved.
 \end{examplepair}
 \verb|\ref| prints the label, \verb|\eqref| adds parentheses, and
 \verb|\autoref| includes the translated name. Names include পরিচ্ছেদ,
-উপপরিচ্ছেদ, সমীকরণ and পাদটীকা. To choose another term, redefine its public
-hyperref name after loading the packages:
-\begin{code}
-\renewcommand{\sectionautorefname}{বিভাগ}
-\providecommand{\theoremautorefname}{উপপাদ্য}
-\renewcommand{\theoremautorefname}{উপপাদ্য}
-\end{code}
+উপপরিচ্ছেদ, সমীকরণ and পাদটীকা.
+
 Existing custom reference names are preserved. Theorem environments that share
 a counter also share hyperref's usual reference-type rules.
 
-\subsection{Numeric citations}
-For a short bibliography, you can write the entries directly and cite them as usual:
-\begin{examplepair}
-ইউক্লিডের বই দেখুন~\cite{euclid}।
-\begin{thebibliography}{9}
-\bibitem{euclid}
-Euclid. \textit{Elements}.
-\end{thebibliography}
-\end{examplepair}
-If you manage references with natbib or biblatex, the same numbering applies:
-use natbib's numeric mode, including sorting and compression, or biblatex's
-\pkg{numeric} or \pkg{numeric-comp} style. Only numeric labels become Bangla.
-Labels such as \pkg{Knuth84}, years you type, notes and author--year citations
-keep their script and style. Citation keys, sorting and links work as usual.
-Set \pkg{changecounternumbering=false} to keep numeric labels unchanged too.
+\subsection{Keep labels in English}
+To keep selected labels in English while writing Bangla, use standard
+Polyglossia caption customizations and hyperref reference names after loading
+the packages. For Western counter numbers
+as well, load \LaTeX{}bangla with \pkg{changecounternumbering=false}:
+\begin{code}
+\gappto\captionsbengali{%
+  \renewcommand{\chaptername}{Chapter}%
+  \renewcommand{\tablename}{Table}%
+}
+\renewcommand{\sectionautorefname}{Section}
+\renewcommand{\tableautorefname}{Table}
+\end{code}
+For Assamese, use \verb|\captionsassamese| instead.
 
-\subsection{A biblatex document}
-For a longer article or book, keep your sources in a \pkg{.bib} file and let
-biblatex build the bibliography and numbered citations.
-Load \LaTeX{}bangla before biblatex so Polyglossia is ready when biblatex starts.
-Use this preamble and add \verb|\printbibliography| where the list belongs:
+\subsection{Bibliographies and citations}
+\LaTeX{}bangla supports both \pkg{biblatex} and \pkg{natbib}. Use either
+with a \pkg{.bib} file containing your sources.
+
+\textbf{With biblatex.} Load \LaTeX{}bangla first, then choose your bibliography style:
 \begin{code}
 \usepackage{latexbangla}
 \setbanglamainfont{Kalpurush}
-\usepackage[backend=biber,style=numeric-comp]{biblatex}
+\usepackage[backend=biber,style=numeric-comp,sorting=none,date=long]{biblatex}
 \addbibresource{references.bib}
 \usepackage{hyperref}
 \end{code}
-Run your chosen \LaTeX{} engine, Biber, then the same engine twice. Bibliography
-headings and conjunctions follow the selected language; other terms remain English.
-For natbib, choose a \hologo{BibTeX} style and load:
+Save these sample entries as \pkg{references.bib}, then put
+\verb|\cite{book,article}| and \verb|\printbibliography| in your document:
+\manualbibliographypair{bangla}{তথ্যসূত্রসমূহ}
+Run your chosen \LaTeX{} engine, Biber, then the same engine twice. Names and titles
+stay as entered; connecting words, editions, dates, volumes and page numbers
+follow the bibliography language. Identifiers such as URLs and DOIs stay unchanged.
+
+For English terms and numbers, declare \verb|\setotherlanguage{english}| in the
+preamble and add \pkg{language=english} and \pkg{autolang=other} to the biblatex options.
+
+\textbf{With natbib.} Use \verb|\citet| for textual citations and \verb|\citep|
+for parenthetical citations. For translated bibliography terms and numbers:
 \begin{code}
-\usepackage[numbers,sort&compress]{natbib}
+\usepackage[numbers,sort&compress]{natbib} % Or [authoryear].
+\bibliographystyle{plainnatbn}
+% In the document:
+\citet{book}; \citep{book,article}.
+\bibliography{references}
 \end{code}
+\manualnatbibpair{bangla}
+Use standard \hologo{BibTeX} fields such as \pkg{year} and \pkg{journal}; run
+\hologo{BibTeX} instead of Biber. These styles follow the current language;
+use an \pkg{english} environment for English output after declaring
+\verb|\setotherlanguage{english}|.
+
+\begin{tcolorbox}[manualwarning]
+The standard \pkg{plainnat}, \pkg{abbrvnat} and \pkg{unsrtnat} styles keep their
+English wording. For translations, use \pkg{plainnatbn}, \pkg{abbrvnatbn} and
+\pkg{unsrtnatbn}, respectively, as drop-in replacements.
+\pkg{abbrvnatbn} keeps non-ASCII given names, including Bangla and Assamese, in full to avoid broken initials.
+\end{tcolorbox}
 
 \subsection{Using other packages}
 Build on the packages you already use: \pkg{mathtools} and \pkg{bm} for
@@ -916,10 +998,9 @@ English keeps its own typeface.
 পরের অংশগুলোতে দেখানো বাংলা ক্রমসংখ্যা ও ডকুমেন্টের অনূদিত নামগুলো
 \LaTeX{}bangla-এর ভাষা সহায়তার আরও কিছু সুবিধা।
 
-\textbf{নিজের কম্পিউটারে ইনস্টল।} \pkg{latexbangla.sty},
-\pkg{latexbangla-*.lbx} ও পুরো \pkg{code/} ফোল্ডার মূল ডকুমেন্টের পাশে রাখুন,
-অথবা একই কাঠামো আপনার \TeX{} tree-তে ইনস্টল করুন। ফাইলগুলো
-\href{https://github.com/Neehan/LaTeXbangla}{রিপোজিটরির \pkg{latexbangla/} ফোল্ডারে} আছে।
+\textbf{নিজের কম্পিউটারে ইনস্টল।}
+\href{https://github.com/Neehan/LaTeXbangla/tree/master/latexbangla}{রিপোজিটরির \pkg{latexbangla/} ফোল্ডারের}
+সব ফাইল ও সাবফোল্ডার মূল ডকুমেন্টের পাশে কপি করুন; সাবফোল্ডারের গঠন অক্ষুণ্ণ রাখুন।
 
 \section{ফন্ট ও লেখার ধরন বেছে নেওয়া}\label{bn:sec:fonts}
 \subsection{পরীক্ষিত বাংলা ফন্ট}
@@ -927,7 +1008,7 @@ English keeps its own typeface.
 অসমীয়া দুই ভাষাতেই পরীক্ষা করা হয়েছে। নমুনা তুলনা করতে
 \href{https://github.com/Neehan/LaTeXbangla}{রিপোজিটরিতে দেওয়া} ফন্ট নির্দেশিকাটি
 দেখতে পারেন। অন্য ফন্টও কাজ করতে পারে, তবে সেগুলো পরীক্ষা করা হয়নি।
-\begin{table}[!htbp]
+\begin{table}[H]
 \centering\small
 \caption{পরীক্ষিত বাংলা ফন্টের পূর্বনির্ধারিত সেটিং।}\label{bn:tab:font-defaults}
 \begin{tabularx}{\linewidth}{@{}lXXrr@{}}
@@ -1142,7 +1223,7 @@ fontspec ১.৫ ধরে, \LaTeX{}bangla-এর ফন্ট অনুযা�
 একটি তথ্য\footnote{ছোট ব্যাখ্যা।}
 \end{examplepair}
 
-\section{ক্রমসংখ্যা, তালিকা ও নিজের কাউন্টার}\label{bn:sec:numbering}
+\section{ক্রমসংখ্যা, তালিকা ও নিজস্ব কাউন্টার}\label{bn:sec:numbering}
 উপপ্রশ্নসহ একটি অনুশীলনী লিখতে সাধারণ তালিকার ভেতরে আরেকটি তালিকা ব্যবহার করুন।
 বাংলা নম্বর \LaTeX{}bangla নিজেই দেয়, তাই পুরো ডকুমেন্টে পরিচিত তালিকার কমান্ডই চলে।
 
@@ -1164,7 +1245,7 @@ fontspec ১.৫ ধরে, \LaTeX{}bangla-এর ফন্ট অনুযা�
 \end{enumerate}
 \end{examplepair}
 
-\subsection{নিজের কাউন্টারও সরাসরি কাজ করে}
+\subsection{নিজস্ব কাউন্টারও সরাসরি কাজ করে}
 অনুশীলনীর নম্বর দিতে আগের মতোই একটি কাউন্টার তৈরি করুন।
 \verb|\refstepcounter| মান এক বাড়ায় এবং \verb|\label| ও \verb|\ref|-এর
 ব্যবস্থা করে; \verb|\stepcounter| শুধু মান বাড়ায়।
@@ -1344,51 +1425,69 @@ $৩^{২}+৪^{২}=৫^{২}$।
 \end{examplepair}
 \verb|\ref| নম্বর লেখে, \verb|\eqref| তার চারপাশে বন্ধনী দেয়,
 আর \verb|\autoref| অনূদিত নামসহ রেফারেন্স দেয়। নামগুলোর মধ্যে আছে
-পরিচ্ছেদ, উপপরিচ্ছেদ, সমীকরণ ও পাদটীকা। অন্য নাম চাইলে প্যাকেজগুলো
-লোড করার পরে hyperref-এর সংশ্লিষ্ট কমান্ড বদলান:
-\begin{code}
-\renewcommand{\sectionautorefname}{বিভাগ}
-\providecommand{\theoremautorefname}{উপপাদ্য}
-\renewcommand{\theoremautorefname}{উপপাদ্য}
-\end{code}
+পরিচ্ছেদ, উপপরিচ্ছেদ, সমীকরণ ও পাদটীকা।
+
 আগে থেকে দেওয়া নিজস্ব রেফারেন্সের নাম অক্ষুণ্ণ থাকে। একাধিক উপপাদ্যের
 পরিবেশ একই কাউন্টার ব্যবহার করলে রেফারেন্সের ধরনেও hyperref-এর সাধারণ নিয়ম প্রযোজ্য।
 
-\subsection{সংখ্যাভিত্তিক তথ্যসূত্র}
-তথ্যসূত্রের তালিকা ছোট হলে সরাসরি লিখে আগের মতোই \verb|\cite| দিয়ে উল্লেখ করতে পারেন:
-\begin{examplepair}
-ইউক্লিডের বই দেখুন~\cite{bn:euclid}।
-\begin{thebibliography}{9}
-\bibitem{bn:euclid}
-Euclid. \textit{Elements}.
-\end{thebibliography}
-\end{examplepair}
-natbib-এর numeric mode-এ sorting ও compression-সহ সংখ্যার বাংলা রূপান্তর কাজ করে।
-biblatex-এ \pkg{numeric} ও \pkg{numeric-comp} style ব্যবহার করতে পারেন।
-শুধু অঙ্ক দিয়ে তৈরি লেবেল বাংলা হয়; \pkg{Knuth84}-এর মতো লেখা,
-নিজে লেখা সাল, টীকা ও লেখক-সালভিত্তিক তথ্যসূত্রের লিপি ও বিন্যাস একই থাকে।
-তথ্যসূত্রের key, সাজানোর ক্রম ও লিংক আগের মতোই কাজ করে।
-\pkg{changecounternumbering=false} দিলে সংখ্যাভিত্তিক লেবেলও আগের মতো থাকে।
+\subsection{নাম ইংরেজিতে রাখা}
+বাংলা লিখেও নির্দিষ্ট নাম ইংরেজিতে রাখতে Polyglossia-এর প্রচলিত caption পরিবর্তনের
+নিয়ম ও hyperref-এর রেফারেন্সের নাম ব্যবহার করুন। প্যাকেজগুলো লোড করার পরে
+নিচের অংশ যোগ করুন। কাউন্টারের নম্বরও ইংরেজিতে
+চাইলে \LaTeX{}bangla-এর অপশনে \pkg{changecounternumbering=false} দিন:
+\begin{code}
+\gappto\captionsbengali{%
+  \renewcommand{\chaptername}{Chapter}%
+  \renewcommand{\tablename}{Table}%
+}
+\renewcommand{\sectionautorefname}{Section}
+\renewcommand{\tableautorefname}{Table}
+\end{code}
+অসমীয়ার জন্য \verb|\captionsassamese| ব্যবহার করুন।
 
-\subsection{Biblatex দিয়ে ডকুমেন্ট}
-দীর্ঘ প্রবন্ধ বা বইয়ের জন্য তথ্যসূত্রগুলো \pkg{.bib} ফাইলে রাখুন। biblatex
-সেই ফাইল থেকে তথ্যসূত্রের তালিকা ও লেখার মধ্যে তার সংখ্যাভিত্তিক উল্লেখ তৈরি করে।
-biblatex-এর আগে \LaTeX{}bangla যোগ করুন, যাতে Polyglossia প্রস্তুত থাকে।
-নিচের অংশটি preamble-এ দিন; তথ্যসূত্রের তালিকা যেখানে চান সেখানে
-\verb|\printbibliography| লিখুন:
+\subsection{তথ্যসূত্র ও উদ্ধৃতি}
+\LaTeX{}bangla-তে \pkg{biblatex} ও \pkg{natbib} দুটোই ব্যবহার করা যায়।
+যেকোনো একটির সঙ্গে আপনার তথ্যসূত্রের \pkg{.bib} ফাইল ব্যবহার করুন।
+
+\textbf{biblatex দিয়ে।} আগে \LaTeX{}bangla লোড করুন, তারপর তথ্যসূত্রের style বেছে নিন:
 \begin{code}
 \usepackage{latexbangla}
 \setbanglamainfont{Kalpurush}
-\usepackage[backend=biber,style=numeric-comp]{biblatex}
+\usepackage[backend=biber,style=numeric-comp,sorting=none,date=long]{biblatex}
 \addbibresource{references.bib}
 \usepackage{hyperref}
 \end{code}
+নমুনা তথ্যসূত্রগুলো \pkg{references.bib} নামে সংরক্ষণ করুন। তারপর ডকুমেন্টে
+\verb|\cite{book,article}| ও \verb|\printbibliography| লিখুন:
+\manualbibliographypair{bangla}{তথ্যসূত্রসমূহ}
 আপনার নির্বাচিত \LaTeX{} ইঞ্জিন, তারপর Biber, তারপর একই ইঞ্জিন আরও দুবার চালান।
-তথ্যসূত্রের শিরোনাম ও সংযোজক শব্দ নির্বাচিত ভাষায় আসে; বাকি শব্দ ইংরেজিতে থাকে।
-natbib-এর জন্য একটি \hologo{BibTeX} style বেছে নিয়ে যোগ করুন:
+নাম ও শিরোনাম যেমন লিখেছেন তেমনই থাকে; সংযোজক শব্দ, সংস্করণ, তারিখ, খণ্ড ও
+পৃষ্ঠার নম্বর তথ্যসূত্রের ভাষা অনুসরণ করে। URL ও DOI-এর মতো শনাক্তকারী বদলায় না।
+
+শব্দ ও নম্বর ইংরেজিতে চাইলে preamble-এ \verb|\setotherlanguage{english}| দিন এবং
+biblatex-এর অপশনে \pkg{language=english} ও \pkg{autolang=other} যোগ করুন।
+
+\textbf{natbib দিয়ে।} বাক্যের অংশ হিসেবে উদ্ধৃতির জন্য \verb|\citet|, আর
+বন্ধনীর মধ্যে উদ্ধৃতির জন্য \verb|\citep| ব্যবহার করুন। তথ্যসূত্রের শব্দ ও সংখ্যা অনুবাদ করতে:
 \begin{code}
-\usepackage[numbers,sort&compress]{natbib}
+\usepackage[numbers,sort&compress]{natbib} % Or [authoryear].
+\bibliographystyle{plainnatbn}
+% In the document:
+\citet{book}; \citep{book,article}.
+\bibliography{references}
 \end{code}
+\manualnatbibpair{bangla}
+\hologo{BibTeX}-এর প্রচলিত \pkg{year} ও \pkg{journal}-এর মতো field ব্যবহার করুন;
+Biber-এর বদলে \hologo{BibTeX} চালান। এই style-গুলো বর্তমান ভাষা অনুসরণ করে;
+ইংরেজিতে রাখতে \verb|\setotherlanguage{english}| ঘোষণার পর \pkg{english}
+environment ব্যবহার করুন।
+
+\begin{tcolorbox}[manualwarning]
+প্রচলিত \pkg{plainnat}, \pkg{abbrvnat} ও \pkg{unsrtnat} style-এর ইংরেজি শব্দ
+অনুবাদ হয় না। অনুবাদের জন্য এগুলোর বদলে যথাক্রমে \pkg{plainnatbn},
+\pkg{abbrvnatbn} ও \pkg{unsrtnatbn} ব্যবহার করুন।
+অক্ষর ভেঙে যাওয়া এড়াতে \pkg{abbrvnatbn} বাংলা ও অসমীয়াসহ non-ASCII নামের প্রথম অংশ সংক্ষিপ্ত করে না।
+\end{tcolorbox}
 
 \subsection{অন্য প্যাকেজের সঙ্গে ব্যবহার}
 পরিচিত প্যাকেজগুলো নিয়েই কাজ করতে পারেন: গণিতের জন্য \pkg{mathtools} ও
@@ -1590,10 +1689,9 @@ English keeps its own typeface.
 অনুচ্ছেদটো পোনপটীয়াকৈ লিখিব পাৰে। ওপৰৰ উদাহৰণটোৱে কেৱল লেখাৰ ৰূপ মিলায়;
 পিছত দেখুওৱা ক্ৰমসংখ্যা আৰু নথিৰ অনূদিত নামবোৰো \LaTeX{}bangla-ৰ ভাষা-সমৰ্থনৰ অংশ।
 
-\textbf{নিজৰ কম্পিউটাৰত ইনষ্টল কৰক।} \pkg{latexbangla.sty},
-\pkg{latexbangla-*.lbx} আৰু সম্পূৰ্ণ \pkg{code/} ফ'ল্ডাৰ মূল নথিৰ কাষত ৰাখক,
-অথবা একে গঠন আপোনাৰ \TeX{} tree-ত ইনষ্টল কৰক। ফাইলবোৰ
-\href{https://github.com/Neehan/LaTeXbangla}{ৰিপ'জিটৰীৰ \pkg{latexbangla/} ফ'ল্ডাৰত} আছে।
+\textbf{নিজৰ কম্পিউটাৰত ইনষ্টল কৰক।}
+\href{https://github.com/Neehan/LaTeXbangla/tree/master/latexbangla}{ৰিপ'জিটৰীৰ \pkg{latexbangla/} ফ'ল্ডাৰৰ}
+সকলো ফাইল আৰু উপফ'ল্ডাৰ মূল নথিৰ কাষত কপি কৰক; উপফ'ল্ডাৰৰ গঠন অক্ষুণ্ণ ৰাখক।
 
 \section{ফণ্ট আৰু লেখাৰ ৰূপ বাছক}\label{as:sec:fonts}
 \subsection{পৰীক্ষিত ফণ্টসমূহ}
@@ -1601,7 +1699,7 @@ English keeps its own typeface.
 অসমীয়া দুয়োটা ভাষাতে পৰীক্ষা কৰা হৈছে। নমুনা তুলনা কৰিবলৈ
 \href{https://github.com/Neehan/LaTeXbangla}{ৰিপ'জিটৰীত থকা} ফণ্ট নিৰ্দেশিকাখন চাব পাৰে।
 আন ফণ্টো কাম কৰিব পাৰে, কিন্তু সেইবোৰ পৰীক্ষা কৰা হোৱা নাই।
-\begin{table}[!htbp]
+\begin{table}[H]
 \centering\small
 \caption{পৰীক্ষিত ফণ্টৰ পূৰ্বনিৰ্ধাৰিত ছেটিং।}\label{as:tab:font-defaults}
 \begin{tabularx}{\linewidth}{@{}lXXrr@{}}
@@ -1816,7 +1914,7 @@ Small caps আৰু আন ৰূপৰ উপলব্ধতা ফণ্ট�
 এটা তথ্য\footnote{চমু ব্যাখ্যা।}
 \end{examplepair}
 
-\section{ক্ৰমসংখ্যা, তালিকা আৰু নিজৰ কাউণ্টাৰ}\label{as:sec:numbering}
+\section{ক্ৰমসংখ্যা, তালিকা আৰু নিজস্ব কাউণ্টাৰ}\label{as:sec:numbering}
 উপপ্ৰশ্নসহ এটা অনুশীলনী লিখিবলৈ সাধাৰণ তালিকাৰ ভিতৰত আন এখন তালিকা
 ব্যৱহাৰ কৰক। \LaTeX{}bangla-ই অসমীয়া লেবেল দিয়ে, সেয়ে গোটেই নথিতে
 চিনাকি তালিকাৰ কমাণ্ডবোৰেই ব্যৱহাৰ কৰিব পাৰে।
@@ -1839,7 +1937,7 @@ Small caps আৰু আন ৰূপৰ উপলব্ধতা ফণ্ট�
 \end{enumerate}
 \end{examplepair}
 
-\subsection{নিজৰ কাউণ্টাৰো পোনপটীয়াকৈ কাম কৰে}
+\subsection{নিজস্ব কাউণ্টাৰো পোনপটীয়াকৈ কাম কৰে}
 অনুশীলনীৰ নম্বৰ দিবলৈ আগৰ দৰেই এটা কাউণ্টাৰ তৈয়াৰ কৰক।
 \verb|\refstepcounter|-এ মান এক বঢ়ায় আৰু \verb|\label| আৰু \verb|\ref|-ৰ
 ব্যৱস্থা কৰে; \verb|\stepcounter|-এ কেৱল মান বঢ়ায়।
@@ -2027,50 +2125,69 @@ Polyglossia-ই দিয়ে; অসমীয়া অনুবাদ \LaTeX
 \end{examplepair}
 \verb|\ref|-এ নম্বৰ লিখে, \verb|\eqref|-এ তাৰ চাৰিওফালে বন্ধনী দিয়ে,
 আৰু \verb|\autoref|-এ অনূদিত নামসহ উল্লেখ কৰে। নামবোৰৰ ভিতৰত আছে পৰিচ্ছেদ,
-উপপৰিচ্ছেদ, সমীকৰণ আৰু পাদটীকা। আন নাম বিচাৰিলে পেকেজবোৰ লোড কৰাৰ পিছত
-hyperref-ৰ সংশ্লিষ্ট কমাণ্ড সলনি কৰক:
-\begin{code}
-\renewcommand{\sectionautorefname}{বিভাগ}
-\providecommand{\assamesetheoremautorefname}{উপপাদ্য}
-\renewcommand{\assamesetheoremautorefname}{উপপাদ্য}
-\end{code}
+উপপৰিচ্ছেদ, সমীকৰণ আৰু পাদটীকা।
+
 আগতে দিয়া নিজৰ প্ৰসংগৰ নাম অক্ষুণ্ণ থাকে। একাধিক উপপাদ্যৰ পৰিৱেশে একে
 কাউণ্টাৰ ব্যৱহাৰ কৰিলে প্ৰসংগৰ ধৰণতো hyperref-ৰ সাধাৰণ নিয়ম প্ৰযোজ্য হয়।
 
-\subsection{সংখ্যাভিত্তিক উদ্ধৃতি}
-তথ্যসূত্ৰৰ তালিকা চুটি হ'লে পোনপটীয়াকৈ লিখি আগৰ দৰেই \verb|\cite| ব্যৱহাৰ কৰক:
-\begin{examplepair}
-ইউক্লিডৰ কিতাপ চাওক~\cite{as:euclid}।
-\begin{thebibliography}{9}
-\bibitem{as:euclid}
-Euclid. \textit{Elements}.
-\end{thebibliography}
-\end{examplepair}
-natbib-ৰ numeric mode-ত sorting আৰু compression-সহ সংখ্যাৰ ৰূপান্তৰ কাম কৰে।
-biblatex-ত \pkg{numeric} আৰু \pkg{numeric-comp} style ব্যৱহাৰ কৰিব পাৰে।
-কেৱল অংকেৰে গঠিত লেবেল ৰূপান্তৰ হয়; \pkg{Knuth84}-ৰ দৰে লেবেল, নিজে লিখা
-চন, টোকা আৰু লেখক-চনভিত্তিক উদ্ধৃতিৰ লিপি আৰু বিন্যাস অক্ষুণ্ণ থাকে।
-উদ্ধৃতিৰ key, সজোৱাৰ ক্ৰম আৰু লিংক আগৰ দৰেই কাম কৰে।
-\pkg{changecounternumbering=false} দিলে সংখ্যাভিত্তিক লেবেলো আগৰ দৰেই থাকে।
+\subsection{নাম ইংৰাজীত ৰাখক}
+অসমীয়া লিখিও নিৰ্দিষ্ট নাম ইংৰাজীত ৰাখিবলৈ Polyglossia-ৰ প্ৰচলিত caption সলনি কৰাৰ
+নিয়ম আৰু hyperref-ৰ প্ৰসংগৰ নাম ব্যৱহাৰ কৰক। পেকেজবোৰ লোড কৰাৰ পিছত
+তলৰ অংশ যোগ কৰক। কাউণ্টাৰৰ নম্বৰো ইংৰাজীত বিচাৰিলে
+\LaTeX{}bangla-ৰ অপশনত \pkg{changecounternumbering=false} দিয়ক:
+\begin{code}
+\gappto\captionsassamese{%
+  \renewcommand{\chaptername}{Chapter}%
+  \renewcommand{\tablename}{Table}%
+}
+\renewcommand{\sectionautorefname}{Section}
+\renewcommand{\tableautorefname}{Table}
+\end{code}
+বাংলাৰ বাবে \verb|\captionsbengali| ব্যৱহাৰ কৰক।
 
-\subsection{Biblatex ব্যৱহাৰ কৰি নথি}
-দীঘল প্ৰবন্ধ বা কিতাপৰ বাবে তথ্যসূত্ৰবোৰ \pkg{.bib} ফাইলত ৰাখক। biblatex-এ
-সেই ফাইলৰ পৰা তালিকা আৰু সংখ্যাভিত্তিক উদ্ধৃতি তৈয়াৰ কৰিব পাৰে।
-biblatex-ৰ আগত \LaTeX{}bangla লোড কৰক, যাতে Polyglossia সাজু থাকে।
-তলৰ অংশ preamble-ত দিয়ক; তালিকা য'ত বিচাৰে তাত \verb|\printbibliography| লিখক:
+\subsection{তথ্যসূত্ৰ আৰু উদ্ধৃতি}
+\LaTeX{}bangla-ত \pkg{biblatex} আৰু \pkg{natbib} দুয়োটাই ব্যৱহাৰ কৰিব পাৰি।
+যিকোনো এটাৰ সৈতে আপোনাৰ তথ্যসূত্ৰৰ \pkg{.bib} ফাইল ব্যৱহাৰ কৰক।
+
+\textbf{biblatex-ৰ সৈতে।} প্ৰথমে \LaTeX{}bangla লোড কৰক, তাৰ পিছত তথ্যসূত্ৰৰ style বাছি লওক:
 \begin{code}
 \usepackage[language=assamese]{latexbangla}
 \setbanglamainfont{Kalpurush}
-\usepackage[backend=biber,style=numeric-comp]{biblatex}
+\usepackage[backend=biber,style=numeric-comp,sorting=none,date=long]{biblatex}
 \addbibresource{references.bib}
 \usepackage{hyperref}
 \end{code}
+নমুনা তথ্যসূত্ৰবোৰ \pkg{references.bib} নামেৰে সংৰক্ষণ কৰক। তাৰ পিছত নথিত
+\verb|\cite{book,article}| আৰু \verb|\printbibliography| লিখক:
+\manualbibliographypair{assamese}{প্ৰসংগ}
 নিৰ্বাচিত \LaTeX{} ইঞ্জিন, তাৰ পিছত Biber, আৰু তাৰ পিছত একেই ইঞ্জিন দুবাৰ চলাওক।
-তথ্যসূত্ৰৰ শিৰোনাম আৰু সংযোগী শব্দ নিৰ্বাচিত ভাষাত আহে; বাকী শব্দ ইংৰাজীতে থাকে।
-natbib-ৰ বাবে এটা \hologo{BibTeX} style বাছি লৈ লোড কৰক:
+নাম আৰু শিৰোনাম লিখাৰ দৰেই থাকে; সংযোগী শব্দ, সংস্কৰণ, তাৰিখ, খণ্ড আৰু পৃষ্ঠাৰ
+নম্বৰে তথ্যসূত্ৰৰ ভাষা অনুসৰণ কৰে। URL আৰু DOI-ৰ দৰে চিনাক্তকাৰী সলনি নহয়।
+
+শব্দ আৰু নম্বৰ ইংৰাজীত বিচাৰিলে preamble-ত \verb|\setotherlanguage{english}| দিয়ক আৰু
+biblatex-ৰ বিকল্পত \pkg{language=english} আৰু \pkg{autolang=other} যোগ কৰক।
+
+\textbf{natbib-ৰ সৈতে।} বাক্যৰ অংশ হিচাপে উদ্ধৃতিৰ বাবে \verb|\citet|, আৰু
+বন্ধনীৰ ভিতৰত উদ্ধৃতিৰ বাবে \verb|\citep| ব্যৱহাৰ কৰক। তথ্যসূত্ৰৰ শব্দ আৰু সংখ্যা অনুবাদ কৰিবলৈ:
 \begin{code}
-\usepackage[numbers,sort&compress]{natbib}
+\usepackage[numbers,sort&compress]{natbib} % Or [authoryear].
+\bibliographystyle{plainnatbn}
+% In the document:
+\citet{book}; \citep{book,article}.
+\bibliography{references}
 \end{code}
+\manualnatbibpair{assamese}
+\hologo{BibTeX}-ৰ প্ৰচলিত \pkg{year} আৰু \pkg{journal}-ৰ দৰে field ব্যৱহাৰ কৰক;
+Biber-ৰ সলনি \hologo{BibTeX} চলাওক। এই style-বোৰে বৰ্তমানৰ ভাষা অনুসৰণ কৰে;
+ইংৰাজীত ৰাখিবলৈ \verb|\setotherlanguage{english}| ঘোষণা কৰাৰ পিছত \pkg{english}
+environment ব্যৱহাৰ কৰক।
+
+\begin{tcolorbox}[manualwarning]
+প্ৰচলিত \pkg{plainnat}, \pkg{abbrvnat} আৰু \pkg{unsrtnat} style-ৰ ইংৰাজী শব্দ
+অনুবাদ নহয়। অনুবাদৰ বাবে সেইবোৰৰ সলনি ক্ৰমে \pkg{plainnatbn},
+\pkg{abbrvnatbn} আৰু \pkg{unsrtnatbn} ব্যৱহাৰ কৰক।
+আখৰ ভাঙি যোৱা এৰাবলৈ \pkg{abbrvnatbn}-এ বাংলা আৰু অসমীয়াসহ non-ASCII নামৰ প্ৰথম অংশ চমু নকৰে।
+\end{tcolorbox}
 
 \subsection{আন পেকেজৰ সৈতে ব্যৱহাৰ}
 চিনাকি পেকেজবোৰ ব্যৱহাৰ কৰিয়েই কাম কৰিব পাৰে: গণিতৰ বাবে \pkg{mathtools}

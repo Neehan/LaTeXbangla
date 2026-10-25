@@ -1062,6 +1062,163 @@ Note: \cite[pp.~12--14]{alpha}.
         r"\cite{alpha}\printbibliography",
         backend="biber",
     )
+    natbib_fixture = (FIXTURES / "natbib-localization.tex").read_text(encoding="utf-8")
+    for style in ("plainnatbn", "abbrvnatbn", "unsrtnatbn"):
+        for language in ("bangla", "assamese", "english"):
+            for mode in ("numbers", "authoryear"):
+                add(
+                    f"natbib-{style}-{language}-{mode}",
+                    setup("language=" + ("assamese" if language == "assamese" else "bangla"))
+                    + r"\setotherlanguage{english}"
+                    + r"\usepackage[" + mode + r",sort&compress]{natbib}\usepackage{hyperref}"
+                    + natbib_fixture,
+                    (r"\selectlanguage{english}" if language == "english" else "")
+                    + r"\citet{samea,sameb}; \citep{native}; \citeauthor{native}; \citeyear{samea}."
+                    + r"\nocite{*}\bibliographystyle{" + style + r"}\bibliography{native-natbib}",
+                    backend="bibtex",
+                )
+
+        # Compare English output with the upstream style, including abbreviated
+        # names/months/journals, ordering and author-year disambiguation.
+        for variant in (style, style.removesuffix("bn")):
+            add(
+                "natbib-english-baseline-" + variant,
+                setup() + r"\setotherlanguage{english}"
+                + r"\usepackage[authoryear]{natbib}\usepackage{hyperref}" + natbib_fixture,
+                r"\selectlanguage{english}\citet{samea,sameb}; \citep{latin}."
+                r"\nocite{editors,chapter,web,masters,doctorate,report}"
+                r"\bibliographystyle{" + variant + r"}\bibliography{native-natbib}",
+                backend="bibtex",
+            )
+
+    for language in ("bangla", "assamese", "english"):
+        add(
+            "natbib-edgecases-" + language,
+            setup("language=" + ("assamese" if language == "assamese" else "bangla"))
+            + r"\setotherlanguage{english}\usepackage[numbers]{natbib}\usepackage{hyperref}"
+            + natbib_fixture,
+            (r"\selectlanguage{english}" if language == "english" else "")
+            + r"\nocite{electronic,singlepage,crosschapter,editors}"
+            r"\bibliographystyle{plainnatbn}\bibliography{native-natbib}",
+            backend="bibtex",
+        )
+
+    for mode in ("western", "first", "roundtrip"):
+        add(
+            "natbib-localized-" + mode,
+            (r"\usepackage[authoryear]{natbib}" if mode == "first" else "")
+            + setup("changecounternumbering=false" if mode == "western" else "")
+            + r"\setotherlanguage{english}"
+            + ("" if mode == "first" else r"\usepackage[" +
+               ("numbers,sort&compress" if mode == "western" else "authoryear") + r"]{natbib}")
+            + r"\usepackage{hyperref}" + natbib_fixture,
+            r"\citet{samea,sameb}; \citep{native}."
+            + (r"\begin{english}\citet{samea,sameb}; \citeyear{native}.\end{english}"
+               r"\citet{samea,sameb}; \citeyear{native}." if mode == "roundtrip" else "")
+            + r"\nocite{*}\bibliographystyle{plainnatbn}\bibliography{native-natbib}",
+            backend="bibtex",
+        )
+
+    add(
+        "natbib-localized-custom-punctuation",
+        r"\makeatletter\newcommand\bibstyle@plainnatbn{\bibpunct{(}{)}{;}{a}{,}{,}}\makeatother"
+        + setup() + r"\usepackage{natbib}\usepackage{hyperref}" + natbib_fixture,
+        r"\citep{samea,sameb}\bibliographystyle{plainnatbn}\bibliography{native-natbib}",
+        backend="bibtex",
+    )
+
+    bibliography_fixture = (FIXTURES / "bibliography-localization.tex").read_text(encoding="utf-8")
+    for language in ("bangla", "assamese"):
+        for style in ("numeric", "numeric-comp", "alphabetic", "authoryear", "authoryear-comp", "verbose"):
+            add(
+                f"bibliography-{language}-{style}",
+                setup("language=" + language)
+                + r"\usepackage[backend=biber,style=" + style
+                + r",maxbibnames=3,maxcitenames=2,date=long,urldate=long]{biblatex}"
+                + bibliography_fixture + r"\usepackage{hyperref}",
+                r"\cite{many}\nocite{*}\printbibliography", backend="biber",
+            )
+        for option in ("western", "english", "short-dates", "roundtrip", "english-option"):
+            add(
+                f"bibliography-{language}-{option}",
+                setup("language=" + language + ",changecounternumbering=false")
+                + r"\setotherlanguage{english}"
+                + r"\usepackage[backend=biber,style=numeric,date="
+                + ("short,urldate=short" if option == "short-dates" else "long,urldate=long")
+                + (",language=english,autolang=other" if option == "english-option" else "")
+                + r"]{biblatex}"
+                + bibliography_fixture + r"\usepackage{hyperref}",
+                r"\nocite{*}"
+                + (r"\begin{english}\cite{many}\printbibliography\end{english}"
+                   if option == "english" else
+                   r"\printbibliography\clearpage\begin{english}\printbibliography\end{english}"
+                   r"\clearpage\printbibliography" if option == "roundtrip" else
+                   r"\cite{many}\printbibliography"),
+                backend="biber",
+            )
+
+    add(
+        "bibliography-date-ranges",
+        setup("changecounternumbering=false")
+        + r"\usepackage[backend=biber,style=authoryear,date=short,datezeros=false]{biblatex}"
+        + r"""
+\begin{filecontents*}{date-ranges.bib}
+@book{range, author={Alice Author}, title={Title 1984}, date={2020-03-01/2021-04-02},
+ edition={Revised}, volume={IV}, pages={xii-xiv}, publisher={Press 123}}
+@book{same1, author={Bob Writer}, title={First}, date={2023}}
+@book{same2, author={Bob Writer}, title={Second}, date={2023}}
+\end{filecontents*}
+\addbibresource{date-ranges.bib}
+\usepackage{hyperref}
+""",
+        r"\cite{same1,same2}\nocite{*}\printbibliography", backend="biber",
+    )
+    for language in ("bangla", "assamese"):
+        for date_format in ("comp", "terse"):
+            add(
+                f"bibliography-{language}-{date_format}-ranges",
+                setup("language=" + language) + r"\setotherlanguage{english}"
+                + r"\usepackage[backend=biber,style=authoryear,date=" + date_format
+                + r",eventdate=" + date_format + r"]{biblatex}"
+                + r"""
+\begin{filecontents*}{compact-dates.bib}
+@inproceedings{conference, author={Alice Author}, title={Conference Paper},
+ booktitle={Proceedings}, eventtitle={Conference},
+ date={2023-06-15/2023-06-17}, eventdate={2023-06-15/2023-06-17}}
+\end{filecontents*}
+\addbibresource{compact-dates.bib}
+""",
+                r"\nocite{*}\printbibliography\clearpage"
+                r"\begin{english}\printbibliography\end{english}\clearpage\printbibliography",
+                backend="biber",
+            )
+    add(
+        "bibliography-mixed-languages",
+        setup()
+        + r"\setotherlanguage{english}"
+        + r"\usepackage[backend=biber,style=numeric,autolang=other]{biblatex}"
+        + r"""
+\begin{filecontents*}{mixed-references.bib}
+@book{native, author={Alice Author and Bob Writer}, title={Native Entry},
+ date={2023}, edition={2}, langid={bengali}}
+@book{english, author={Alice Author and Bob Writer}, title={English Entry},
+ date={2023}, edition={2}, langid={english}}
+\end{filecontents*}
+\addbibresource{mixed-references.bib}
+\usepackage{hyperref}
+""",
+        r"\cite{native,english}\printbibliography", backend="biber",
+    )
+    add(
+        "biblatex-english-native-labels",
+        r"\usepackage{latexbangla}\setbanglamainfont{Kalpurush}"
+        r"\setotherlanguage{english}"
+        r"\usepackage[backend=biber,style=numeric]{biblatex}"
+        r"\addbibresource{references.bib}\usepackage{hyperref}",
+        r"\begin{english}\cite{alpha}\printbibliography\end{english}",
+        backend="biber",
+    )
+
     add(
         "siunitx",
         setup() + r"\usepackage{siunitx}",
@@ -1089,6 +1246,21 @@ English code 12; বাংলা ১২
         r"An English sentence with {\banglatext বাংলা লেখা}.",
     )
     manual_source = (REPO / "latexbangla/latexbangla.tex").read_text(encoding="utf-8")
+    bibliography_preamble = manual_source.split(
+        r"\subsection{Bibliographies and citations}", 1
+    )[1].split(r"\begin{code}", 1)[1].split(r"\end{code}", 1)[0]
+    for language in ("bangla", "assamese"):
+        bibliography_data = manual_source.split(
+            r"\begin{VerbatimOut}{\jobname-" + language + ".bib}", 1
+        )[1].split(r"\end{VerbatimOut}", 1)[0]
+        add(
+            "manual-" + language + "-bibliography",
+            bibliography_preamble.replace("references.bib", "manual-references.bib").replace(r"\usepackage{latexbangla}",
+                r"\usepackage[language=" + language + r"]{latexbangla}")
+            + r"\begin{filecontents*}{manual-references.bib}" + bibliography_data
+            + r"\end{filecontents*}",
+            r"\cite{book,article}\printbibliography", backend="biber",
+        )
     # Compile the displayed font comparison independently. In particular, the
     # fontspec-only example must not inherit the manual's language package.
     manual_documents = [
@@ -1114,6 +1286,13 @@ English code 12; বাংলা ১২
         ),
         passes=1, backend=None, expect_error=None,
     )
+    for language in ("bangla", "assamese"):
+        data[f"manual-natbib-{language}"] = dict(
+            tex=r"\def\previewlanguage{" + language + "}\n"
+                + (REPO / "latexbangla/doc/natbib-preview.tex").read_text(encoding="utf-8"),
+            passes=3, backend="bibtex", expect_error=None,
+            restricted_shell_escape=True,
+        )
     data["manual"] = dict(
         tex=manual_source.replace(
             r"\phantomsection\label{manual:assamese}",
@@ -1124,7 +1303,7 @@ English code 12; বাংলা ১২
 \phantomsection\label{manual:assamese}""",
         ),
         passes=3,
-        backend=None,
+        backend="biber",
         expect_error=None,
         restricted_shell_escape=True,
     )

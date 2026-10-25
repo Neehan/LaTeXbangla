@@ -18,6 +18,8 @@ __pycache__/
 
 # Executable examples generated while compiling the manual.
 latexbangla-example-*.tex
+latexbangla-bangla.bib
+latexbangla-assamese.bib
 _minted*/
 *.minted
 *.minted-*

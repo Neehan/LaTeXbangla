@@ -72,8 +72,11 @@ Successful tests require all compilation passes, a PDF, and no unexpected missin
 or final package/font/reference warnings. Expected-error tests must produce the
 intended diagnostic. PDF checks inspect actual fonts, strokes, text, and links.
 The English, Bangla and Assamese manual runs its code/output examples during
-compilation; checks inspect their rendered counters, citations, boldness and
-reference links. Assamese examples also compile as standalone documents.
+compilation, using Biber for its bibliography previews; checks inspect counters,
+citations, boldness and reference links. Assamese examples also compile as standalone documents.
+The `manual-natbib-bangla` and `manual-natbib-assamese` cases compile the manual's
+separate natbib panels. After changing them, copy their `main.pdf` outputs to
+`latexbangla/doc/natbib-bangla.pdf` and `natbib-assamese.pdf` before rebuilding the manual.
 
 ## Test environment and fonts
 

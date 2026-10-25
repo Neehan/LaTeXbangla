@@ -9,7 +9,7 @@ know. Mix English into the same paragraph: LaTeXbangla switches fonts automatica
 handles bold and italic, and preserves your chosen English and math fonts.
 
 You also get native numbering, lists with ১, ২, ৩ and ক, খ, গ, translated reference
-names, numeric citations, and Bangla or Assamese text and digits inside equations.
+names, localized bibliographies with biblatex or natbib, and Bangla or Assamese text and digits inside equations.
 Tested with **XeLaTeX and LuaLaTeX** and **25 font families in both languages**.
 
 LaTeXbangla is free to use. If you use it to publish a book, please consider acknowledging
@@ -17,12 +17,13 @@ the package and its author, Adib Hasan. :))
 
 Manual: [English](latexbangla/latexbangla.pdf#nameddest=guide-english) · [বাংলা](latexbangla/latexbangla.pdf#nameddest=guide-bangla) · [অসমীয়া](latexbangla/latexbangla.pdf#nameddest=guide-assamese) · [Bangla example](examples/bangla.pdf) · [Assamese example](examples/assamese.pdf)
 
+Writing a book? Check out [BOOKbangla](https://github.com/Neehan/BOOKbangla), a companion book class built on memoir and LaTeXbangla for Bangla and Assamese books.
+
 ## Get started
 
 **Using Overleaf?** Make a copy of the [demo project](https://www.overleaf.com/project/6adbaac1d48d9344680c2fe1/share#6b9d2d41b2de0b80c2de0d11c68ce7c79f33cbe1edef7ec7) to get started with the latest version.
 
-Copy `latexbangla.sty`, the `latexbangla-*.lbx` files, and the complete `code/` folder from
-[`latexbangla/`](latexbangla/) beside your document. Install one Bangla font and
+Copy the contents of [`latexbangla/`](latexbangla/) beside your document, keeping the subfolders intact. Install one Bangla font and
 compile with **XeLaTeX or LuaLaTeX** on an updated TeX Live 2024 or later.
 
 **Tested fonts for both languages:** Kalpurush, SolaimanLipi, Siyam Rupali, Noto Serif Bengali,

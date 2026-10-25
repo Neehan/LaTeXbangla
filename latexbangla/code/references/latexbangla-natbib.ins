@@ -1,0 +1,13 @@
+% Generate the three localized styles from their shared master.
+% Run from the package directory: tex code/references/latexbangla-natbib.ins
+\input docstrip.tex
+\keepsilent
+\askforoverwritefalse
+\nopreamble
+\nopostamble
+\generate{
+  \file{plainnatbn.bst}{\from{code/references/latexbangla-natbib.mbs}{full,sorted}}
+  \file{abbrvnatbn.bst}{\from{code/references/latexbangla-natbib.mbs}{abbrv,sorted}}
+  \file{unsrtnatbn.bst}{\from{code/references/latexbangla-natbib.mbs}{full,unsorted}}
+}
+\endbatchfile

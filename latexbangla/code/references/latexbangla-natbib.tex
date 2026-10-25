@@ -1,0 +1,99 @@
+% Display commands emitted by plainnatbn, abbrvnatbn and unsrtnatbn.
+% Part of latexbangla, LPPL 1.3c or later; copyright 2026 Adib Hasan.
+% English fallbacks come from the selected style. Native terms share the
+% biblatex vocabulary; this adapter neither loads biblatex nor selects a style.
+\prg_new_conditional:Npnn \__latexbangla_native_bibliography: {TF}
+  {
+    \str_case_e:nnF {\languagename}
+      {{bengali}{\prg_return_true:}{assamese}{\prg_return_true:}}
+      {\prg_return_false:}
+  }
+\NewDocumentCommand \latexbanglabibstring {m m}
+  {
+    \__latexbangla_native_bibliography:TF
+      {\prop_item:cn {g__latexbangla_bibliography_\languagename _prop}{#1}}
+      {#2}
+  }
+\NewDocumentCommand \latexbanglabibnumber {m}
+  {\__latexbangla_native_bibliography:TF
+     {\__latexbangla_bibliography_digits:n {#1}}{#1}}
+
+\tl_new:N \l__latexbangla_bibliography_edition_tl
+\prop_const_from_keyval:Nn \c__latexbangla_bibtex_editions_prop
+  {first=1,second=2,third=3,fourth=4,fifth=5,sixth=6,seventh=7,eighth=8,ninth=9,tenth=10}
+\cs_generate_variant:Nn \prop_get:NnNTF {NeNTF}
+\NewDocumentCommand \latexbanglabibedition {m}
+  {
+    \__latexbangla_native_bibliography:TF
+      {
+        % BibTeX styles traditionally expect "Second" or "2nd"; accept both,
+        % as well as numeric editions. Other authored descriptions stay intact.
+        \prop_get:NeNTF \c__latexbangla_bibtex_editions_prop
+          {\str_lowercase:n {#1}} \l__latexbangla_bibliography_edition_tl
+          {}{\tl_set:Nn \l__latexbangla_bibliography_edition_tl {#1}}
+        \exp_args:NnV \regex_match:nnTF {\A[0-9]+(st|nd|rd|th)?\Z}
+          \l__latexbangla_bibliography_edition_tl
+          {
+            \regex_replace_once:nnN {(st|nd|rd|th)\Z}{}
+              \l__latexbangla_bibliography_edition_tl
+            \__latexbangla_bibliography_ordinal:nn {\languagename}
+              {\l__latexbangla_bibliography_edition_tl}
+          }
+          {#1}
+      }
+      {#1}
+    \nobreakspace\latexbanglabibstring{edition}{edition}
+  }
+\NewDocumentCommand \latexbanglabibvolume {m m}
+  {
+    \__latexbangla_native_bibliography:TF
+      {
+        \tl_if_empty:nF {#2}{\emph{#2},~}
+        \latexbanglabibstring{volume}{volume}\nobreakspace
+        \latexbanglabibnumber{#1}
+      }
+      {volume\nobreakspace#1\tl_if_empty:nF {#2}{~of~\emph{#2}}}
+  }
+\NewDocumentCommand \latexbanglabibseriesseparator {}
+  {\__latexbangla_native_bibliography:TF {,~}{~of~}}
+
+% The .bbl marks these styles in the aux file so citations preceding the
+% bibliography also get native dates on the next normal LaTeX pass.
+\bool_new:N \g__latexbangla_natbib_localized_bool
+\NewDocumentCommand \latexbanglanatbibactive {}
+  {\bool_gset_true:N \g__latexbangla_natbib_localized_bool}
+\NewDocumentCommand \latexbanglanatbibstyle {}
+  {
+    \latexbanglanatbibactive
+    \if@filesw
+      \immediate\write\@auxout{\string\latexbanglanatbibactive}
+    \fi
+  }
+% Adapt only the display date after natbib has parsed its raw year and
+% disambiguation suffix. Sorting and author/year comparisons stay raw.
+\cs_new_protected:Npn \__latexbangla_natbib_localize_date:
+  {
+    \bool_if:NT \g__latexbangla_natbib_localized_bool
+      {
+        \__latexbangla_native_bibliography:TF
+          {
+            % Natbib's emptiness test requires literal date characters.
+            \int_step_inline:nnn {0}{9}
+              {\tl_replace_all:Nee \NAT@date
+                {\int_to_arabic:n {##1}}
+                {\char_generate:nn {"09E6+##1}{12}}}
+          }
+          {}
+      }
+  }
+\AddToHook{package/natbib/after}[latexbangla/natbib-dates]
+  {
+    % Natbib associates citation punctuation with the bibliography filename.
+    % Keep each original style's defaults unless the author supplied a preset.
+    \clist_map_inline:nn {plainnat,abbrvnat,unsrtnat}
+      {\cs_if_exist:cF {bibstyle@#1bn}
+        {\cs_new_eq:cc {bibstyle@#1bn}{bibstyle@#1}}}
+    \AddToHook{cmd/NAT@parse/after}[latexbangla/natbib-dates]
+      {\__latexbangla_natbib_localize_date:}
+  }
+\endinput

@@ -1,12 +1,14 @@
-% Assamese strings for the shared numeric bibliography integration.
+% Assamese bibliography terms, sharing headings and common terms with Bengali.
 % Part of latexbangla, LPPL 1.3c or later; copyright 2026 Adib Hasan.
-\ProvidesFile{latexbangla-assamese.lbx}[2026/10/23 Assamese numeric bibliography support]
-\InheritBibliographyExtras{english}
-% Heading strings use the selected language's captured Polyglossia captions.
-% Reuse that implementation and replace only the language-specific conjunctions.
+\ProvidesFile{latexbangla-assamese.lbx}[2026/10/25 Assamese bibliography support]
+\InheritBibliographyExtras{latexbangla-bengali}
 \InheritBibliographyStrings{latexbangla-bengali}
-\DeclareBibliographyStrings{
-  and       = {{আৰু}{আৰু}},
-  andothers = {{আৰু অন্যান্য}{আৰু অন্যান্য}},
+% Assamese uses ৰ in the fourth ordinal suffix; other suffixes are shared.
+\ExplSyntaxOn
+\DeclareBibliographyExtras{%
+  \protected\def\mkbibordinal#1{\__latexbangla_bibliography_ordinal:nn{assamese}{#1}}%
 }
+\prop_map_inline:Nn \g__latexbangla_bibliography_assamese_prop
+  {\DeclareBibliographyStrings{#1={{#2}{#2}}}}
+\ExplSyntaxOff
 \endinput
